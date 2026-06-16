@@ -1,1 +1,10 @@
 @import "tailwindcss";
+
+:root {
+  --brand-teal: #00AFA9;
+  --brand-amber: #FFA900;
+}
+
+body {
+  font-family: var(--font-mada), sans-serif;
+}

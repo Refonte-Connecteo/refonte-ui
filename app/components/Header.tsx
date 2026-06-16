@@ -33,7 +33,7 @@ export default function Header() {
           <img
             src="/images/logo.png"
             alt="Logo"
-            className="h-10 w-auto transition-transform duration-300 hover:scale-105"
+            className="h-15 w-auto transition-transform duration-300 hover:scale-105"
           />
         </a>
 
@@ -42,17 +42,23 @@ export default function Header() {
             <a
               key={link.label}
               href={link.href}
-              className="relative text-sm font-medium text-gray-700 after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-[#096475] after:transition-all after:duration-300 hover:after:w-full"
+              className={`relative text-sm font-medium transition-colors duration-300 after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-[#FFA900] after:transition-all after:duration-300 hover:after:w-full ${
+                scrolled ? "text-gray-700" : "text-white/80 hover:text-[#00AFA9]"
+              }`}
             >
               {link.label}
             </a>
           ))}
         </nav>
 
-        <div className="hidden md:block">
+        <div className="hidden md:flex items-center gap-3">
           <a
             href="#"
-            className="inline-block rounded-full bg-[#FFA900] px-6 py-2.5 text-sm font-semibold text-[#096475] transition-all duration-300 hover:bg-[#096475] hover:text-white hover:shadow-lg hover:shadow-[#096475]/30"
+            className={`inline-block rounded-full px-6 py-2.5 text-sm bg-[#00AFA9] hover:bg-[#FFA900] font-semibold transition-all duration-300 ${
+              scrolled
+              ? "bg-[#FFA900] text-[#096475] hover:bg-[#00AFA9] hover:text-white hover:shadow-lg hover:shadow-[#00AFA9]/30"
+              : "border border-white/30 text-white hover:bg-[#00AFA9] hover:text-white hover:border-[#00AFA9]"
+            }`}
           >
             Contactez-nous
           </a>
@@ -64,19 +70,19 @@ export default function Header() {
           aria-label="Menu"
         >
           <span
-            className={`block h-0.5 w-6 bg-gray-800 transition-all duration-300 ${
-              menuOpen ? "translate-y-2 rotate-45" : ""
-            }`}
+            className={`block h-0.5 w-6 transition-all duration-300 ${
+              scrolled ? "bg-gray-800" : "bg-white"
+            } ${menuOpen ? "translate-y-2 rotate-45" : ""}`}
           />
           <span
-            className={`block h-0.5 w-6 bg-gray-800 transition-all duration-300 ${
-              menuOpen ? "opacity-0" : ""
-            }`}
+            className={`block h-0.5 w-6 transition-all duration-300 ${
+              scrolled ? "bg-gray-800" : "bg-white"
+            } ${menuOpen ? "opacity-0" : ""}`}
           />
           <span
-            className={`block h-0.5 w-6 bg-gray-800 transition-all duration-300 ${
-              menuOpen ? "-translate-y-2 -rotate-45" : ""
-            }`}
+            className={`block h-0.5 w-6 transition-all duration-300 ${
+              scrolled ? "bg-gray-800" : "bg-white"
+            } ${menuOpen ? "-translate-y-2 -rotate-45" : ""}`}
           />
         </button>
       </div>
