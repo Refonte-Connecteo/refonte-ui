@@ -83,7 +83,7 @@ export default function Header() {
                 <a
                   key={item.label}
                   href={item.href}
-                  className="block rounded-lg px-4 py-2.5 text-sm text-white transition-all duration-200 hover:bg-[#00AFA9]/10 hover:text-[#00AFA9] backdrop-blur-2xl shadow-xl"
+            className="block rounded-lg px-4 py-2.5 text-sm text-white transition-all duration-200 hover:bg-[#00AFA9]/10 hover:text-[#00AFA9] backdrop-blur-2xl shadow-xl"
                 >
                   {item.label}
                 </a>
