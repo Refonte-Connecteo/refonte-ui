@@ -44,7 +44,7 @@ export default function Header() {
           scrolled ? "px-5 py-3 md:px-8 md:py-3" : "px-6 py-4 max-w-7xl"
         }`}
       >
-              <a href="#" className="shrink-0">
+              <a href="/" className="shrink-0">
                 <img
                   src="/images/logo.png"
                   alt="Logo"
@@ -91,15 +91,19 @@ export default function Header() {
             </div>
           </li>
 
-          {["Expérience Client", "Carrière", "Actus & Événement"].map((label) => (
+          {[
+            { label: "Expérience Client", href: "/experience-client" },
+            { label: "Carrière", href: "#" },
+            { label: "Actus & Événement", href: "#" },
+          ].map((item) => (
             <a
-              key={label}
-              href="#"
+              key={item.label}
+              href={item.href}
               className={`relative text-sm font-medium transition-all duration-300 after:absolute after:-bottom-1 after:left-0 after:h-0.5 after:w-0 after:bg-[#FFA900] after:transition-all after:duration-300 hover:after:w-full ${
                 scrolled ? "text-white hover:text-white" : "text-white/80 hover:text-white"
               }`}
             >
-              {label}
+              {item.label}
             </a>
           ))}
         </nav>
@@ -171,14 +175,18 @@ export default function Header() {
               ))}
             </div>
           </div>
-          {["Expérience Client", "Carrière", "Actus & Événement"].map((label) => (
+          {[
+            { label: "Expérience Client", href: "/experience-client" },
+            { label: "Carrière", href: "#" },
+            { label: "Actus & Événement", href: "#" },
+          ].map((item) => (
             <a
-              key={label}
-              href="#"
+              key={item.label}
+              href={item.href}
               className="rounded-lg px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:text-[#00AFA9]"
               onClick={() => setMenuOpen(false)}
             >
-              {label}
+              {item.label}
             </a>
           ))}
           <div className="pt-2 mt-2 border-t border-gray-200">
