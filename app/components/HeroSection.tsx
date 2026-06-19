@@ -17,7 +17,7 @@ const slides = [
     tag: "Événement 2025",
   },
   {
-    image: "/images/c4.jpg",
+    image: "/images/co90.jpg",
     alt: "Événement Connecteo 2",
     title: "Notre Mission",
     description:
@@ -51,6 +51,7 @@ const stats = [
 
 export default function HeroSection() {
   const [current, setCurrent] = useState(0);
+  const [scrollY, setScrollY] = useState(0);
   const slide = slides[current];
 
   const next = useCallback(() => {
@@ -58,6 +59,21 @@ export default function HeroSection() {
   }, []);
 
   const goTo = (index: number) => setCurrent(index);
+
+  useEffect(() => {
+    let ticking = false;
+    const onScroll = () => {
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          setScrollY(window.scrollY);
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   useEffect(() => {
     const timer = setInterval(next, 6000);
@@ -68,17 +84,22 @@ export default function HeroSection() {
     <section className="relative w-full h-screen overflow-hidden bg-black">
       {slides.map((s, index) => (
         <div key={index} className="absolute inset-0">
-          <Image
-            src={s.image}
-            alt={s.alt}
-            fill
-            className={`object-cover transition-all duration-1100 ease-in-out ${
-              index === current
-                ? "opacity-100 scale-100"
-                : "opacity-0 scale-105"
-            }`}
-            priority={index === 0}
-          />
+          <div
+            className="absolute inset-0 transition-transform duration-100 ease-out"
+            style={{ transform: `translateY(${scrollY * 0.35}px)` }}
+          >
+            <Image
+              src={s.image}
+              alt={s.alt}
+              fill
+              className={`object-cover transition-all duration-1100 ease-in-out ${
+                index === current
+                  ? "opacity-100 scale-100"
+                  : "opacity-0 scale-105"
+              }`}
+              priority={index === 0}
+            />
+          </div>
           <div
             className={`absolute inset-0 bg-gradient-to-br backdrop-blur-[2px] transition-opacity duration-1100 ${
               s.overlay
