@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 
 const subMenuItems = [
-  { label: "À propos de nous", href: "#" },
+  { label: "À propos de nous", href: "/notre-adn/a-propos" },
   { label: "Impact and Sustainability", href: "#" },
   { label: "AXIAN Group", href: "#" },
 ];

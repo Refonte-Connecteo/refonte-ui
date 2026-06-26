@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useInView } from "../hooks/useInView";
 
 const partenaires = [
   { src: "/images/partenaire1.png", alt: "Partenaire 1" },
@@ -14,8 +15,10 @@ const partenaires = [
 ];
 
 export default function NosReferences() {
+  const { ref, inView } = useInView();
+
   return (
-    <section className="relative w-full bg-[#0B1D20] py-20 md:py-28 overflow-hidden">
+    <section ref={ref} className="relative w-full bg-[#0B1D20] py-20 md:py-28 overflow-hidden">
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-40 -left-40 w-80 h-80 rounded-full opacity-[0.04] blur-3xl bg-[#00AFA9]" />
         <div className="absolute -bottom-40 -right-40 w-80 h-80 rounded-full opacity-[0.03] blur-3xl bg-[#FFA900]" />
@@ -35,8 +38,11 @@ export default function NosReferences() {
           {partenaires.map((p, index) => (
             <div
               key={index}
-              className="group w-[130px] h-[80px] md:w-[150px] md:h-[90px] lg:w-[170px] lg:h-[100px] rounded-xl bg-white flex items-center justify-center p-4 transition-all duration-400 hover:scale-105"
+              className="group w-[130px] h-[80px] md:w-[150px] md:h-[90px] lg:w-[170px] lg:h-[100px] rounded-xl bg-white flex items-center justify-center p-4 transition-all duration-500 hover:scale-105 hover:shadow-lg"
               style={{
+                opacity: inView ? 1 : 0,
+                transform: inView ? "translateY(0) scale(1)" : "translateY(30px) scale(0.95)",
+                transition: `all 0.6s ease-out ${index * 0.08}s`,
                 boxShadow:
                   "0 2px 12px rgba(0,0,0,0.15), 0 0 0 1px rgba(255,255,255,0.05)",
               }}
@@ -46,7 +52,7 @@ export default function NosReferences() {
                   src={p.src}
                   alt={p.alt}
                   fill
-                  className="object-contain transition-all duration-400"
+                  className="object-contain transition-all duration-500"
                 />
               </div>
             </div>

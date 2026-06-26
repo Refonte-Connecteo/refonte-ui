@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useState } from "react";
+import { useInView } from "../hooks/useInView";
 
 const secteurs = [
   {
@@ -38,6 +39,7 @@ const secteurs = [
 
 export default function SecteursActivite() {
   const [active, setActive] = useState(0);
+  const { ref, inView } = useInView();
 
   const goTo = (index: number) => setActive(index);
 
@@ -96,7 +98,7 @@ export default function SecteursActivite() {
   );
 
   return (
-    <section className="relative w-full bg-[#0B1D20] py-24 md:py-32 overflow-hidden">
+    <section ref={ref} className="relative w-full bg-[#0B1D20] py-24 md:py-32 overflow-hidden">
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div
           className="absolute -top-40 -right-40 w-96 h-96 rounded-full opacity-[0.08] blur-3xl"
@@ -110,7 +112,13 @@ export default function SecteursActivite() {
 
       <div className="relative z-10 mx-auto max-w-7xl px-6 md:px-10 lg:px-5">
         <div className="flex flex-col lg:flex-row lg:items-center gap-12 lg:gap-20">
-          <div className="lg:w-2/5 shrink-0">
+          <div
+            className="lg:w-2/5 shrink-0 transition-all duration-1000 ease-out"
+            style={{
+              opacity: inView ? 1 : 0,
+              transform: inView ? "translateY(0)" : "translateY(40px)",
+            }}
+          >
             <h2 className="text-4xl md:text-5xl lg:text-6xl leading-tight font-bold text-white mb-5 tracking-tight">
               Nos Secteurs<br />d&apos;Activité
             </h2>

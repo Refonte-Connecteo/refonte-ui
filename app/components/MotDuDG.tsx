@@ -1,8 +1,16 @@
+"use client";
+
 import Image from "next/image";
+import { useInView } from "../hooks/useInView";
 
 export default function MotDuDG() {
+  const { ref, inView } = useInView();
+
   return (
-    <section className="relative w-full bg-[#0B1D20] py-24 md:py-32 overflow-hidden">
+    <section
+      ref={ref}
+      className="relative w-full bg-[#0B1D20] py-24 md:py-32 overflow-hidden"
+    >
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 left-1/3 w-96 h-96 rounded-full opacity-[0.04] blur-3xl bg-[#00AFA9]" />
         <div className="absolute bottom-20 right-1/3 w-80 h-80 rounded-full opacity-[0.03] blur-3xl bg-[#FFA900]" />
@@ -10,8 +18,13 @@ export default function MotDuDG() {
 
       <div className="relative z-10 mx-auto max-w-7xl px-6 md:px-10 lg:px-5">
         <div className="flex flex-col md:flex-row md:items-center gap-10 md:gap-16 lg:gap-24">
-          {/* Image */}
-          <div className="md:w-2/5 shrink-0 flex justify-center">
+          <div
+            className="md:w-2/5 shrink-0 flex justify-center transition-all duration-1000 ease-out"
+            style={{
+              opacity: inView ? 1 : 0,
+              transform: inView ? "translateY(0)" : "translateY(40px)",
+            }}
+          >
             <div className="relative">
               <div className="relative w-64 h-64 md:w-72 md:h-72 lg:w-80 lg:h-80 overflow-hidden rounded-2xl">
                 <Image
@@ -30,8 +43,14 @@ export default function MotDuDG() {
             </div>
           </div>
 
-          {/* Texte */}
-          <div className="md:flex-1">
+          <div
+            className="md:flex-1 transition-all duration-1000 ease-out"
+            style={{
+              opacity: inView ? 1 : 0,
+              transform: inView ? "translateY(0)" : "translateY(40px)",
+              transitionDelay: "200ms",
+            }}
+          >
             <div className="relative">
               <span
                 className="absolute -top-8 -left-2 text-7xl leading-none font-bold select-none"

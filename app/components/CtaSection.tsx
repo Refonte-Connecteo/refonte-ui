@@ -1,14 +1,25 @@
+"use client";
+
 import Link from "next/link";
+import { useInView } from "../hooks/useInView";
 
 export default function CtaSection() {
+  const { ref, inView } = useInView();
+
   return (
-    <section className="relative w-full bg-[#0B1D20] py-24 md:py-32 lg:py-40 overflow-hidden">
+    <section ref={ref} className="relative w-full bg-[#0B1D20] py-24 md:py-32 lg:py-40 overflow-hidden">
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/2 -translate-y-1/2 -left-40 w-[500px] h-[500px] rounded-full opacity-[0.05] blur-3xl bg-[#00AFA9]" />
         <div className="absolute top-1/2 -translate-y-1/2 -right-40 w-[500px] h-[500px] rounded-full opacity-[0.04] blur-3xl bg-[#FFA900]" />
       </div>
 
-      <div className="relative z-10 mx-auto max-w-4xl px-6 md:px-10 text-center">
+      <div
+        className="relative z-10 mx-auto max-w-4xl px-6 md:px-10 text-center transition-all duration-1000 ease-out"
+        style={{
+          opacity: inView ? 1 : 0,
+          transform: inView ? "translateY(0)" : "translateY(50px)",
+        }}
+      >
         <h2 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl leading-tight font-bold text-white tracking-tight">
           Construisons votre prochaine<br />
           <span style={{ color: "#00AFA9" }}>expérience ensemble.</span>
