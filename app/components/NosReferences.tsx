@@ -18,33 +18,40 @@ export default function NosReferences() {
   const { ref, inView } = useInView();
 
   return (
-    <section ref={ref} className="relative w-full bg-[#0B1D20] py-20 md:py-28 overflow-hidden">
+    <section ref={ref} className="relative w-full bg-white py-20 md:py-28">
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-40 -left-40 w-80 h-80 rounded-full opacity-[0.04] blur-3xl bg-[#00AFA9]" />
-        <div className="absolute -bottom-40 -right-40 w-80 h-80 rounded-full opacity-[0.03] blur-3xl bg-[#FFA900]" />
+        <div className="absolute top-20 left-1/3 w-96 h-96 rounded-full opacity-[0.04] blur-3xl bg-[#FFA900]" />
+        <div className="absolute bottom-20 right-1/3 w-80 h-80 rounded-full opacity-[0.03] blur-3xl bg-[#00AFA9]" />
       </div>
 
       <div className="relative z-10 mx-auto max-w-7xl px-6 md:px-10 lg:px-5">
         <div className="text-center mb-14 md:mb-18">
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white tracking-tight">
+          <span className="inline-block text-sm font-semibold uppercase tracking-[0.15em] text-[#FFA900]/80 mb-4">
+            Ils nous font confiance
+          </span>
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-[#0B1D20] tracking-tight">
             Nos Références
           </h2>
-          <p className="mt-4 text-base md:text-lg text-white/50 font-light max-w-lg mx-auto">
-            Ils nous font confiance
-          </p>
+          <div className="mt-4 flex items-center justify-center gap-3">
+            <span className="w-12 h-0.5 bg-gradient-to-r from-[#FFA900] to-[#00AFA9]" />
+            <p className="text-sm text-[#0B1D20]/50 font-light tracking-wide">
+              {partenaires.length} partenaires
+            </p>
+            <span className="w-12 h-0.5 bg-gradient-to-r from-[#00AFA9] to-[#FFA900]" />
+          </div>
         </div>
 
-        <div className="flex flex-wrap justify-center items-center gap-4 md:gap-6 lg:gap-8">
+        <div className="flex flex-wrap justify-center items-center gap-5 md:gap-7 lg:gap-9">
           {partenaires.map((p, index) => (
             <div
               key={index}
-              className="group w-[130px] h-[80px] md:w-[150px] md:h-[90px] lg:w-[170px] lg:h-[100px] rounded-xl bg-white flex items-center justify-center p-4 transition-all duration-500 hover:scale-105 hover:shadow-lg"
+              className="group w-[130px] h-[80px] md:w-[150px] md:h-[90px] lg:w-[170px] lg:h-[100px] rounded-xl border border-gray-100 bg-white/80 backdrop-blur-sm flex items-center justify-center p-4 transition-all duration-500 hover:scale-105 hover:shadow-xl hover:shadow-[#FFA900]/10 hover:border-[#FFA900]/30"
               style={{
                 opacity: inView ? 1 : 0,
                 transform: inView ? "translateY(0) scale(1)" : "translateY(30px) scale(0.95)",
                 transition: `all 0.6s ease-out ${index * 0.08}s`,
                 boxShadow:
-                  "0 2px 12px rgba(0,0,0,0.15), 0 0 0 1px rgba(255,255,255,0.05)",
+                  "0 2px 12px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.03)",
               }}
             >
               <div className="relative w-full h-full">
@@ -52,7 +59,7 @@ export default function NosReferences() {
                   src={p.src}
                   alt={p.alt}
                   fill
-                  className="object-contain transition-all duration-500"
+                  className="object-contain transition-all duration-500 group-hover:scale-110"
                 />
               </div>
             </div>

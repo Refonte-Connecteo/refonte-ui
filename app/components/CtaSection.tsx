@@ -7,10 +7,11 @@ export default function CtaSection() {
   const { ref, inView } = useInView();
 
   return (
-    <section ref={ref} className="relative w-full bg-[#0B1D20] py-24 md:py-32 lg:py-40 overflow-hidden">
+    <section ref={ref} className="relative w-full bg-[#096475] py-24 md:py-32 lg:py-40 overflow-hidden">
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/2 -translate-y-1/2 -left-40 w-[500px] h-[500px] rounded-full opacity-[0.05] blur-3xl bg-[#00AFA9]" />
-        <div className="absolute top-1/2 -translate-y-1/2 -right-40 w-[500px] h-[500px] rounded-full opacity-[0.04] blur-3xl bg-[#FFA900]" />
+        <div className="absolute top-1/3 -left-32 w-[400px] h-[400px] rounded-full opacity-[0.06] blur-3xl bg-[#FFA900]" />
+        <div className="absolute bottom-1/3 -right-32 w-[400px] h-[400px] rounded-full opacity-[0.05] blur-3xl bg-[#00AFA9]" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full opacity-[0.03] blur-3xl bg-gradient-to-br from-[#FFA900] to-[#00AFA9]" />
       </div>
 
       <div
@@ -20,19 +21,25 @@ export default function CtaSection() {
           transform: inView ? "translateY(0)" : "translateY(50px)",
         }}
       >
+        <span className="inline-block text-sm font-semibold uppercase tracking-[0.15em] text-[#FFA900]/80 mb-6">
+          Travaillons Ensemble
+        </span>
+
         <h2 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl leading-tight font-bold text-white tracking-tight">
           Construisons votre prochaine<br />
-          <span style={{ color: "#00AFA9" }}>expérience ensemble.</span>
+          <span className="bg-gradient-to-r from-[#FFA900] to-[#00AFA9] bg-clip-text text-transparent">
+            expérience ensemble.
+          </span>
         </h2>
 
         <p className="mt-6 text-base md:text-lg lg:text-xl text-white/60 font-light max-w-2xl mx-auto leading-relaxed">
           Parlons de vos enjeux. Notre équipe revient vers vous sous 48h.
         </p>
 
-        <div className="mt-10 md:mt-12">
+        <div className="mt-10 md:mt-12 flex items-center justify-center gap-6">
           <Link
             href="#"
-            className="group inline-flex items-center gap-3 rounded-full bg-[#FFA900] px-8 py-4 text-sm font-semibold uppercase tracking-wider text-gray-900 transition-all duration-500 hover:bg-[#00AFA9] hover:text-white hover:shadow-2xl hover:shadow-[#00AFA9]/30 hover:-translate-y-0.5 active:translate-y-0"
+            className="group inline-flex items-center gap-3 rounded-full bg-gradient-to-r from-[#FFA900] to-[#FFA900] hover:from-[#00AFA9] hover:to-[#00AFA9] px-8 py-4 text-sm font-semibold uppercase tracking-wider text-gray-900 hover:text-white transition-all duration-500 hover:shadow-2xl hover:shadow-[#00AFA9]/30 hover:-translate-y-0.5 active:translate-y-0"
           >
             <span className="flex h-8 w-8 items-center justify-center rounded-full bg-black/10 transition-transform duration-300 group-hover:scale-110">
               <svg
@@ -45,6 +52,17 @@ export default function CtaSection() {
               </svg>
             </span>
             Contactez-nous
+          </Link>
+
+          <Link
+            href="#"
+            className="group inline-flex items-center gap-2 text-sm font-medium text-white/60 hover:text-white transition-all duration-300"
+          >
+            <span className="w-0 group-hover:w-6 h-px bg-[#FFA900] transition-all duration-300" />
+            En savoir plus
+            <svg className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+            </svg>
           </Link>
         </div>
       </div>

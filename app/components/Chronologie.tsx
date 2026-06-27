@@ -143,169 +143,130 @@ export default function Chronologie() {
   }, [activeYear]);
 
   return (
-    <section className="relative py-24 md:py-32 px-6 overflow-hidden">
+    <section className="relative py-24 md:py-32 px-6 overflow-hidden bg-[#096475]">
       <div
         className="absolute inset-0 transition-all duration-700 ease-out"
         style={{
-          background: `radial-gradient(ellipse 80% 50% at 50% 0%, ${activeMilestone.accent}12, transparent 70%)`,
+          background: `radial-gradient(ellipse 80% 50% at 50% 0%, ${activeMilestone.accent}15, transparent 70%)`,
         }}
       />
-      <div className="absolute inset-0 bg-[#0A1A1C] -z-10" />
 
-      <div className="max-w-7xl mx-auto relative z-10">
-        <Section className="text-center mb-16 md:mb-20">
-          <span
-            className="inline-block text-sm font-semibold uppercase tracking-[0.2em] mb-4 transition-colors duration-500"
-            style={{ color: activeMilestone.accent }}
-          >
-            Notre Parcours
-          </span>
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-            Une histoire en <span className="transition-colors duration-500" style={{ color: activeMilestone.accent }}>évolution</span>
-          </h2>
-          <p className="text-white/80 max-w-xl mx-auto">
-            Chaque année marque une étape clé dans notre développement et notre engagement.
+      <div className="relative z-10">
+        <div className="px-6 md:px-16 mt-20">
+          <div className="mb-16 md:mb-20">
+            <span className="inline-block bg-[#FFA900] text-[#096475] text-lg font-bold   px-6 py-2 rounded-3xl">
+              A propos
+            </span>
+          </div>
+
+          <div
+            className="mb-12 md:mb-16 max-w-4xl"
+          style={{
+            opacity: isLeaving ? 0 : 1,
+            transform: isLeaving ? "translateY(16px)" : "translateY(0)",
+            transition: isLeaving
+              ? "all 220ms ease-in"
+              : "all 450ms cubic-bezier(0.2, 0, 0, 1)",
+          }}
+        >
+          <div className="space-y-3">
+            <span
+              className="inline-block text-sm font-semibold uppercase tracking-[0.15em] transition-colors duration-500"
+              style={{ color: activeMilestone.accent }}
+            >
+              {activeMilestone.subtitle}
+            </span>
+            <h3 className="text-2xl md:text-3xl font-bold text-white">
+              {activeMilestone.title}
+            </h3>
+          </div>
+
+          <p className="text-white/65 leading-relaxed text-base md:text-lg mt-4">
+            {activeMilestone.description}
           </p>
-        </Section>
+
+          {activeMilestone.stat && (
+            <div className="flex items-center gap-3 pt-4 mt-4">
+              <div
+                className="h-10 w-px transition-colors duration-500"
+                style={{ backgroundColor: `${activeMilestone.accent}50` }}
+              />
+              <div>
+                <span
+                  className="text-2xl md:text-3xl font-bold transition-colors duration-500"
+                  style={{ color: activeMilestone.accent }}
+                >
+                  {activeMilestone.stat}
+                </span>
+                <span className="text-white/50 text-sm ml-2 font-medium uppercase tracking-wider">
+                  {activeMilestone.statLabel}
+                </span>
+              </div>
+            </div>
+          )}
+        </div>
+        </div>
 
         <div
           ref={timelineRef}
-          className="flex items-center justify-start md:justify-center gap-0 pb-4 mb-12 md:mb-16 overflow-x-auto scrollbar-hide snap-x snap-mandatory"
+          className="flex items-center w-full overflow-x-auto scrollbar-hide snap-x snap-mandatory pt-8 md:pt-12"
         >
-          <div className="flex items-center mx-auto px-4 md:px-0">
-            {milestones.map((m, i) => {
+          <div className="flex items-center w-full gap-3">
+            {milestones.map((m) => {
               const isActive = m.year === activeYear;
-              const isPast = m.year < activeYear;
               return (
-                <div key={m.year} className="flex items-center snap-center shrink-0">
-                  {i > 0 && (
-                    <div
-                      className="h-px transition-all duration-500"
-                      style={{
-                        width: "clamp(24px, 4vw, 48px)",
-                        backgroundColor: isPast || isActive ? m.accent : "rgba(255,255,255,0.25)",
-                      }}
-                    />
-                  )}
-                  <button
-                    ref={isActive ? activeBtnRef : undefined}
-                    onClick={() => handleYearSelect(m.year)}
-                    className="flex flex-col items-center gap-2 group cursor-pointer"
-                    aria-label={`Aller à l'année ${m.year}`}
+                <button
+                  key={m.year}
+                  ref={isActive ? activeBtnRef : undefined}
+                  onClick={() => handleYearSelect(m.year)}
+                  className="flex flex-col items-center gap-2 group cursor-pointer snap-center flex-1 min-w-0"
+                  aria-label={`Aller à l'année ${m.year}`}
+                >
+                  <div
+                    className="w-full rounded-md transition-all duration-500 ease-out"
+                    style={{
+                      height: isActive ? 40 : 32,
+                      backgroundColor: isActive ? m.accent : `${m.accent}25`,
+                      borderWidth: isActive ? 0 : 1,
+                      borderColor: isActive ? "transparent" : `${m.accent}50`,
+                      boxShadow: isActive
+                        ? `0 0 0 6px ${m.accent}30, 0 4px 16px ${m.accent}30`
+                        : "none",
+                      transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
+                    }}
+                  />
+                  <span
+                    className="text-xs font-semibold transition-all duration-500 whitespace-nowrap"
+                    style={{
+                      color: isActive ? "#fff" : "rgba(255,255,255,0.5)",
+                    }}
                   >
-                    <div
-                      className="rounded-full transition-all duration-500 ease-out"
-                      style={{
-                        width: isActive ? 20 : 12,
-                        height: isActive ? 20 : 12,
-                        backgroundColor: isActive ? m.accent : "transparent",
-                        borderColor: isActive ? m.accent : isPast ? m.accent : "rgba(255,255,255,0.4)",
-                        borderWidth: isActive ? 0 : 2,
-                        boxShadow: isActive
-                          ? `0 0 0 6px ${m.accent}25, 0 0 24px ${m.accent}50`
-                          : "none",
-                        transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
-                      }}
-                    />
-                    <span
-                      className="text-xs font-medium transition-all duration-500"
-                      style={{
-                        color: isActive ? "#fff" : "rgba(255,255,255,0.55)",
-                        fontWeight: isActive ? 600 : 400,
-                      }}
-                    >
-                      {m.year}
-                    </span>
-                  </button>
-                </div>
+                    {m.year}
+                  </span>
+                </button>
               );
             })}
           </div>
         </div>
 
-        <div className="max-w-5xl mx-auto">
-          <div
-            className="grid grid-cols-1 lg:grid-cols-5 gap-10 lg:gap-16 items-center"
-            style={{
-              opacity: isLeaving ? 0 : 1,
-              transform: isLeaving ? "translateY(16px)" : "translateY(0)",
-              transition: isLeaving
-                ? "all 220ms ease-in"
-                : "all 450ms cubic-bezier(0.2, 0, 0, 1)",
-            }}
-          >
-            <div className="lg:col-span-2 flex justify-center lg:justify-end">
-              <div
-                className="text-[100px] sm:text-[140px] md:text-[180px] lg:text-[220px] font-bold leading-none select-none tracking-tight transition-colors duration-700"
-                style={{
-                  backgroundImage: `linear-gradient(180deg, ${activeMilestone.accent}35 0%, ${activeMilestone.accent}10 45%, transparent 70%)`,
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  backgroundClip: "text",
-                }}
-              >
-                {activeMilestone.year}
-              </div>
-            </div>
-
-            <div className="lg:col-span-3 space-y-5">
-              <div>
-                <span
-                  className="inline-block text-sm font-semibold uppercase tracking-[0.15em] mb-2 transition-colors duration-500"
-                  style={{ color: activeMilestone.accent }}
-                >
-                  {activeMilestone.subtitle}
-                </span>
-                <h3 className="text-2xl md:text-3xl font-bold text-white">
-                  {activeMilestone.title}
-                </h3>
-              </div>
-
-              <p className="text-white/80 leading-relaxed text-base md:text-lg max-w-xl">
-                {activeMilestone.description}
-              </p>
-
-              {activeMilestone.stat && (
-                <div className="flex items-center gap-3 pt-2">
-                  <div
-                    className="h-10 w-px transition-colors duration-500"
-                    style={{ backgroundColor: `${activeMilestone.accent}50` }}
-                  />
-                  <div>
-                    <span
-                      className="text-2xl md:text-3xl font-bold transition-colors duration-500"
-                      style={{ color: activeMilestone.accent }}
-                    >
-                      {activeMilestone.stat}
-                    </span>
-                    <span className="text-white/60 text-sm ml-2 font-medium uppercase tracking-wider">
-                      {activeMilestone.statLabel}
-                    </span>
-                  </div>
-                </div>
-              )}
-
-              <div className="flex gap-3 pt-4">
-                {milestones.map((m, i) => (
-                  <button
-                    key={m.year}
-                    onClick={() => handleYearSelect(m.year)}
-                    className={`h-1.5 rounded-full transition-all duration-500 cursor-pointer`}
-                    style={{
-                      width: i === activeIndex ? 32 : 8,
-                      backgroundColor:
-                        i === activeIndex
-                          ? m.accent
-                          : i < activeIndex
-                          ? `${m.accent}40`
-                          : "rgba(255,255,255,0.2)",
-                    }}
-                    aria-label={`Aller à l'année ${m.year}`}
-                  />
-                ))}
-              </div>
-            </div>
-          </div>
+        <div className="flex justify-center gap-2 mt-10">
+          {milestones.map((m, i) => (
+            <button
+              key={m.year}
+              onClick={() => handleYearSelect(m.year)}
+              className="h-1.5 rounded-full transition-all duration-500 cursor-pointer"
+              style={{
+                width: i === activeIndex ? 32 : 6,
+                backgroundColor:
+                  i === activeIndex
+                    ? m.accent
+                    : i < activeIndex
+                    ? `${m.accent}40`
+                    : "rgba(255,255,255,0.15)",
+              }}
+              aria-label={`Aller à l'année ${m.year}`}
+            />
+          ))}
         </div>
       </div>
 

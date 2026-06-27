@@ -62,12 +62,22 @@ class ApiClient {
     );
   }
 
-  setPassword(token: string, password: string) {
+  checkPending(email: string) {
+    return this.request<{ message: string; user: { id: number; email: string; username: string; user_type_id: number; is_active: boolean; created_at: string } }>(
+      "/admin/check-pending",
+      {
+        method: "POST",
+        body: JSON.stringify({ email }),
+      }
+    );
+  }
+
+  setPassword(email: string, password: string) {
     return this.request<{ message: string; user: { id: number; email: string; username: string; user_type_id: number; is_active: boolean; created_at: string } }>(
       "/admin/set-password",
       {
         method: "POST",
-        body: JSON.stringify({ token, password }),
+        body: JSON.stringify({ email, password }),
       }
     );
   }
@@ -80,6 +90,13 @@ class ApiClient {
 
   deactivateAdmin(id: number) {
     return this.request<{ message: string; user: { id: number; email: string; username: string; user_type_id: number; is_active: boolean; created_at: string } }>(
+      `/admin/${id}/deactivate`,
+      { method: "DELETE" }
+    );
+  }
+
+  deleteAdmin(id: number) {
+    return this.request<{ message: string }>(
       `/admin/${id}`,
       { method: "DELETE" }
     );

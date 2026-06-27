@@ -19,7 +19,7 @@ const slides = [
   {
     image: "/images/co90.jpg",
     alt: "Événement Connecteo 2",
-    title: "Notre Mission",
+    title: "Notre mission et nos engagements",
     description:
       "Faciliter la rencontre entre recruteurs et candidats grâce à une expérience immersive et humaine.",
     highlight: "98% de satisfaction candidats",
@@ -33,7 +33,7 @@ const slides = [
     alt: "Événement Connecteo 3",
     title: "Innovation & Proximité",
     description:
-      "Des événements sur-mesure pour révéler le potentiel de chaque talent.",
+      "Des événements sur mesure pour révéler le potentiel de chaque talent. Nous concevons et organisons des expériences uniques qui mettent en valeur les compétences, la créativité et les ambitions de chacun.",
     highlight: "200+ événements organisés chaque année",
     overlay:
       "from-black/80 via-black/50 to-[#00AFA9]/30",
@@ -173,7 +173,7 @@ export default function HeroSection() {
           </div>
         ))}
 
-        <div className="hidden md:grid grid-cols-4 gap-8 mt-16 w-full max-w-xl">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 mt-12 md:mt-16 w-full max-w-xl">
           {stats.map((stat) => (
             <div key={stat.label}>
               <span

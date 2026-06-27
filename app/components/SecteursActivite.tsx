@@ -50,10 +50,10 @@ export default function SecteursActivite() {
         borderWidth: "1px",
         borderStyle: "solid",
         borderColor: isActive
-          ? "rgba(0, 175, 169, 0.6)"
+          ? "rgba(255, 169, 0, 0.5)"
           : "rgba(255,255,255,0.06)",
         boxShadow: isActive
-          ? "0 8px 50px rgba(0, 175, 169, 0.25)"
+          ? "0 8px 50px rgba(255, 169, 0, 0.2), 0 0 80px rgba(0, 175, 169, 0.08)"
           : "0 4px 20px rgba(0,0,0,0.2)",
       }}
     >
@@ -71,7 +71,7 @@ export default function SecteursActivite() {
           }}
         />
         {isActive && (
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
         )}
       </div>
 
@@ -86,10 +86,13 @@ export default function SecteursActivite() {
           }}
         />
         <div className="p-6 pt-8">
-          <h3 className="text-lg font-semibold text-[#0B1D20] mb-2">
-            {s.title}
-          </h3>
-          <p className="text-sm text-[#0B1D20]/60 leading-relaxed">
+          <div className="flex items-center gap-2 mb-3">
+            <span className="w-6 h-0.5 rounded-full bg-gradient-to-r from-[#FFA900] to-[#00AFA9]" />
+            <h3 className="text-lg font-bold text-[#0B1D20]">
+              {s.title}
+            </h3>
+          </div>
+          <p className="text-sm text-[#0B1D20]/65 leading-relaxed">
             {s.description}
           </p>
         </div>
@@ -102,12 +105,13 @@ export default function SecteursActivite() {
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div
           className="absolute -top-40 -right-40 w-96 h-96 rounded-full opacity-[0.08] blur-3xl"
-          style={{ backgroundColor: "#00AFA9" }}
+          style={{ backgroundColor: "#FFA900" }}
         />
         <div
           className="absolute -bottom-40 -left-40 w-96 h-96 rounded-full opacity-[0.06] blur-3xl"
-          style={{ backgroundColor: "#FFA900" }}
+          style={{ backgroundColor: "#00AFA9" }}
         />
+        <div className="absolute top-1/3 left-1/3 w-64 h-64 rounded-full opacity-[0.04] blur-3xl bg-[#FFA900]" />
       </div>
 
       <div className="relative z-10 mx-auto max-w-7xl px-6 md:px-10 lg:px-5">
@@ -119,6 +123,9 @@ export default function SecteursActivite() {
               transform: inView ? "translateY(0)" : "translateY(40px)",
             }}
           >
+            <span className="inline-block text-sm font-semibold uppercase tracking-[0.15em] text-[#FFA900]/80 mb-4">
+              Notre Expertise
+            </span>
             <h2 className="text-4xl md:text-5xl lg:text-6xl leading-tight font-bold text-white mb-5 tracking-tight">
               Nos Secteurs<br />d&apos;Activité
             </h2>
@@ -127,12 +134,9 @@ export default function SecteursActivite() {
               sur l&apos;ensemble de la chaîne de valeur RH pour accompagner votre
               croissance.
             </p>
-            <div className="mt-6 flex items-center gap-3">
-              <span
-                className="inline-block w-8 h-px"
-                style={{ backgroundColor: "#FFA900" }}
-              />
-              <span className="text-sm text-white/40 font-light">
+            <div className="mt-8 flex items-center gap-3">
+              <span className="inline-block w-10 h-0.5 bg-gradient-to-r from-[#FFA900] to-[#00AFA9]" />
+              <span className="text-sm text-white/40 font-light tracking-wide">
                 {secteurs.length} domaines d&apos;expertise
               </span>
             </div>
@@ -192,7 +196,7 @@ export default function SecteursActivite() {
           </div>
         </div>
 
-        <div className="flex items-center justify-center gap-3 mt-10">
+        <div className="flex items-center justify-center gap-3 mt-12">
           {secteurs.map((_, index) => (
             <button
               key={index}
@@ -207,7 +211,7 @@ export default function SecteursActivite() {
                   height: "0.4rem",
                   backgroundColor:
                     index === active
-                      ? "#00AFA9"
+                      ? "#FFA900"
                       : "rgba(255,255,255,0.15)",
                 }}
               />
