@@ -4,14 +4,14 @@ export default function Contact() {
   return (
     <div className="min-h-screen bg-white">
       <section className="relative grid grid-cols-1 md:grid-cols-2 min-h-screen">
-        <div className="relative overflow-hidden flex items-center justify-center md:justify-start px-8 py-20 md:py-0 md:pl-12 md:pr-20 lg:pl-16 xl:pl-24" style={{ clipPath: "ellipse(90% 100% at 0% 50%)", backgroundColor: "#00AFA9" }}>
+        <div className="relative overflow-hidden flex items-center justify-center md:justify-start px-8 py-20 md:py-0 md:pl-12 md:pr-20 lg:pl-16 xl:pl-24" style={{ clipPath: "ellipse(90% 90% at 0% 50%)", backgroundColor: "#096475" }}>
           <div className="absolute -top-32 -right-32 w-[40rem] h-[40rem] rounded-full bg-white/[0.04] blur-3xl pointer-events-none" />
           <div className="absolute -bottom-40 -left-20 w-[30rem] h-[30rem] rounded-full bg-[#0B1D20]/[0.03] blur-3xl pointer-events-none" />
           <div className="absolute top-1/3 right-1/4 w-56 h-56 rounded-full bg-white/[0.02] blur-2xl pointer-events-none" />
           <div className="absolute bottom-1/4 right-1/3 w-32 h-32 rounded-full bg-white/[0.03] blur-xl pointer-events-none" />
 
           <div className="relative max-w-lg">
-            <span className="inline-block text-white/50 text-xs font-semibold uppercase tracking-[0.25em] mb-4">
+            <span className="inline-block text-[#FFA900] text-xs font-semibold uppercase tracking-[0.25em] mb-4">
               Contact
             </span>
             <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-white leading-[1.08] tracking-tight">
