@@ -4,7 +4,7 @@ const navLinks = [
   { label: "Notre ADN", href: "#" },
   { label: "Expérience Client", href: "#" },
   { label: "Carrière", href: "#" },
-  { label: "Actus & Événement", href: "#" },
+  { label: "Actus & Événement", href: "/actus-et-evenement" },
   { label: "Notre Réseau", href: "#" },
   { label: "FAQ", href: "#" },
 ];

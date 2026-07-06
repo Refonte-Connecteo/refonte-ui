@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 
 const subMenuItems = [
   { label: "À propos de nous", href: "/notre-adn/a-propos" },
-  { label: "Impact and Sustainability", href: "#" },
+  { label: "Impact and Sustainability", href: "/impact" },
   { label: "AXIAN Group", href: "#" },
 ];
 
@@ -36,14 +36,14 @@ export default function Header() {
   return (
     <header
       className={`fixed left-0 right-0 z-50 transition-all duration-500 ${
-        scrolled || pathname === "/contact" || pathname === "/carriere"
+        scrolled || pathname === "/contact" || pathname === "/carriere" || pathname === "/actus-et-evenement"
           ? "top-3 mx-4 md:top-4 md:mx-8 lg:mx-auto lg:left-6 lg:right-6 xl:left-0 xl:right-0 xl:max-w-7xl xl:mx-auto rounded-2xl bg-[#0B1D20]/70 backdrop-blur-2xl shadow-xl shadow-black/5 border border-white/20"
           : "top-0 bg-transparent"
       }`}
     >
       <div
         className={`mx-auto flex items-center justify-between transition-all duration-500 ${
-          scrolled || pathname === "/contact" || pathname === "/carriere" ? "px-5 py-3 md:px-8 md:py-3" : "px-6 py-4 max-w-7xl"
+          scrolled || pathname === "/contact" || pathname === "/carriere" || pathname === "/actus-et-evenement" ? "px-5 py-3 md:px-8 md:py-3" : "px-6 py-4 max-w-7xl"
         }`}
       >
               <a href="/" className="shrink-0">
@@ -96,7 +96,7 @@ export default function Header() {
           {[
             { label: "Expérience Client", href: "/experience-client" },
             { label: "Carrière", href: "/carriere" },
-            { label: "Actus & Événement", href: "#" },
+            { label: "Actus & Événement", href: "/actus-et-evenement" },
           ].map((item) => (
             <a
               key={item.label}
@@ -180,7 +180,7 @@ export default function Header() {
           {[
             { label: "Expérience Client", href: "/experience-client" },
             { label: "Carrière", href: "/carriere" },
-            { label: "Actus & Événement", href: "#" },
+            { label: "Actus & Événement", href: "/actus-et-evenement" },
           ].map((item) => (
             <a
               key={item.label}

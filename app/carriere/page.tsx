@@ -109,24 +109,24 @@ export default function Carriere() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <input
                     type="text"
-                    className="w-full px-4 py-3 rounded-xl bg-[#f2f1ed] text-[#0B1D20] placeholder-[#0B1D20]/30 text-sm transition-all duration-300 outline-none ring-1 ring-[#0B1D20]/5 focus:ring-2 focus:ring-[#FFA900]/60 focus:bg-white"
+                    className="border border-gray-300 w-full px-4 py-3 rounded-xl bg-[#f2f1ed] text-[#0B1D20] placeholder-[#0B1D20]/30 text-sm transition-all duration-300 outline-none ring-1 ring-[#0B1D20]/5 focus:ring-2 focus:ring-[#FFA900]/60 focus:bg-white"
                     placeholder="Nom &amp; prénom"
                   />
                   <input
                     type="email"
-                    className="w-full px-4 py-3 rounded-xl bg-[#f2f1ed] text-[#0B1D20] placeholder-[#0B1D20]/30 text-sm transition-all duration-300 outline-none ring-1 ring-[#0B1D20]/5 focus:ring-2 focus:ring-[#FFA900]/60 focus:bg-white"
+                    className="border border-gray-300 w-full px-4 py-3 rounded-xl bg-[#f2f1ed] text-[#0B1D20] placeholder-[#0B1D20]/30 text-sm transition-all duration-300 outline-none ring-1 ring-[#0B1D20]/5 focus:ring-2 focus:ring-[#FFA900]/60 focus:bg-white"
                     placeholder="Email"
                   />
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <input
                     type="tel"
-                    className="w-full px-4 py-3 rounded-xl bg-[#f2f1ed] text-[#0B1D20] placeholder-[#0B1D20]/30 text-sm transition-all duration-300 outline-none ring-1 ring-[#0B1D20]/5 focus:ring-2 focus:ring-[#FFA900]/60 focus:bg-white"
+                    className="border border-gray-300 w-full px-4 py-3 rounded-xl bg-[#f2f1ed] text-[#0B1D20] placeholder-[#0B1D20]/30 text-sm transition-all duration-300 outline-none ring-1 ring-[#0B1D20]/5 focus:ring-2 focus:ring-[#FFA900]/60 focus:bg-white"
                     placeholder="Téléphone"
                   />
                   <input
                     type="text"
-                    className="w-full px-4 py-3 rounded-xl bg-[#f2f1ed] text-[#0B1D20] placeholder-[#0B1D20]/30 text-sm transition-all duration-300 outline-none ring-1 ring-[#0B1D20]/5 focus:ring-2 focus:ring-[#FFA900]/60 focus:bg-white"
+                    className="border border-gray-300 w-full px-4 py-3 rounded-xl bg-[#f2f1ed] text-[#0B1D20] placeholder-[#0B1D20]/30 text-sm transition-all duration-300 outline-none ring-1 ring-[#0B1D20]/5 focus:ring-2 focus:ring-[#FFA900]/60 focus:bg-white"
                     placeholder="Poste recherché"
                   />
                 </div>
@@ -139,7 +139,7 @@ export default function Carriere() {
                 </div>
                 <textarea
                   rows={3}
-                  className="w-full px-4 py-3 rounded-xl bg-[#f2f1ed] text-[#0B1D20] placeholder-[#0B1D20]/30 text-sm transition-all duration-300 outline-none ring-1 ring-[#0B1D20]/5 focus:ring-2 focus:ring-[#FFA900]/60 focus:bg-white resize-none"
+                  className="border border-gray-300 w-full px-4 py-3 rounded-xl bg-[#f2f1ed] text-[#0B1D20] placeholder-[#0B1D20]/30 text-sm transition-all duration-300 outline-none ring-1 ring-[#0B1D20]/5 focus:ring-2 focus:ring-[#FFA900]/60 focus:bg-white resize-none"
                   placeholder="Message"
                 />
                 <button

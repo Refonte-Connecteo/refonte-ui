@@ -48,7 +48,7 @@ export default function Contact() {
                 </label>
                 <input
                   type="text"
-                  className="w-full px-4 py-3.5 rounded-xl bg-[#f2f1ed] text-[#0B1D20] placeholder-[#0B1D20]/25 text-sm transition-all duration-300 outline-none ring-1 ring-transparent focus:ring-2 focus:ring-[#00AFA9]/30 focus:bg-white focus:shadow-lg focus:shadow-[#00AFA9]/10"
+                  className=" border border-gray-400 w-full px-4 py-3.5 rounded-xl bg-[#f2f1ed] text-[#0B1D20] placeholder-[#0B1D20]/25 text-sm transition-all duration-300 outline-none ring-1 ring-transparent focus:ring-2 focus:ring-[#00AFA9]/30 focus:bg-white focus:shadow-lg focus:shadow-[#00AFA9]/10"
                   placeholder="Votre nom"
                 />
               </div>
@@ -58,7 +58,7 @@ export default function Contact() {
                 </label>
                 <input
                   type="email"
-                  className="w-full px-4 py-3.5 rounded-xl bg-[#f2f1ed] text-[#0B1D20] placeholder-[#0B1D20]/25 text-sm transition-all duration-300 outline-none ring-1 ring-transparent focus:ring-2 focus:ring-[#00AFA9]/30 focus:bg-white focus:shadow-lg focus:shadow-[#00AFA9]/10"
+                  className="border border-gray-400 w-full px-4 py-3.5 rounded-xl bg-[#f2f1ed] text-[#0B1D20] placeholder-[#0B1D20]/25 text-sm transition-all duration-300 outline-none ring-1 ring-transparent focus:ring-2 focus:ring-[#00AFA9]/30 focus:bg-white focus:shadow-lg focus:shadow-[#00AFA9]/10"
                   placeholder="votre@email.com"
                 />
               </div>
@@ -71,7 +71,7 @@ export default function Contact() {
                 </label>
                 <input
                   type="tel"
-                  className="w-full px-4 py-3.5 rounded-xl bg-[#f2f1ed] text-[#0B1D20] placeholder-[#0B1D20]/25 text-sm transition-all duration-300 outline-none ring-1 ring-transparent focus:ring-2 focus:ring-[#00AFA9]/30 focus:bg-white focus:shadow-lg focus:shadow-[#00AFA9]/10"
+                  className="border border-gray-400 w-full px-4 py-3.5 rounded-xl bg-[#f2f1ed] text-[#0B1D20] placeholder-[#0B1D20]/25 text-sm transition-all duration-300 outline-none ring-1 ring-transparent focus:ring-2 focus:ring-[#00AFA9]/30 focus:bg-white focus:shadow-lg focus:shadow-[#00AFA9]/10"
                   placeholder="+261 XX XX XXX XX"
                 />
               </div>
@@ -81,7 +81,7 @@ export default function Contact() {
                 </label>
                 <input
                   type="text"
-                  className="w-full px-4 py-3.5 rounded-xl bg-[#f2f1ed] text-[#0B1D20] placeholder-[#0B1D20]/25 text-sm transition-all duration-300 outline-none ring-1 ring-transparent focus:ring-2 focus:ring-[#00AFA9]/30 focus:bg-white focus:shadow-lg focus:shadow-[#00AFA9]/10"
+                  className="border border-gray-400 w-full px-4 py-3.5 rounded-xl bg-[#f2f1ed] text-[#0B1D20] placeholder-[#0B1D20]/25 text-sm transition-all duration-300 outline-none ring-1 ring-transparent focus:ring-2 focus:ring-[#00AFA9]/30 focus:bg-white focus:shadow-lg focus:shadow-[#00AFA9]/10"
                   placeholder="Votre société"
                 />
               </div>
@@ -91,7 +91,7 @@ export default function Contact() {
                 </label>
                 <input
                   type="text"
-                  className="w-full px-4 py-3.5 rounded-xl bg-[#f2f1ed] text-[#0B1D20] placeholder-[#0B1D20]/25 text-sm transition-all duration-300 outline-none ring-1 ring-transparent focus:ring-2 focus:ring-[#00AFA9]/30 focus:bg-white focus:shadow-lg focus:shadow-[#00AFA9]/10"
+                  className="border border-gray-400 w-full px-4 py-3.5 rounded-xl bg-[#f2f1ed] text-[#0B1D20] placeholder-[#0B1D20]/25 text-sm transition-all duration-300 outline-none ring-1 ring-transparent focus:ring-2 focus:ring-[#00AFA9]/30 focus:bg-white focus:shadow-lg focus:shadow-[#00AFA9]/10"
                   placeholder="Madagascar"
                 />
               </div>
@@ -103,7 +103,7 @@ export default function Contact() {
               </label>
               <textarea
                 rows={4}
-                className="w-full px-4 py-3.5 rounded-xl bg-[#f2f1ed] text-[#0B1D20] placeholder-[#0B1D20]/25 text-sm transition-all duration-300 outline-none ring-1 ring-transparent focus:ring-2 focus:ring-[#00AFA9]/30 focus:bg-white focus:shadow-lg focus:shadow-[#00AFA9]/10 resize-none"
+                className="border border-gray-400 w-full px-4 py-3.5 rounded-xl bg-[#f2f1ed] text-[#0B1D20] placeholder-[#0B1D20]/25 text-sm transition-all duration-300 outline-none ring-1 ring-transparent focus:ring-2 focus:ring-[#00AFA9]/30 focus:bg-white focus:shadow-lg focus:shadow-[#00AFA9]/10 resize-none"
                 placeholder="En quoi puis-je vous aider&nbsp;?"
               />
             </div>
