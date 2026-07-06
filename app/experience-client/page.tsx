@@ -3,6 +3,7 @@
 import SecteursActivite from "../components/SecteursActivite";
  
 import Image from "next/image";
+import Link from "next/link";
 import { useState, FormEvent } from "react";
 import { Download } from "lucide-react";
  
@@ -104,13 +105,13 @@ export default function ExperienceClient() {
  
         <div className="mt-8 flex flex-wrap gap-3">
           {offers.map((offer) => (
-            <button
+            <Link
               key={offer.id}
-              type="button"
+              href={`/oc_init/${offer.id}`}
               className="rounded-full bg-neutral-100 px-5 py-3 text-sm font-semibold text-teal-800 transition-colors hover:bg-neutral-200"
             >
               {offer.label}
-            </button>
+            </Link>
           ))}
         </div>
       </div>
