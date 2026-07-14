@@ -17,10 +17,14 @@ class ApiClient {
     options: RequestInit = {}
   ): Promise<T> {
     const token = this.getToken();
+    const isFormData = options.body instanceof FormData;
     const headers: Record<string, string> = {
-      "Content-Type": "application/json",
       ...(options.headers as Record<string, string>),
     };
+
+    if (!isFormData) {
+      headers["Content-Type"] = "application/json";
+    }
 
     if (token) {
       headers["Authorization"] = `Bearer ${token}`;
@@ -106,6 +110,97 @@ class ApiClient {
     return this.request<{ user: { id: number; email: string; username: string; user_type_id: number; is_active: boolean; created_at: string; user_type: { id: number; type: string } } }>(
       "/admin/me"
     );
+  }
+
+  // --- CeoMessage ---
+  getAllCeoMessages() {
+    return this.request<{ messages: { id: number; title: string; description: string; image_url: string | null; updated_at: string }[] }>("/ceomessage");
+  }
+
+  getCeoMessage(id: number) {
+    return this.request<{ message: { id: number; title: string; description: string; image_url: string | null; updated_at: string } }>(`/ceomessage/${id}`);
+  }
+
+  createCeoMessage(data: { title: string; description: string; image_url?: string }) {
+    return this.request<{ message: string; data: { id: number; title: string; description: string; image_url: string | null; updated_at: string } }>("/ceomessage", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  }
+
+  updateCeoMessage(id: number, data: { title?: string; description?: string; image_url?: string }) {
+    return this.request<{ message: string; data: { id: number; title: string; description: string; image_url: string | null; updated_at: string } }>(`/ceomessage/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    });
+  }
+
+  deleteCeoMessage(id: number) {
+    return this.request<{ message: string }>(`/ceomessage/${id}`, { method: "DELETE" });
+  }
+
+  // --- HeroSlide ---
+  getAllHeroSlides() {
+    return this.request<{ slides: { id: number; image_url: string; title: string | null; description: string | null; cta_label: string | null; cta_url: string | null; position: number; is_active: boolean }[] }>("/hero-slide");
+  }
+
+  getHeroSlide(id: number) {
+    return this.request<{ slide: { id: number; image_url: string; title: string | null; description: string | null; cta_label: string | null; cta_url: string | null; position: number; is_active: boolean } }>(`/hero-slide/${id}`);
+  }
+
+  createHeroSlide(data: { image_url: string; title?: string; description?: string; cta_label?: string; cta_url?: string; position?: number; is_active?: boolean }) {
+    return this.request<{ message: string; slide: { id: number; image_url: string; title: string | null; description: string | null; cta_label: string | null; cta_url: string | null; position: number; is_active: boolean } }>("/hero-slide", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  }
+
+  updateHeroSlide(id: number, data: { image_url?: string; title?: string; description?: string; cta_label?: string; cta_url?: string; position?: number; is_active?: boolean }) {
+    return this.request<{ message: string; slide: { id: number; image_url: string; title: string | null; description: string | null; cta_label: string | null; cta_url: string | null; position: number; is_active: boolean } }>(`/hero-slide/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    });
+  }
+
+  deleteHeroSlide(id: number) {
+    return this.request<{ message: string }>(`/hero-slide/${id}`, { method: "DELETE" });
+  }
+
+  // --- KpiStat ---
+  getAllKpiStats() {
+    return this.request<{ stats: { id: number; label: string; value: string; unit: string | null; position: number; is_active: boolean }[] }>("/kpistat");
+  }
+
+  getKpiStat(id: number) {
+    return this.request<{ stat: { id: number; label: string; value: string; unit: string | null; position: number; is_active: boolean } }>(`/kpistat/${id}`);
+  }
+
+  createKpiStat(data: { label: string; value: string; unit?: string; position?: number; is_active?: boolean }) {
+    return this.request<{ message: string; stat: { id: number; label: string; value: string; unit: string | null; position: number; is_active: boolean } }>("/kpistat", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  }
+
+  updateKpiStat(id: number, data: { label?: string; value?: string; unit?: string; position?: number; is_active?: boolean }) {
+    return this.request<{ message: string; stat: { id: number; label: string; value: string; unit: string | null; position: number; is_active: boolean } }>(`/kpistat/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    });
+  }
+
+  deleteKpiStat(id: number) {
+    return this.request<{ message: string }>(`/kpistat/${id}`, { method: "DELETE" });
+  }
+
+  // --- File upload ---
+  uploadFile(file: File) {
+    const formData = new FormData();
+    formData.append("file", file);
+    return this.request<{ url: string; filename: string }>("/upload", {
+      method: "POST",
+      body: formData,
+    });
   }
 }
 
