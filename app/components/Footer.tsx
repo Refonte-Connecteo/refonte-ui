@@ -1,20 +1,19 @@
 import Link from "next/link";
 
 const navLinks = [
-  { label: "Notre ADN", href: "#" },
-  { label: "Expérience Client", href: "#" },
-  { label: "Carrière", href: "#" },
+  { label: "Notre ADN", href: "/notre-adn/a-propos" },
+  { label: "Expérience Client", href: "/experience-client" },
+  { label: "Carrière", href: "/carriere" },
   { label: "Actus & Événement", href: "/actus-et-evenement" },
-  { label: "Notre Réseau", href: "#" },
-  { label: "FAQ", href: "#" },
+  { label: "Impact", href: "/impact" },
 ];
 
 const serviceLinks = [
-  { label: "Recrutement & Sélection", href: "#" },
-  { label: "Intérim & CDD", href: "#" },
-  { label: "Formation & Conseil", href: "#" },
-  { label: "Évaluation des Talents", href: "#" },
-  { label: "Outsourcing RH", href: "#" },
+  { label: "Expérience Client", href: "/experience-client" },
+  { label: "Carrière", href: "/carriere" },
+  { label: "Actus & Événements", href: "/actus-et-evenement" },
+  { label: "Impact & RSE", href: "/impact" },
+  { label: "Contact", href: "/contact" },
 ];
 
 export default function Footer() {
@@ -23,7 +22,7 @@ export default function Footer() {
       <div className="mx-auto max-w-7xl px-6 pt-16 pb-8">
         <div className="grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-4 lg:gap-12">
           <div>
-              <a href="#" className="shrink-0">
+              <a href="/" className="shrink-0">
                 <img
                   src="/images/logo.png"
                   alt="Logo"
@@ -35,7 +34,9 @@ export default function Footer() {
             </p>
             <div className="mt-6 flex items-center gap-3">
               <a
-                href="#"
+                href="https://www.linkedin.com/company/connecteo"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 text-white/40 transition-all duration-300 hover:border-[#00AFA9] hover:bg-[#00AFA9]/10 hover:text-[#00AFA9]"
                 aria-label="LinkedIn"
               >
@@ -44,7 +45,9 @@ export default function Footer() {
                 </svg>
               </a>
               <a
-                href="#"
+                href="https://www.facebook.com/connecteo"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 text-white/40 transition-all duration-300 hover:border-[#00AFA9] hover:bg-[#00AFA9]/10 hover:text-[#00AFA9]"
                 aria-label="Facebook"
               >
@@ -101,7 +104,14 @@ export default function Footer() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
-                <span>Immeuble TANASHORE Zone FUTURA Andranomena</span>
+                <a
+                  href="https://maps.app.goo.gl/U3zmasSkBXVBvyVX9"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="transition-colors hover:text-[#00AFA9]"
+                >
+                  Immeuble TANASHORE Zone FUTURA Andranomena
+                </a>
         
 
               </li>
@@ -115,22 +125,18 @@ export default function Footer() {
                 <svg className="mt-0.5 h-4 w-4 shrink-0 text-[#00AFA9]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                 </svg>
-                <a href="mailto:contact@connecteo.fr" className="transition-colors hover:text-[#00AFA9]">
-                  Mycontact@connecteo.mg
+                <a href="mailto:contact@connecteo.mg" className="transition-colors hover:text-[#00AFA9]">
+                  mycontact@connecteo.mg
                 </a>
               </li>
             </ul>
             <div className="mt-6 pt-6 border-t border-white/5">
-              <p className="text-xs text-white/30 mb-2">Membre du</p>
-              <a
-                href="#"
-                className="inline-flex items-center gap-2 text-sm font-semibold text-white/60 transition-colors duration-200 hover:text-[#FFA900]"
-              >
-                Groupe AXIAN
-                <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                </svg>
-              </a>
+              <p className="text-xs text-white/30 mb-2"> Société du</p>
+              <img
+                src="/images/partenaire10.jpg"
+                alt="Partenaire"
+                className="h-10 w-auto"
+              />
             </div>
           </div>
         </div>

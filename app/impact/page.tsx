@@ -41,8 +41,15 @@ export default function ImpactSustainabilitySection() {
     e.preventDefault();
     if (!email) return;
     setStatus("loading");
-    // TODO: brancher sur l'API d'envoi du rapport
-    setTimeout(() => setStatus("success"), 800);
+    setTimeout(() => {
+      setStatus("success");
+      const link = document.createElement("a");
+      link.href = "/images/c5.jpg";
+      link.download = "rapport-impact-2025.jpg";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }, 800);
   };
 
   return (

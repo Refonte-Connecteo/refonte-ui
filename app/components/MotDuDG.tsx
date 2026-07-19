@@ -1,10 +1,26 @@
 "use client";
 
-import Image from "next/image";
+import { useState, useEffect } from "react";
+import { api } from "@/lib/api";
 import { useInView } from "../hooks/useInView";
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") || "http://localhost:3000";
+
+function resolveImageUrl(url: string): string {
+  if (url.startsWith("http")) return url;
+  if (url.startsWith("/uploads")) return `${API_BASE_URL}${url}`;
+  return url;
+}
 
 export default function MotDuDG() {
   const { ref, inView } = useInView();
+  const [ceo, setCeo] = useState<{ title: string; description: string; image_url: string | null } | null>(null);
+
+  useEffect(() => {
+    api.getLatestCeoMessage().then((res) => {
+      setCeo(res.message);
+    }).catch(() => {});
+  }, []);
 
   return (
     <section
@@ -27,11 +43,10 @@ export default function MotDuDG() {
           >
             <div className="relative">
               <div className="relative w-64 h-64 md:w-72 md:h-72 lg:w-80 lg:h-80 overflow-hidden rounded-2xl shadow-2xl shadow-[#00AFA9]/15">
-                <Image
-                  src="/images/pdg.jpg"
-                  alt="Malik MECHICHE"
-                  fill
-                  className="object-cover object-center"
+                <img
+                  src={ceo?.image_url ? resolveImageUrl(ceo.image_url) : "/images/pdg.jpg"}
+                  alt={ceo?.title || "PDG"}
+                  className="absolute inset-0 w-full h-full object-cover object-center"
                 />
               </div>
               <div
@@ -62,10 +77,7 @@ export default function MotDuDG() {
                 &ldquo;
               </div>
               <p className="text-lg md:text-xl lg:text-2xl leading-relaxed text-[#0B1D20]/75 font-light relative z-10">
-                Chez Connecteo, nous croyons que chaque talent a sa place.
-                Notre mission est de créer des ponts entre les ambitions
-                individuelles et les besoins des entreprises, avec humanité
-                et excellence.
+                {ceo?.description || "Chez Connecteo, nous croyons que chaque talent a sa place. Notre mission est de créer des ponts entre les ambitions individuelles et les besoins des entreprises, avec humanité et excellence."}
               </p>
             </div>
 
@@ -73,7 +85,7 @@ export default function MotDuDG() {
               <span className="block w-12 h-0.5 bg-gradient-to-r from-[#FFA900] to-[#00AFA9]" />
               <div>
                 <p className="text-base font-semibold text-[#0B1D20]">
-                  Malik MECHICHE
+                  {ceo?.title || "Malik MECHICHE"}
                 </p>
                 <p className="text-sm font-light tracking-wide text-[#00AFA9]/90">
                   Chief Executive Officer

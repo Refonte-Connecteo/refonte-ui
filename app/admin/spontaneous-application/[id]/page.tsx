@@ -36,7 +36,7 @@ export default function SpontaneousApplicationDetailPage() {
   const fetchApplication = async () => {
     try {
       const result = await api.getSpontaneousApplication(id);
-      setApplication(result.application);
+      setApplication(result.spontaneousApplication);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erreur");
     } finally {

@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 const subMenuItems = [
   { label: "À propos de nous", href: "/notre-adn/a-propos" },
   { label: "Impact and Sustainability", href: "/impact" },
-  { label: "AXIAN Group", href: "#" },
+  { label: "AXIAN Group", href: "https://www.axian.com" },
 ];
 
 export default function Header() {
@@ -37,7 +37,7 @@ export default function Header() {
     <header
       className={`fixed left-0 right-0 z-50 transition-all duration-500 ${
         scrolled || pathname === "/contact" || pathname === "/carriere" || pathname === "/actus-et-evenement"
-          ? "top-3 mx-4 md:top-4 md:mx-8 lg:mx-auto lg:left-6 lg:right-6 xl:left-0 xl:right-0 xl:max-w-7xl xl:mx-auto rounded-2xl bg-[#0B1D20]/70 backdrop-blur-2xl shadow-xl shadow-black/5 border border-white/20"
+          ? "top-3 mx-4 md:top-4 md:mx-8 lg:mx-auto lg:left-6 lg:right-6 xl:left-0 xl:right-0 xl:max-w-7xl xl:mx-auto rounded-[2rem] bg-[#0B1D20]/70 backdrop-blur-2xl shadow-xl shadow-black/5 border border-white/20"
           : "top-0 bg-transparent"
       }`}
     >
@@ -48,7 +48,7 @@ export default function Header() {
       >
               <a href="/" className="shrink-0">
                 <img
-                  src="/images/logo.png"
+                  src="/images/logo1.png"
                   alt="Logo"
                   className="h-15 w-auto transition-transform duration-300 hover:scale-105"
                 />
@@ -94,7 +94,7 @@ export default function Header() {
           </li>
 
           {[
-            { label: "Expérience Client", href: "/experience-client" },
+            { label: "Nos Solutions CX", href: "/experience-client" },
             { label: "Carrière", href: "/carriere" },
             { label: "Actus & Événement", href: "/actus-et-evenement" },
           ].map((item) => (
@@ -151,9 +151,13 @@ export default function Header() {
           menuOpen ? "max-h-[32rem]" : "max-h-0"
         }`}
       >
-        <nav className="flex flex-col gap-3 bg-[#0B1D20]/95 backdrop-blur-2xl px-6 pb-6 pt-3 shadow-lg rounded-b-2xl">
+        <nav className="flex flex-col gap-3 bg-[#0B1D20]/95 backdrop-blur-2xl px-6 pb-6 pt-3 shadow-lg rounded-b-[2rem]">
           <div className="space-y-1">
-            <span className="flex items-center justify-between px-3 py-2 text-sm font-medium text-white/80">
+            <button
+              type="button"
+              onClick={() => setSubOpen(!subOpen)}
+              className="flex items-center justify-between w-full px-3 py-2 text-sm font-medium text-white/80"
+            >
               Notre ADN
               <svg
                 className={`h-3.5 w-3.5 text-white/40 transition-transform duration-200 ${subOpen ? "rotate-180" : ""}`}
@@ -163,22 +167,24 @@ export default function Header() {
               >
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
               </svg>
-            </span>
-            <div className="ml-4 space-y-1 border-l border-white/10 pl-3">
-              {subMenuItems.map((item) => (
-                <a
-                  key={item.label}
-                  href={item.href}
-                  className="block rounded-lg px-3 py-2 text-sm text-white/60 transition-colors hover:text-white"
-                  onClick={() => { setMenuOpen(false); setSubOpen(false) }}
-                >
-                  {item.label}
-                </a>
-              ))}
-            </div>
+            </button>
+            {subOpen && (
+              <div className="ml-4 space-y-1 border-l border-white/10 pl-3">
+                {subMenuItems.map((item) => (
+                  <a
+                    key={item.label}
+                    href={item.href}
+                    className="block rounded-lg px-3 py-2 text-sm text-white/60 transition-colors hover:text-white"
+                    onClick={() => { setMenuOpen(false); setSubOpen(false) }}
+                  >
+                    {item.label}
+                  </a>
+                ))}
+              </div>
+            )}
           </div>
           {[
-            { label: "Expérience Client", href: "/experience-client" },
+            { label: "Nos Solutions CX", href: "/experience-client" },
             { label: "Carrière", href: "/carriere" },
             { label: "Actus & Événement", href: "/actus-et-evenement" },
           ].map((item) => (

@@ -38,7 +38,7 @@ export default function CtaSection() {
 
         <div className="mt-10 md:mt-12 flex items-center justify-center gap-6">
           <Link
-            href="#"
+            href="/contact"
             className="group inline-flex items-center gap-3 rounded-full bg-gradient-to-r from-[#FFA900] to-[#FFA900] hover:from-[#00AFA9] hover:to-[#00AFA9] px-8 py-4 text-sm font-semibold uppercase tracking-wider text-gray-900 hover:text-white transition-all duration-500 hover:shadow-2xl hover:shadow-[#00AFA9]/30 hover:-translate-y-0.5 active:translate-y-0"
           >
             <span className="flex h-8 w-8 items-center justify-center rounded-full bg-black/10 transition-transform duration-300 group-hover:scale-110">
@@ -55,7 +55,7 @@ export default function CtaSection() {
           </Link>
 
           <Link
-            href="#"
+            href="/notre-adn/a-propos"
             className="group inline-flex items-center gap-2 text-sm font-medium text-white/60 hover:text-white transition-all duration-300"
           >
             <span className="w-0 group-hover:w-6 h-px bg-[#FFA900] transition-all duration-300" />

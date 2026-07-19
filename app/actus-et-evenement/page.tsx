@@ -1,83 +1,8 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { useInView } from "@/app/hooks/useInView";
-
-const articles = [
-  {
-    title: "Guide du Recrutement 2026",
-    description:
-      "Tendances, outils et bonnes pratiques pour recruter efficacement dans un marché en pleine mutation.",
-    tag: "Guide",
-  },
-  {
-    title: "Rapport Annuel 2025",
-    description:
-      "Bilan d'activité, chiffres clés et perspectives de Connecteo pour l'année à venir.",
-    tag: "Rapport",
-  },
-  {
-    title: "Livre Blanc : IA & RH",
-    description:
-      "Comment l'intelligence artificielle transforme les métiers des ressources humaines.",
-    tag: "Livre Blanc",
-  },
-];
-
-const evenementsAVenir = [
-  {
-    title: "Job Fair Connecteo 2026",
-    date: "15 Septembre 2026",
-    lieu: "Antananarivo",
-    description:
-      "Rencontrez les talents de demain lors de notre grand salon de recrutement. Ateliers, conférences et entretiens sur place.",
-  },
-  {
-    title: "Conférence RH Connect",
-    date: "12 Octobre 2026",
-    lieu: "En ligne",
-    description:
-      "Une journée d'échange autour des nouvelles pratiques RH avec des intervenants de renom.",
-  },
-];
-
-const evenementsPasses = [
-  {
-    title: "Connecteo Job Day 2025",
-    date: "12 Mars 2025",
-    lieu: "Antananarivo",
-    image: "/images/c3.jpg",
-  },
-  {
-    title: "Africa HR Summit",
-    date: "20 Novembre 2025",
-    lieu: "Nairobi",
-    image: "/images/c4.jpg",
-  },
-  {
-    title: "Forum des Métiers",
-    date: "8 Juillet 2025",
-    lieu: "Antananarivo",
-    image: "/images/c5.jpg",
-  },
-  {
-    title: "Atelier CV & Entretien",
-    date: "3 Février 2025",
-    lieu: "En ligne",
-    image: "/images/c6.jpg",
-  },
-  {
-    title: "Connecteo Tour 2025",
-    date: "14 Octobre 2025",
-    lieu: "Mahajanga",
-    image: "/images/c7.jpg",
-  },
-  {
-    title: "Job Dating Express",
-    date: "22 Mai 2025",
-    lieu: "Antananarivo",
-    image: "/images/c8.jpg",
-  },
-];
+import { api } from "@/lib/api";
 
 function Section({ children, className = "" }: { children: React.ReactNode; className?: string }) {
   const { ref, inView } = useInView();
@@ -96,6 +21,41 @@ function Section({ children, className = "" }: { children: React.ReactNode; clas
 }
 
 export default function ActusEvenement() {
+  const [articles, setArticles] = useState<{title: string; description: string; tag: string; file_url: string | null}[]>([]);
+  const [evenementsAVenir, setEvenementsAVenir] = useState<{title: string; date: string; lieu: string; description: string}[]>([]);
+  const [evenementsPasses, setEvenementsPasses] = useState<{title: string; date: string; lieu: string; image: string}[]>([]);
+
+  useEffect(() => {
+    api.getPublishedArticles().then((res) => {
+      const mapped = res.articles.map(a => ({
+        title: a.title,
+        description: a.description || "",
+        tag: a.type || "Article",
+        file_url: a.file_url ?? null,
+      }));
+      setArticles(mapped);
+    }).catch(() => {});
+
+    api.getPublishedEvents().then((res) => {
+      const now = new Date();
+      const upcoming: {title: string; date: string; lieu: string; description: string}[] = [];
+      const past: {title: string; date: string; lieu: string; image: string}[] = [];
+      res.events.forEach(e => {
+        const eventDate = new Date(e.event_date);
+        const formatted = eventDate.toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" });
+        const firstImage = e.event_images?.[0]?.image_url || "/images/c3.jpg";
+        const item = { title: e.title, date: formatted, lieu: "", description: e.description || "" };
+        if (eventDate >= now) {
+          upcoming.push(item);
+        } else {
+          past.push({ title: e.title, date: formatted, lieu: "", image: firstImage });
+        }
+      });
+      setEvenementsAVenir(upcoming);
+      setEvenementsPasses(past);
+    }).catch(() => {});
+  }, []);
+
   return (
     <div className="min-h-screen bg-white">
       {/* Hero */}
@@ -168,7 +128,7 @@ export default function ActusEvenement() {
                       <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                       Inscriptions ouvertes
                     </span>
-                    <button className="text-xs font-semibold text-[#0B1DTop]/30 group-hover:text-[#FFA900] transition-colors duration-300">
+                    <button type="button" className="text-xs font-semibold text-[#0B1D20]/30 group-hover:text-[#FFA900] transition-colors duration-300">
                       En savoir plus →
                     </button>
                   </div>
@@ -339,23 +299,33 @@ export default function ActusEvenement() {
                       </p>
                     </div>
                     <div className="shrink-0 ml-6">
-                      <button className="flex items-center justify-center w-10 h-10 rounded-full border border-white/10 text-white/20 transition-all duration-300 group-hover:border-[#00AFA9] group-hover:text-[#00AFA9] group-hover:bg-[#00AFA9]/5">
+                      <a
+                        href={article.file_url || "#"}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={`flex items-center justify-center w-10 h-10 rounded-full border transition-all duration-300 ${
+                          article.file_url
+                            ? "border-white/10 text-white/20 group-hover:border-[#00AFA9] group-hover:text-[#00AFA9] group-hover:bg-[#00AFA9]/5"
+                            : "border-white/5 text-white/10 cursor-not-allowed"
+                        }`}
+                        onClick={(e) => { if (!article.file_url) e.preventDefault(); }}
+                      >
                         <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                         </svg>
-                      </button>
+                      </a>
                     </div>
                   </div>
                 </Section>
               ))}
               <div className="pt-6">
                 <Section>
-                  <button className="group inline-flex items-center gap-2 text-xs font-semibold text-white/20 transition-all duration-300 hover:text-[#FFA900]">
+                  <a href="#articles" className="group inline-flex items-center gap-2 text-xs font-semibold text-white/20 transition-all duration-300 hover:text-[#FFA900]">
                     Toutes les ressources
                     <svg className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                     </svg>
-                  </button>
+                  </a>
                 </Section>
               </div>
             </div>
