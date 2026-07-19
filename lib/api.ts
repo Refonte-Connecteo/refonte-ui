@@ -275,6 +275,13 @@ class ApiClient {
   }
 
   // --- Application ---
+  createApplication(data: { job_id: number; first_name: string; last_name: string; email: string; phone?: string; cv_url: string; cover_letter?: string }) {
+    return this.request<{ message: string; application: { id: number } }>("/application", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  }
+
   getAllApplications() {
     return this.request<{ applications: { id: number; job_id: number; first_name: string; last_name: string; email: string; phone: string | null; cv_url: string; cover_letter: string | null; submitted_at: string; job_posting: { id: number; title: string } }[] }>("/application");
   }
@@ -304,11 +311,11 @@ class ApiClient {
   }
 
   getSpontaneousApplication(id: number) {
-    return this.request<{ application: { id: number; first_name: string; last_name: string; email: string; phone: string | null; cv_url: string; motivation: string | null; submitted_at: string } }>(`/spontaneous-application/${id}`);
+    return this.request<{ spontaneousApplication: { id: number; first_name: string; last_name: string; email: string; phone: string | null; cv_url: string; motivation: string | null; submitted_at: string } }>(`/spontaneous-application/${id}`);
   }
 
   updateSpontaneousApplication(id: number, data: { first_name?: string; last_name?: string; email?: string; phone?: string; cv_url?: string; motivation?: string }) {
-    return this.request<{ message: string; application: { id: number } }>(`/spontaneous-application/${id}`, {
+    return this.request<{ message: string; spontaneousApplication: { id: number } }>(`/spontaneous-application/${id}`, {
       method: "PUT",
       body: JSON.stringify(data),
     });
@@ -420,6 +427,49 @@ class ApiClient {
 
   deleteContactMessage(id: number) {
     return this.request<{ message: string }>(`/contact-message/${id}`, { method: "DELETE" });
+  }
+
+  // --- Public endpoints (no auth) ---
+  getLatestCeoMessage() {
+    return this.request<{ message: { id: number; title: string; description: string; image_url: string | null; updated_at: string } }>("/ceomessage/latest");
+  }
+
+  getActiveHeroSlides() {
+    return this.request<{ slides: { id: number; image_url: string; title: string | null; description: string | null; cta_label: string | null; cta_url: string | null; position: number; is_active: boolean }[] }>("/hero-slide?onlyActive=true");
+  }
+
+  getActiveKpiStats() {
+    return this.request<{ stats: { id: number; label: string; value: string; unit: string | null; position: number; is_active: boolean }[] }>("/kpistat?active=true");
+  }
+
+  getActiveReferences() {
+    return this.request<{ references: { id: number; label: string; image_url: string; website_url: string | null; position: number; is_active: boolean }[] }>("/reference?onlyActive=true");
+  }
+
+  getActiveJobPostings() {
+    return this.request<{ jobPostings: { id: number; title: string; contract_type: string; description: string | null; external_url: string | null; fiche_url: string | null; is_active: boolean; created_at: string }[] }>("/job-posting?onlyActive=true");
+  }
+
+  getPublishedArticles() {
+    return this.request<{ articles: { id: number; title: string; description: string | null; type: string | null; cover_url: string | null; file_url: string | null; is_lead_magnet: boolean; is_published: boolean; published_at: string | null }[] }>("/article?onlyPublished=true");
+  }
+
+  getPublishedEvents() {
+    return this.request<{ events: { id: number; title: string; description: string | null; event_date: string; youtube_url: string | null; is_published: boolean; event_images: { id: number; image_url: string; caption: string | null; position: number }[] }[] }>("/event?onlyPublished=true");
+  }
+
+  createContactMessage(data: { first_name: string; last_name: string; email: string; phone?: string; company?: string; country?: string; message: string }) {
+    return this.request<{ message: string; contactMessage: { id: number } }>("/contact-message", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  }
+
+  createSpontaneousApplication(data: { first_name: string; last_name: string; email: string; phone?: string; cv_url: string; motivation?: string }) {
+    return this.request<{ message: string; spontaneousApplication: { id: number } }>("/spontaneous-application", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
   }
 
   // --- File upload ---

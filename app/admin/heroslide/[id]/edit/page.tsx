@@ -131,7 +131,7 @@ export default function HeroSlideEditPage() {
               </div>
               <div>
                 <label htmlFor="ctaUrl" className="block text-sm font-medium text-gray-700 mb-1">URL CTA</label>
-                <input id="ctaUrl" type="url" value={ctaUrl}
+                <input id="ctaUrl" type="text" value={ctaUrl}
                   onChange={(e) => setCtaUrl(e.target.value)}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow" />
               </div>

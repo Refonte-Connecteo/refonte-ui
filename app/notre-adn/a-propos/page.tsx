@@ -1,7 +1,9 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { useInView } from "@/app/hooks/useInView";
 import Chronologie from "@/app/components/Chronologie";
+import { api } from "@/lib/api";
 
 const visionMissionValeurs = [
   {
@@ -11,16 +13,16 @@ const visionMissionValeurs = [
     accent: "#00AFA9",
   },
   {
+    title: "Mission",
+    description:
+    "Connecter les talents aux opportunités avec une approche humaine et sur-mesure, en révélant le potentiel unique de chaque individu à travers des événements immersifs et un accompagnement personnalisé.",
+    accent: "#00AFA9",
+  },
+  {
     title: "Valeurs",
     description:
       "L'excellence, l'humanité, l'innovation et l'intégrité sont les piliers qui guident chacune de nos actions et façonnent notre culture d'entreprise au quotidien.",
     accent: "#FFA900",
-  },
-  {
-    title: "Mission",
-    description:
-      "Connecter les talents aux opportunités avec une approche humaine et sur-mesure, en révélant le potentiel unique de chaque individu à travers des événements immersifs et un accompagnement personnalisé.",
-    accent: "#00AFA9",
   },
 ];
 
@@ -41,12 +43,31 @@ function Section({ children, className = "" }: { children: React.ReactNode; clas
 }
 
 export default function APropos() {
+  const [stats, setStats] = useState<{value: string; label: string; color: string}[]>([
+    { value: "15 000+", label: "Talents accompagnés", color: "#00AFA9" },
+    { value: "98%", label: "Satisfaction candidats", color: "#FFA900" },
+    { value: "200+", label: "Événements / an", color: "#00AFA9" },
+    { value: "12", label: "Agences", color: "#FFA900" },
+  ]);
+
+  useEffect(() => {
+    api.getActiveKpiStats().then((res) => {
+      const colors = ["#00AFA9", "#FFA900"];
+      const mapped = res.stats.map((s, i) => ({
+        value: s.value,
+        label: s.label,
+        color: colors[i % colors.length],
+      }));
+      if (mapped.length > 0) setStats(mapped);
+    }).catch(() => {});
+  }, []);
+
   return (
     <div className="min-h-screen bg-white">
 
       <Chronologie />
 
-      <section className="relative py-28 md:py-36 px-6 overflow-hidden">
+      <section className="relative py-28 md:py-36 px-8 md:px-12 lg:px-16 overflow-hidden">
         <div className="absolute -right-40 top-1/2 -translate-y-1/2 w-[45rem] h-[45rem] rounded-full bg-[#096475]/[0.06] blur-[120px] pointer-events-none" />
         <div className="absolute -right-20 top-1/3 w-[25rem] h-[25rem] rounded-full bg-[#096475]/[0.04] blur-[100px] pointer-events-none" />
         <div className="absolute bottom-0 left-0 w-80 h-80 rounded-full bg-[#FFA900]/[0.03] blur-3xl pointer-events-none" />
@@ -64,7 +85,7 @@ export default function APropos() {
               Ce qui nous <span className="text-[#00AFA9]">définit</span>
             </h2>
             <p className="text-[#0B1D20]/55 max-w-xl mx-auto text-base md:text-lg">
-              Vision, valeurs et mission : le triptyque qui guide notre engagement au quotidien.
+              Vision,  mission et valeurs  : le triptyque qui guide notre engagement au quotidien.
             </p>
           </Section>
 
@@ -107,7 +128,7 @@ export default function APropos() {
         </div>
       </section>
 
-      <section className="relative py-28 md:py-36 px-6 overflow-hidden">
+      <section className="relative py-28 md:py-36 px-8 md:px-12 lg:px-16 overflow-hidden">
         <div className="absolute -right-40 top-1/2 -translate-y-1/2 w-[45rem] h-[45rem] rounded-full bg-[#096475]/[0.06] blur-[120px] pointer-events-none" />
         <div className="absolute -right-20 top-1/4 w-[25rem] h-[25rem] rounded-full bg-[#096475]/[0.04] blur-[100px] pointer-events-none" />
 
@@ -129,12 +150,7 @@ export default function APropos() {
           </Section>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-5 md:gap-6">
-            {[
-              { value: "15 000+", label: "Talents accompagnés", color: "#00AFA9" },
-              { value: "98%", label: "Satisfaction candidats", color: "#FFA900" },
-              { value: "200+", label: "Événements / an", color: "#00AFA9" },
-              { value: "12", label: "Agences", color: "#FFA900" },
-            ].map((stat, idx) => (
+            {stats.map((stat, idx) => (
               <Section key={stat.label}>
                 <div
                   className="relative rounded-2xl p-7 md:p-9 bg-white transition-all duration-700 hover:-translate-y-1"

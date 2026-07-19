@@ -62,11 +62,11 @@ export default function ImageUpload({ value, onChange }: ImageUploadProps) {
       <div className="flex gap-2 items-center">
         <span className="text-xs text-gray-400 shrink-0">ou URL :</span>
         <input
-          type="url"
+          type="text"
           value={value}
           onChange={(e) => onChange(e.target.value)}
           className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow"
-          placeholder="https://..."
+          placeholder="https://... ou /images/mon-image.png"
         />
       </div>
 
