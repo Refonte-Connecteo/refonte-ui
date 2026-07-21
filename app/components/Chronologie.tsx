@@ -143,7 +143,7 @@ export default function Chronologie() {
   }, [activeYear]);
 
   return (
-    <section className="relative py-24 md:py-32 px-6 overflow-hidden bg-[#096475]">
+    <section className="relative py-28 md:py-36 px-8 md:px-12 lg:px-16 overflow-hidden bg-[#096475]">
       <div
         className="absolute inset-0 transition-all duration-700 ease-out"
         style={{
@@ -152,15 +152,15 @@ export default function Chronologie() {
       />
 
       <div className="relative z-10">
-        <div className="px-6 md:px-16 mt-20">
-          <div className="mb-16 md:mb-20">
+        <div className="px-6 md:px-14 mt-14">
+          <div className="mb-10 md:mb-14">
             <span className="inline-block bg-[#FFA900] text-[#096475] text-lg font-bold   px-6 py-2 rounded-3xl">
               A propos
             </span>
           </div>
 
           <div
-            className="mb-12 md:mb-16 max-w-4xl"
+            className="mb-8 md:mb-12 max-w-4xl"
           style={{
             opacity: isLeaving ? 0 : 1,
             transform: isLeaving ? "translateY(16px)" : "translateY(0)",
@@ -209,9 +209,9 @@ export default function Chronologie() {
 
         <div
           ref={timelineRef}
-          className="flex items-center w-full overflow-x-auto scrollbar-hide snap-x snap-mandatory pt-8 md:pt-12"
+          className="flex items-center w-full overflow-x-auto scrollbar-hide snap-x snap-mandatory pt-6 md:pt-10"
         >
-          <div className="flex items-center w-full gap-3">
+          <div className="flex items-center w-full gap-2 md:gap-3">
             {milestones.map((m) => {
               const isActive = m.year === activeYear;
               return (
@@ -223,9 +223,9 @@ export default function Chronologie() {
                   aria-label={`Aller à l'année ${m.year}`}
                 >
                   <div
-                    className="w-full rounded-md transition-all duration-500 ease-out"
+                    className="w-full rounded-full transition-all duration-500 ease-out"
                     style={{
-                      height: isActive ? 40 : 32,
+                      height: isActive ? 24 : 18,
                       backgroundColor: isActive ? m.accent : `${m.accent}25`,
                       borderWidth: isActive ? 0 : 1,
                       borderColor: isActive ? "transparent" : `${m.accent}50`,
@@ -249,7 +249,7 @@ export default function Chronologie() {
           </div>
         </div>
 
-        <div className="flex justify-center gap-2 mt-10">
+        <div className="flex justify-center gap-2 mt-8">
           {milestones.map((m, i) => (
             <button
               key={m.year}

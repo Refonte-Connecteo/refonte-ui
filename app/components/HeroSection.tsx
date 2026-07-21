@@ -1,62 +1,43 @@
 "use client";
 
-import Image from "next/image";
 import { useState, useEffect, useCallback } from "react";
+import { api } from "@/lib/api";
 
-const slides = [
-  {
-    image: "/images/c8.jpg",
-    alt: "Événement Connecteo 1",
-    title: "Bienvenue chez Connecteo",
-    description:
-      "Ensemble, connectons les talents aux opportunités de demain.",
-    highlight: "+15 000 talents accompagnés en 2025",
-    overlay:
-      "from-black/80 via-black/50 to-[#00AFA9]/30",
-    accent: "#00AFA9",
-    tag: "Événement 2025",
-  },
-  {
-    image: "/images/co90.jpg",
-    alt: "Événement Connecteo 2",
-    title: "Notre mission et nos engagements",
-    description:
-      "Faciliter la rencontre entre recruteurs et candidats grâce à une expérience immersive et humaine.",
-    highlight: "98% de satisfaction candidats",
-    overlay:
-      "from-black/80 via-black/50 to-[#FFA900]/30",
-    accent: "#00AFA9",
-    tag: "Recrutement Immersif",
-  },
-  {
-    image: "/images/c6.jpg",
-    alt: "Événement Connecteo 3",
-    title: "Innovation & Proximité",
-    description:
-      "Des événements sur mesure pour révéler le potentiel de chaque talent. Nous concevons et organisons des expériences uniques qui mettent en valeur les compétences, la créativité et les ambitions de chacun.",
-    highlight: "200+ événements organisés chaque année",
-    overlay:
-      "from-black/80 via-black/50 to-[#00AFA9]/30",
-    accent: "#00AFA9",
-    tag: "Sur-Mesure",
-  },
-];
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") || "http://localhost:3000";
 
-const stats = [
-  { value: "15 000+", label: "Talents" },
-  { value: "98%", label: "Satisfaction" },
-  { value: "200+", label: "Événements" },
-  { value: "12", label: "Agences" },
-];
+function resolveImageUrl(url: string): string {
+  if (url.startsWith("http")) return url;
+  if (url.startsWith("/uploads")) return `${API_BASE_URL}${url}`;
+  return url;
+}
 
 export default function HeroSection() {
   const [current, setCurrent] = useState(0);
+  const [slides, setSlides] = useState<{image: string; title: string; description: string; cta_label: string | null; cta_url: string | null}[]>([]);
+  const [stats, setStats] = useState<{value: string; label: string}[]>([]);
+
+  useEffect(() => {
+    api.getActiveHeroSlides().then((res) => {
+      const mapped = res.slides.map(s => ({
+        image: resolveImageUrl(s.image_url),
+        title: s.title || "",
+        description: s.description || "",
+        cta_label: s.cta_label,
+        cta_url: s.cta_url,
+      }));
+      setSlides(mapped.length > 0 ? mapped : [{ image: "/images/c8.jpg", title: "Bienvenue chez Connecteo", description: "Ensemble, connectons les talents aux opportunités de demain.", cta_label: null, cta_url: null }]);
+    }).catch(() => {});
+    api.getActiveKpiStats().then((res) => {
+      const mapped = res.stats.map(s => ({ value: s.value, label: s.label }));
+      setStats(mapped.length > 0 ? mapped : [{ value: "15 000+", label: "Talents" }]);
+    }).catch(() => {});
+  }, []);
   const [scrollY, setScrollY] = useState(0);
-  const slide = slides[current];
+  const slide = slides[current] ?? slides[0];
 
   const next = useCallback(() => {
-    setCurrent((prev) => (prev + 1) % slides.length);
-  }, []);
+    setCurrent((prev) => (prev + 1) % (slides.length || 1));
+  }, [slides.length]);
 
   const goTo = (index: number) => setCurrent(index);
 
@@ -76,9 +57,16 @@ export default function HeroSection() {
   }, []);
 
   useEffect(() => {
+    if (slides.length > 0 && (isNaN(current) || current >= slides.length)) {
+      setCurrent(0);
+    }
+  }, [slides.length, current]);
+
+  useEffect(() => {
+    if (slides.length === 0) return;
     const timer = setInterval(next, 6000);
     return () => clearInterval(timer);
-  }, [next]);
+  }, [next, slides.length]);
 
   return (
     <section className="relative w-full h-screen overflow-hidden bg-black">
@@ -88,22 +76,20 @@ export default function HeroSection() {
             className="absolute inset-0 transition-transform duration-100 ease-out"
             style={{ transform: `translateY(${scrollY * 0.35}px)` }}
           >
-            <Image
+            <img
               src={s.image}
-              alt={s.alt}
-              fill
-              className={`object-cover transition-all duration-1100 ease-in-out ${
+              alt={s.title}
+              className={`absolute inset-0 w-full h-full object-cover transition-all duration-1100 ease-in-out ${
                 index === current
                   ? "opacity-100 scale-100"
                   : "opacity-0 scale-105"
               }`}
-              priority={index === 0}
             />
           </div>
           <div
-            className={`absolute inset-0 bg-gradient-to-br backdrop-blur-[2px] transition-opacity duration-1100 ${
-              s.overlay
-            } ${index === current ? "opacity-100" : "opacity-0"}`}
+            className={`absolute inset-0 bg-gradient-to-br backdrop-blur-[2px] transition-opacity duration-1100 from-black/80 via-black/50 to-[#00AFA9]/30 ${
+              index === current ? "opacity-100" : "opacity-0"
+            }`}
           />
         </div>
       ))}
@@ -112,10 +98,10 @@ export default function HeroSection() {
 
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 left-10 w-80 h-80 rounded-full opacity-[0.03] blur-3xl"
-          style={{ backgroundColor: slide.accent }}
+          style={{ backgroundColor: "#00AFA9" }}
         />
         <div className="absolute bottom-40 right-10 w-96 h-96 rounded-full opacity-[0.03] blur-3xl"
-          style={{ backgroundColor: slide.accent === "#00AFA9" ? "#FFA900" : "#00AFA9" }}
+          style={{ backgroundColor: "#FFA900" }}
         />
       </div>
 
@@ -125,8 +111,8 @@ export default function HeroSection() {
             key={index}
             className={`w-full max-w-2xl transition-all duration-1000 ease-out ${
               index === current
-                ? "opacity-100 translate-y-0"
-                : "opacity-0 translate-y-10 absolute"
+                ? "opacity-100 translate-y-0 relative"
+                : "opacity-0 translate-y-10 absolute pointer-events-none"
             }`}
           >
             <h1 className="text-5xl md:text-7xl leading-tight font-bold text-white mb-5 tracking-tight">
@@ -137,37 +123,32 @@ export default function HeroSection() {
               {s.description}
             </p>
 
-            <div className="mt-6 flex items-center gap-3">
-              <span
-                className="inline-block w-8 h-px"
-                style={{ backgroundColor: slide.accent }}
-              />
-              <span className="text-sm text-white/60 font-light">
-                {s.highlight}
-              </span>
-            </div>
-
             <div className="mt-10 flex flex-wrap items-center gap-4">
               <a
-                href="#"
+                href="https://my.matterport.com/show/?m=42v2xCu5D9F"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group inline-flex items-center gap-3 rounded-full px-7 py-3 text-sm font-semibold uppercase tracking-wider text-white transition-all duration-500 hover:shadow-2xl hover:-translate-y-0.5 active:translate-y-0"
-                style={{ backgroundColor: slide.accent }}
+                className="group inline-flex items-center gap-3 rounded-full px-7 py-3 text-sm font-semibold uppercase tracking-wider transition-all duration-500 hover:shadow-2xl hover:-translate-y-0.5 active:translate-y-0"
+                style={{ backgroundColor: "#00AFA9", color: "#fff" }}
               >
                 <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/20 transition-transform duration-300 group-hover:scale-110">
-                  <svg className="ml-0.5 h-3.5 w-3.5" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M6.5 4.5v11l8-5.5-8-5.5z" />
+                  <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
                   </svg>
                 </span>
                 Visitez notre local
               </a>
 
               <a
-                href="#"
-                className="inline-flex items-center gap-2 bg-[#FFA900] rounded-full border border-white/15 px-7 py-3 text-sm font-semibold uppercase tracking-wider text-white/70 transition-all duration-300 hover:border-white/40 hover:text-white hover:bg-white/5"
+                href="/experience-client"
+                className="group inline-flex items-center gap-3 rounded-full px-7 py-3 text-sm font-semibold uppercase tracking-wider transition-all duration-500 hover:shadow-2xl hover:-translate-y-0.5 active:translate-y-0"
+                style={{ backgroundColor: "#FFA900", color: "#0B1D20" }}
               >
                 Découvrir
+                <svg className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                </svg>
               </a>
             </div>
           </div>
@@ -178,7 +159,7 @@ export default function HeroSection() {
             <div key={stat.label}>
               <span
                 className="block text-2xl font-bold"
-                style={{ color: slide.accent }}
+                style={{ color: "#00AFA9" }}
               >
                 {stat.value}
               </span>
@@ -205,7 +186,7 @@ export default function HeroSection() {
                 height: "0.4rem",
                 backgroundColor:
                   index === current
-                    ? slide.accent
+                    ? "#00AFA9"
                     : "rgba(255,255,255,0.2)",
               }}
             />
