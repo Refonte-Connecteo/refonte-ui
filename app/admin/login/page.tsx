@@ -3,8 +3,11 @@
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
+import MfaSetupForm from "@/app/admin/components/MfaSetupForm";
+import MfaVerifyForm from "@/app/admin/components/MfaVerifyForm";
+import type { MfaChallengeResponse, MfaSetupResponse, User } from "@/app/admin/types";
 
-type Mode = "login" | "nouvel-admin-email" | "nouvel-admin-password" | "success";
+type Mode = "login" | "nouvel-admin-email" | "nouvel-admin-password" | "mfa-setup" | "mfa-verify";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -13,8 +16,16 @@ export default function AdminLoginPage() {
   const [password, setPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [mfaSetup, setMfaSetup] = useState<MfaSetupResponse | null>(null);
+  const [mfaChallenge, setMfaChallenge] = useState<MfaChallengeResponse | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const completeAuth = (user: User, token: string) => {
+    localStorage.setItem("admin_token", token);
+    localStorage.setItem("admin_user", JSON.stringify(user));
+    router.push("/admin/dashboard");
+  };
 
   const resetForm = () => {
     setMode("login");
@@ -22,6 +33,8 @@ export default function AdminLoginPage() {
     setPassword("");
     setNewPassword("");
     setConfirmPassword("");
+    setMfaSetup(null);
+    setMfaChallenge(null);
     setError("");
   };
 
@@ -32,9 +45,20 @@ export default function AdminLoginPage() {
 
     try {
       const result = await api.login(email, password);
-      localStorage.setItem("admin_token", result.token);
-      localStorage.setItem("admin_user", JSON.stringify(result.user));
-      router.push("/admin/dashboard");
+
+      if ("requireMfa" in result) {
+        setMfaChallenge(result);
+        setMode("mfa-verify");
+        return;
+      }
+
+      if ("requireMfaSetup" in result) {
+        setMfaSetup(result);
+        setMode("mfa-setup");
+        return;
+      }
+
+      completeAuth(result.user, result.token);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erreur de connexion");
     } finally {
@@ -74,8 +98,9 @@ export default function AdminLoginPage() {
     setLoading(true);
 
     try {
-      await api.setPassword(email, newPassword);
-      setMode("success");
+      const result = await api.setPassword(email, newPassword);
+      setMfaSetup(result);
+      setMode("mfa-setup");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erreur");
     } finally {
@@ -254,29 +279,23 @@ export default function AdminLoginPage() {
           </>
         );
 
-      case "success":
-        return (
-          <div className="text-center py-4">
-            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">Compte activé</h2>
-            <p className="text-sm text-gray-500 mb-6">
-              Votre compte a été activé avec succès. Vous pouvez maintenant vous connecter.
-            </p>
-            <button
-              onClick={() => {
-                resetForm();
-                setEmail("");
-              }}
-              className="w-full bg-blue-600 text-white rounded-lg py-2.5 text-sm font-medium hover:bg-blue-700 transition-colors"
-            >
-              Aller à la connexion
-            </button>
-          </div>
-        );
+      case "mfa-setup":
+        return mfaSetup ? (
+          <MfaSetupForm
+            setup={mfaSetup}
+            onSuccess={(user, token) => completeAuth(user, token)}
+            onBack={resetForm}
+          />
+        ) : null;
+
+      case "mfa-verify":
+        return mfaChallenge ? (
+          <MfaVerifyForm
+            mfaToken={mfaChallenge.mfaToken}
+            onSuccess={(user, token) => completeAuth(user, token)}
+            onBack={resetForm}
+          />
+        ) : null;
     }
   };
 

@@ -1,3 +1,12 @@
+import type {
+  AuthSuccessResponse,
+  InviteResponse,
+  ListAdminsResponse,
+  LoginResponse,
+  MfaSetupResponse,
+  User,
+} from "@/app/admin/types";
+
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
 
 class ApiClient {
@@ -41,19 +50,15 @@ class ApiClient {
     return data as T;
   }
 
-  login(email: string, password: string) {
-    return this.request<{
-      message: string;
-      user: { id: number; email: string; username: string; user_type_id: number; is_active: boolean; created_at: string };
-      token: string;
-    }>("/admin/login", {
+  login(email: string, password: string): Promise<LoginResponse> {
+    return this.request<LoginResponse>("/admin/login", {
       method: "POST",
       body: JSON.stringify({ email, password }),
     });
   }
 
-  inviteAdmin(email: string, username: string) {
-    return this.request<{ message: string; user: { id: number; email: string; username: string; user_type_id: number; is_active: boolean; created_at: string } }>(
+  inviteAdmin(email: string, username: string): Promise<InviteResponse> {
+    return this.request<InviteResponse>(
       "/admin/invite",
       {
         method: "POST",
@@ -62,8 +67,8 @@ class ApiClient {
     );
   }
 
-  checkPending(email: string) {
-    return this.request<{ message: string; user: { id: number; email: string; username: string; user_type_id: number; is_active: boolean; created_at: string } }>(
+  checkPending(email: string): Promise<{ message: string; user: User }> {
+    return this.request<{ message: string; user: User }>(
       "/admin/check-pending",
       {
         method: "POST",
@@ -72,8 +77,8 @@ class ApiClient {
     );
   }
 
-  setPassword(email: string, password: string) {
-    return this.request<{ message: string; user: { id: number; email: string; username: string; user_type_id: number; is_active: boolean; created_at: string } }>(
+  setPassword(email: string, password: string): Promise<MfaSetupResponse> {
+    return this.request<MfaSetupResponse>(
       "/admin/set-password",
       {
         method: "POST",
@@ -82,14 +87,28 @@ class ApiClient {
     );
   }
 
-  getAllAdmins() {
-    return this.request<{ users: { id: number; email: string; username: string; user_type_id: number; is_active: boolean; created_at: string }[] }>(
+  confirmMfaSetup(mfaToken: string, code: string): Promise<AuthSuccessResponse> {
+    return this.request<AuthSuccessResponse>("/admin/mfa/confirm-setup", {
+      method: "POST",
+      body: JSON.stringify({ mfaToken, code }),
+    });
+  }
+
+  verifyMfa(mfaToken: string, code: string): Promise<AuthSuccessResponse> {
+    return this.request<AuthSuccessResponse>("/admin/mfa/verify", {
+      method: "POST",
+      body: JSON.stringify({ mfaToken, code }),
+    });
+  }
+
+  getAllAdmins(): Promise<ListAdminsResponse> {
+    return this.request<ListAdminsResponse>(
       "/admin"
     );
   }
 
-  deactivateAdmin(id: number) {
-    return this.request<{ message: string; user: { id: number; email: string; username: string; user_type_id: number; is_active: boolean; created_at: string } }>(
+  deactivateAdmin(id: number): Promise<{ message: string; user: User }> {
+    return this.request<{ message: string; user: User }>(
       `/admin/${id}/deactivate`,
       { method: "DELETE" }
     );
@@ -102,8 +121,8 @@ class ApiClient {
     );
   }
 
-  getProfile() {
-    return this.request<{ user: { id: number; email: string; username: string; user_type_id: number; is_active: boolean; created_at: string; user_type: { id: number; type: string } } }>(
+  getProfile(): Promise<{ user: User & { user_type: { id: number; type: string } } }> {
+    return this.request<{ user: User & { user_type: { id: number; type: string } } }>(
       "/admin/me"
     );
   }
