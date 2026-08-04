@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { api } from "@/lib/api";
+import { sanitizeUrl } from "@/lib/security";
 
 interface SpontaneousApplicationDetail {
   id: number;
@@ -101,7 +102,7 @@ export default function SpontaneousApplicationDetailPage() {
                 <span className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">CV</span>
                 {application.cv_url ? (
                   <a
-                    href={application.cv_url}
+                    href={sanitizeUrl(application.cv_url)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 font-medium"

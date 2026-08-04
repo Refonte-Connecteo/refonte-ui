@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useInView } from "@/app/hooks/useInView";
 import { api } from "@/lib/api";
+import { sanitizeUrl } from "@/lib/security";
 
 function Section({ children, className = "" }: { children: React.ReactNode; className?: string }) {
   const { ref, inView } = useInView();
@@ -300,7 +301,7 @@ export default function ActusEvenement() {
                     </div>
                     <div className="shrink-0 ml-6">
                       <a
-                        href={article.file_url || "#"}
+                        href={sanitizeUrl(article.file_url, "#")}
                         target="_blank"
                         rel="noopener noreferrer"
                         className={`flex items-center justify-center w-10 h-10 rounded-full border transition-all duration-300 ${

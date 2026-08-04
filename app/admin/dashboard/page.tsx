@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
+import { clearSession, redirectToLogin } from "@/lib/session";
 
 interface AdminUser {
   id: number;
@@ -33,13 +34,13 @@ export default function AdminDashboardPage() {
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erreur");
       if (String(err).includes("Token") || String(err).includes("401")) {
-        localStorage.removeItem("admin_token");
-        router.push("/admin/login");
+        clearSession();
+        redirectToLogin("expired");
       }
     } finally {
       setLoading(false);
     }
-  }, [router]);
+  }, []);
 
   useEffect(() => {
     const token = localStorage.getItem("admin_token");
@@ -74,10 +75,14 @@ export default function AdminDashboardPage() {
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("admin_token");
-    localStorage.removeItem("admin_user");
-    router.push("/admin/login");
+  const handleLogout = async () => {
+    try {
+      await api.logout();
+    } catch {
+      // La session est nettoyée localement dans tous les cas.
+    }
+    clearSession();
+    redirectToLogin("manual");
   };
 
   if (loading) {
@@ -114,7 +119,7 @@ export default function AdminDashboardPage() {
               </div>
             )}
             <button
-              onClick={handleLogout}
+              onClick={() => handleLogout()}
               className="text-sm text-red-600 hover:text-red-700 font-medium transition-colors"
             >
               Déconnexion

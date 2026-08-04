@@ -1,16 +1,26 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useState, type FormEvent } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { api } from "@/lib/api";
+import { setSession } from "@/lib/session";
+import { getSafeRedirectUrl } from "@/lib/security";
 import MfaSetupForm from "@/app/admin/components/MfaSetupForm";
 import MfaVerifyForm from "@/app/admin/components/MfaVerifyForm";
-import type { MfaChallengeResponse, MfaSetupResponse, User } from "@/app/admin/types";
+import type { AuthSuccessResponse, MfaChallengeResponse, MfaSetupResponse } from "@/app/admin/types";
 
 type Mode = "login" | "nouvel-admin-email" | "nouvel-admin-password" | "mfa-setup" | "mfa-verify";
 
-export default function AdminLoginPage() {
+const LOGOUT_REASON_MESSAGES: Record<string, string> = {
+  inactivity: "Session expirée pour inactivité. Veuillez vous reconnecter.",
+  expired: "Votre session a expiré. Veuillez vous reconnecter.",
+  password_changed: "Mot de passe modifié. Veuillez vous reconnecter avec votre nouveau mot de passe.",
+  mfa_disabled: "Authentification à deux facteurs désactivée. Veuillez vous reconnecter.",
+};
+
+function AdminLoginContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [mode, setMode] = useState<Mode>("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -21,10 +31,12 @@ export default function AdminLoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const completeAuth = (user: User, token: string) => {
-    localStorage.setItem("admin_token", token);
-    localStorage.setItem("admin_user", JSON.stringify(user));
-    router.push("/admin/dashboard");
+  const reason = searchParams.get("reason");
+  const infoMessage = reason ? LOGOUT_REASON_MESSAGES[reason] : "";
+
+  const completeAuth = (result: AuthSuccessResponse) => {
+    setSession(result.token, result.refreshToken, result.user);
+    router.push(getSafeRedirectUrl(searchParams.get("redirect"), "/admin/dashboard"));
   };
 
   const resetForm = () => {
@@ -58,7 +70,7 @@ export default function AdminLoginPage() {
         return;
       }
 
-      completeAuth(result.user, result.token);
+      completeAuth(result);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erreur de connexion");
     } finally {
@@ -283,7 +295,7 @@ export default function AdminLoginPage() {
         return mfaSetup ? (
           <MfaSetupForm
             setup={mfaSetup}
-            onSuccess={(user, token) => completeAuth(user, token)}
+            onSuccess={(result) => completeAuth(result)}
             onBack={resetForm}
           />
         ) : null;
@@ -292,7 +304,7 @@ export default function AdminLoginPage() {
         return mfaChallenge ? (
           <MfaVerifyForm
             mfaToken={mfaChallenge.mfaToken}
-            onSuccess={(user, token) => completeAuth(user, token)}
+            onSuccess={(result) => completeAuth(result)}
             onBack={resetForm}
           />
         ) : null;
@@ -309,6 +321,11 @@ export default function AdminLoginPage() {
         </div>
 
         <div className="bg-white shadow-lg rounded-xl p-6">
+          {infoMessage && (
+            <div className="mb-4 bg-blue-50 border border-blue-200 text-blue-700 text-sm rounded-lg p-3">
+              {infoMessage}
+            </div>
+          )}
           {error && (
             <div className="mb-4 bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg p-3">
               {error}
@@ -318,5 +335,13 @@ export default function AdminLoginPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function AdminLoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <AdminLoginContent />
+    </Suspense>
   );
 }

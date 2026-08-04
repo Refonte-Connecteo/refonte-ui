@@ -1,31 +1,91 @@
 import type {
   AuthSuccessResponse,
+  ChangePasswordResponse,
+  DisableMfaResponse,
   InviteResponse,
   ListAdminsResponse,
   LoginResponse,
+  LogoutResponse,
   MfaSetupResponse,
+  RefreshResponse,
   User,
 } from "@/app/admin/types";
+import {
+  clearSession,
+  getAccessToken,
+  getRefreshToken,
+  redirectToLogin,
+  updateTokens,
+} from "@/lib/session";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
 
+export class SessionExpiredError extends Error {
+  constructor(message = "Session expirée") {
+    super(message);
+    this.name = "SessionExpiredError";
+  }
+}
+
+const AUTH_ENDPOINTS = [
+  "/admin/login",
+  "/admin/set-password",
+  "/admin/check-pending",
+  "/admin/mfa/",
+  "/auth/refresh",
+];
+
 class ApiClient {
   private baseUrl: string;
+  private refreshPromise: Promise<boolean> | null = null;
 
   constructor(baseUrl: string) {
     this.baseUrl = baseUrl;
   }
 
-  private getToken(): string | null {
-    if (typeof window === "undefined") return null;
-    return localStorage.getItem("admin_token");
+  private isAuthEndpoint(endpoint: string): boolean {
+    return AUTH_ENDPOINTS.some((prefix) => endpoint.startsWith(prefix));
+  }
+
+  private async refreshAccessToken(): Promise<boolean> {
+    const refreshToken = getRefreshToken();
+    if (!refreshToken) return false;
+
+    try {
+      const response = await fetch(`${this.baseUrl}/auth/refresh`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ refreshToken }),
+      });
+
+      if (!response.ok) return false;
+
+      const data = (await response.json()) as RefreshResponse;
+
+      if (!data.token || !data.refreshToken) return false;
+
+      updateTokens(data.token, data.refreshToken);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  private refreshAccessTokenShared(): Promise<boolean> {
+    if (!this.refreshPromise) {
+      this.refreshPromise = this.refreshAccessToken().finally(() => {
+        this.refreshPromise = null;
+      });
+    }
+    return this.refreshPromise;
   }
 
   private async request<T>(
     endpoint: string,
-    options: RequestInit = {}
+    options: RequestInit = {},
+    retry = true
   ): Promise<T> {
-    const token = this.getToken();
+    const token = getAccessToken();
     const isFormData = options.body instanceof FormData;
     const headers: Record<string, string> = {
       ...(options.headers as Record<string, string>),
@@ -43,6 +103,18 @@ class ApiClient {
       ...options,
       headers,
     });
+
+    if (response.status === 401 && retry && token && !this.isAuthEndpoint(endpoint)) {
+      const refreshed = await this.refreshAccessTokenShared();
+
+      if (refreshed) {
+        return this.request<T>(endpoint, options, false);
+      }
+
+      clearSession();
+      redirectToLogin("expired");
+      throw new SessionExpiredError();
+    }
 
     const data = await response.json();
 
@@ -102,6 +174,26 @@ class ApiClient {
     return this.request<AuthSuccessResponse>("/admin/mfa/verify", {
       method: "POST",
       body: JSON.stringify({ mfaToken, code }),
+    });
+  }
+
+  logout(): Promise<LogoutResponse> {
+    return this.request<LogoutResponse>("/auth/logout", {
+      method: "POST",
+    });
+  }
+
+  changePassword(currentPassword: string, newPassword: string): Promise<ChangePasswordResponse> {
+    return this.request<ChangePasswordResponse>("/auth/change-password", {
+      method: "POST",
+      body: JSON.stringify({ currentPassword, newPassword }),
+    });
+  }
+
+  disableMfa(currentPassword: string): Promise<DisableMfaResponse> {
+    return this.request<DisableMfaResponse>("/auth/mfa/disable", {
+      method: "POST",
+      body: JSON.stringify({ currentPassword }),
     });
   }
 

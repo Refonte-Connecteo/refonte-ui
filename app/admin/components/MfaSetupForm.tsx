@@ -2,11 +2,11 @@
 
 import { useState, type FormEvent } from "react";
 import { api } from "@/lib/api";
-import type { MfaSetupResponse, User } from "@/app/admin/types";
+import type { AuthSuccessResponse, MfaSetupResponse } from "@/app/admin/types";
 
 interface MfaSetupFormProps {
   setup: MfaSetupResponse;
-  onSuccess: (user: User, token: string) => void;
+  onSuccess: (result: AuthSuccessResponse) => void;
   onBack?: () => void;
 }
 
@@ -38,7 +38,7 @@ export default function MfaSetupForm({ setup, onSuccess, onBack }: MfaSetupFormP
 
     try {
       const result = await api.confirmMfaSetup(setup.mfaToken, code);
-      onSuccess(result.user, result.token);
+      onSuccess(result);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erreur lors de l'activation du MFA");
     } finally {

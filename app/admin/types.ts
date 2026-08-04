@@ -16,6 +16,25 @@ export interface AuthSuccessResponse {
   message: string;
   user: User;
   token: string;
+  refreshToken: string;
+}
+
+export interface RefreshResponse {
+  token: string;
+  refreshToken: string;
+}
+
+export interface LogoutResponse {
+  message: string;
+}
+
+export interface ChangePasswordResponse {
+  message: string;
+}
+
+export interface DisableMfaResponse {
+  message: string;
+  user: User;
 }
 
 export interface MfaSetupResponse {

@@ -2,6 +2,11 @@
 
 import { useState, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
+import { api } from "@/lib/api";
+import { clearSession, redirectToLogin, type LogoutReason } from "@/lib/session";
+import { useIdleTimer } from "@/app/admin/hooks/useIdleTimer";
+
+const IDLE_TIMEOUT_MS = 5 * 60 * 1000;
 
 const navItems = [
   { href: "/admin/dashboard", label: "Administrateurs", icon: "users" },
@@ -17,6 +22,7 @@ const navItems = [
   { href: "/admin/event", label: "Événements", icon: "calendar" },
   { href: "/admin/event-image", label: "Images événements", icon: "photos" },
   { href: "/admin/contact-message", label: "Messages contact", icon: "envelope" },
+  { href: "/admin/profile", label: "Sécurité", icon: "shield" },
 ];
 
 function NavIcon({ icon }: { icon: string }) {
@@ -111,6 +117,13 @@ function NavIcon({ icon }: { icon: string }) {
       </svg>
     );
   }
+  if (icon === "shield") {
+    return (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+      </svg>
+    );
+  }
   return null;
 }
 
@@ -129,11 +142,21 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     }
   }, []);
 
-  const handleLogout = () => {
-    localStorage.removeItem("admin_token");
-    localStorage.removeItem("admin_user");
-    router.push("/admin/login");
+  const handleLogout = async (reason: LogoutReason = "manual") => {
+    try {
+      await api.logout();
+    } catch {
+      // La session est nettoyée localement dans tous les cas.
+    }
+    clearSession();
+    redirectToLogin(reason);
   };
+
+  useIdleTimer({
+    timeoutMs: IDLE_TIMEOUT_MS,
+    enabled: !isAuthPage,
+    onIdle: () => handleLogout("inactivity"),
+  });
 
   if (isAuthPage) {
     return <>{children}</>;
@@ -185,7 +208,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               </div>
             </div>
             <button
-              onClick={handleLogout}
+              onClick={() => handleLogout()}
               className="w-full text-left text-xs text-red-600 hover:text-red-700 font-medium px-1 py-1 rounded hover:bg-red-50 transition-colors"
             >
               Déconnexion

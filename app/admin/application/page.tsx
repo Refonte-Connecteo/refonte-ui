@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
+import { sanitizeUrl } from "@/lib/security";
 
 interface ApplicationItem {
   id: number;
@@ -106,7 +107,7 @@ export default function ApplicationListPage() {
                   <td className="px-5 py-3.5 text-gray-700">{app.job_posting.title}</td>
                   <td className="px-5 py-3.5 text-xs">
                     {app.cv_url ? (
-                      <a href={app.cv_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-700 underline">
+                      <a href={sanitizeUrl(app.cv_url)} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-700 underline">
                         Voir CV
                       </a>
                     ) : (

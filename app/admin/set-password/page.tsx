@@ -3,8 +3,9 @@
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
+import { setSession } from "@/lib/session";
 import MfaSetupForm from "@/app/admin/components/MfaSetupForm";
-import type { MfaSetupResponse, User } from "@/app/admin/types";
+import type { AuthSuccessResponse, MfaSetupResponse } from "@/app/admin/types";
 
 export default function SetPasswordPage() {
   const router = useRouter();
@@ -17,9 +18,8 @@ export default function SetPasswordPage() {
   const [checking, setChecking] = useState(false);
   const [step, setStep] = useState<"email" | "password" | "mfa">("email");
 
-  const completeAuth = (user: User, token: string) => {
-    localStorage.setItem("admin_token", token);
-    localStorage.setItem("admin_user", JSON.stringify(user));
+  const completeAuth = (result: AuthSuccessResponse) => {
+    setSession(result.token, result.refreshToken, result.user);
     router.push("/admin/dashboard");
   };
 
@@ -178,7 +178,7 @@ export default function SetPasswordPage() {
           {step === "mfa" && setup && (
             <MfaSetupForm
               setup={setup}
-              onSuccess={(user, token) => completeAuth(user, token)}
+              onSuccess={(result) => completeAuth(result)}
             />
           )}
         </div>

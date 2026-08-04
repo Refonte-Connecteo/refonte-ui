@@ -2,11 +2,11 @@
 
 import { useState, type FormEvent } from "react";
 import { api } from "@/lib/api";
-import type { User } from "@/app/admin/types";
+import type { AuthSuccessResponse } from "@/app/admin/types";
 
 interface MfaVerifyFormProps {
   mfaToken: string;
-  onSuccess: (user: User, token: string) => void;
+  onSuccess: (result: AuthSuccessResponse) => void;
   onBack?: () => void;
 }
 
@@ -28,7 +28,7 @@ export default function MfaVerifyForm({ mfaToken, onSuccess, onBack }: MfaVerify
 
     try {
       const result = await api.verifyMfa(mfaToken, code);
-      onSuccess(result.user, result.token);
+      onSuccess(result);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Code de vérification invalide");
     } finally {
