@@ -3,17 +3,25 @@
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
+import { setSession } from "@/lib/session";
+import MfaSetupForm from "@/app/admin/components/MfaSetupForm";
+import type { AuthSuccessResponse, MfaSetupResponse } from "@/app/admin/types";
 
 export default function SetPasswordPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [setup, setSetup] = useState<MfaSetupResponse | null>(null);
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
   const [checking, setChecking] = useState(false);
-  const [step, setStep] = useState<"email" | "password">("email");
+  const [step, setStep] = useState<"email" | "password" | "mfa">("email");
+
+  const completeAuth = (result: AuthSuccessResponse) => {
+    setSession(result.token, result.refreshToken, result.user);
+    router.push("/admin/dashboard");
+  };
 
   const handleCheckEmail = async (e: FormEvent) => {
     e.preventDefault();
@@ -47,9 +55,9 @@ export default function SetPasswordPage() {
     setLoading(true);
 
     try {
-      await api.setPassword(email, password);
-      setSuccess("Mot de passe défini avec succès !");
-      setTimeout(() => router.push("/admin/login"), 2000);
+      const result = await api.setPassword(email, password);
+      setSetup(result);
+      setStep("mfa");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erreur");
     } finally {
@@ -125,12 +133,6 @@ export default function SetPasswordPage() {
                   </div>
                 )}
 
-                {success && (
-                  <div className="bg-green-50 border border-green-200 text-green-700 text-sm rounded-lg p-3">
-                    {success}
-                  </div>
-                )}
-
                 <div>
                   <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
                     Mot de passe
@@ -164,13 +166,20 @@ export default function SetPasswordPage() {
 
                 <button
                   type="submit"
-                  disabled={loading || !!success}
+                  disabled={loading}
                   className="w-full bg-blue-600 text-white rounded-lg py-2.5 text-sm font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
                   {loading ? "En cours..." : "Activer mon compte"}
                 </button>
               </form>
             </>
+          )}
+
+          {step === "mfa" && setup && (
+            <MfaSetupForm
+              setup={setup}
+              onSuccess={(result) => completeAuth(result)}
+            />
           )}
         </div>
       </div>

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { api } from "@/lib/api";
+import { sanitizeUrl } from "@/lib/security";
 
 interface ApplicationDetail {
   id: number;
@@ -86,7 +87,7 @@ export default function ApplicationDetailPage() {
                 <dt className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">CV</dt>
                 <dd className="text-sm text-gray-900">
                   {application.cv_url ? (
-                    <a href={application.cv_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-700 underline">
+                    <a href={sanitizeUrl(application.cv_url)} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-700 underline">
                       Voir le CV
                     </a>
                   ) : (

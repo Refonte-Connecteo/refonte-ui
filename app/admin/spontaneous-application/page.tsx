@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
+import { sanitizeUrl } from "@/lib/security";
 
 interface SpontaneousApplicationItem {
   id: number;
@@ -111,7 +112,7 @@ export default function SpontaneousApplicationListPage() {
                   <td className="px-5 py-3.5 text-gray-500 text-xs">
                     {app.cv_url ? (
                       <a
-                        href={app.cv_url}
+                        href={sanitizeUrl(app.cv_url)}
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={(e) => e.stopPropagation()}

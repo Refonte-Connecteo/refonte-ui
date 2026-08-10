@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
+import { sanitizeUrl } from "@/lib/security";
 
 interface ReferenceItem {
   id: number;
@@ -126,7 +127,7 @@ export default function ReferenceListPage() {
                   </td>
                   <td className="px-5 py-3.5 text-gray-500 text-xs">
                     {reference.website_url ? (
-                      <a href={reference.website_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                      <a href={sanitizeUrl(reference.website_url)} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
                         {reference.website_url}
                       </a>
                     ) : (
