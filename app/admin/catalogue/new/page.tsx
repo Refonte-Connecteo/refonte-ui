@@ -82,7 +82,7 @@ export default function CatalogueNewPage() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Fiche</label>
-              <ImageUpload value={fileUrl} onChange={setFileUrl} />
+              <ImageUpload value={fileUrl} onChange={setFileUrl} acceptDocuments />
             </div>
 
             <div className="flex items-center gap-2">

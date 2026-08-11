@@ -617,6 +617,16 @@ class ApiClient {
       body: formData,
     });
   }
+
+  // Upload de CV public (formulaire carriere) — sans authentification
+  uploadCvPublic(file: File) {
+    const formData = new FormData();
+    formData.append("file", file);
+    return this.request<{ url: string; filename: string }>("/upload/cv", {
+      method: "POST",
+      body: formData,
+    });
+  }
 }
 
 export const api = new ApiClient(API_BASE);

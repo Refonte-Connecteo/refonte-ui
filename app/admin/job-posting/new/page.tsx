@@ -116,7 +116,7 @@ export default function JobPostingNewPage() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Fiche de poste</label>
-              <ImageUpload value={ficheUrl} onChange={setFicheUrl} />
+              <ImageUpload value={ficheUrl} onChange={setFicheUrl} acceptDocuments />
             </div>
 
             <div>

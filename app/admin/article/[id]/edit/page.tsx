@@ -140,7 +140,7 @@ export default function ArticleEditPage() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Fichier</label>
-              <ImageUpload value={fileUrl} onChange={setFileUrl} />
+              <ImageUpload value={fileUrl} onChange={setFileUrl} acceptDocuments />
             </div>
 
             <div>
