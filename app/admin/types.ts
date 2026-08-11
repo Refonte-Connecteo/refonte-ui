@@ -70,6 +70,34 @@ export interface ListAdminsResponse {
   users: User[];
 }
 
+// --- AuditLog ---
+export interface AuditLog {
+  id: number;
+  event_type: string;
+  action: string;
+  actor_user_id: number | null;
+  actor_email: string | null;
+  resource_type: string | null;
+  resource_id: string | null;
+  success: boolean;
+  status_code: number | null;
+  error_code: string | null;
+  ip: string | null;
+  user_agent: string | null;
+  request_id: string | null;
+  method: string | null;
+  route: string | null;
+  details: Record<string, unknown> | null;
+  created_at: string;
+}
+
+export interface AuditLogPage {
+  logs: AuditLog[];
+  total: number;
+  page: number;
+  pageSize: number;
+}
+
 export interface ApiError {
   error: string;
 }

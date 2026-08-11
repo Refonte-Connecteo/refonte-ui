@@ -1,5 +1,6 @@
 import type {
   AuthSuccessResponse,
+  AuditLogPage,
   ChangePasswordResponse,
   DisableMfaResponse,
   InviteResponse,
@@ -201,6 +202,30 @@ class ApiClient {
     return this.request<ListAdminsResponse>(
       "/admin"
     );
+  }
+
+  getAuditLogs(
+    params: {
+      page?: number;
+      pageSize?: number;
+      eventType?: string;
+      success?: string;
+      email?: string;
+      from?: string;
+      to?: string;
+    } = {}
+  ): Promise<AuditLogPage> {
+    const query = new URLSearchParams();
+    if (params.page !== undefined) query.set("page", String(params.page));
+    if (params.pageSize !== undefined) query.set("pageSize", String(params.pageSize));
+    if (params.eventType) query.set("eventType", params.eventType);
+    if (params.success !== undefined) query.set("success", params.success);
+    if (params.email) query.set("email", params.email);
+    if (params.from) query.set("from", params.from);
+    if (params.to) query.set("to", params.to);
+
+    const qs = query.toString();
+    return this.request<AuditLogPage>(`/admin/audit-logs${qs ? `?${qs}` : ""}`);
   }
 
   deactivateAdmin(id: number): Promise<{ message: string; user: User }> {

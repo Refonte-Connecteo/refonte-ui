@@ -8,8 +8,9 @@ import { useIdleTimer } from "@/app/admin/hooks/useIdleTimer";
 
 const IDLE_TIMEOUT_MS = 5 * 60 * 1000;
 
-const navItems = [
+const navItems: { href: string; label: string; icon: string; superAdminOnly?: boolean }[] = [
   { href: "/admin/dashboard", label: "Administrateurs", icon: "users" },
+  { href: "/admin/audit-logs", label: "Journal d'audit", icon: "audit", superAdminOnly: true },
   { href: "/admin/ceomessage", label: "Messages CEO", icon: "message" },
   { href: "/admin/heroslide", label: "Slides Hero", icon: "image" },
   { href: "/admin/kpistat", label: "Statistiques KPI", icon: "chart" },
@@ -124,6 +125,13 @@ function NavIcon({ icon }: { icon: string }) {
       </svg>
     );
   }
+  if (icon === "audit") {
+    return (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+      </svg>
+    );
+  }
   return null;
 }
 
@@ -131,7 +139,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const pathname = usePathname();
   const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [profile, setProfile] = useState<{ username: string; user_type: { type: string } } | null>(null);
+  const [profile, setProfile] = useState<{
+    username: string;
+    email?: string;
+    user_type?: { id: number; type: string };
+  } | null>(null);
 
   const isAuthPage = pathname === "/admin/login" || pathname === "/admin/set-password";
 
@@ -141,6 +153,29 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       try { setProfile(JSON.parse(userStr)); } catch { /* ignore */ }
     }
   }, []);
+
+  // Le user stocké localement n'inclut pas toujours user_type ; on rafraîchit
+  // depuis le profil API pour connaître le rôle de façon fiable.
+  useEffect(() => {
+    if (isAuthPage) return;
+    if (profile?.user_type) return;
+
+    let cancelled = false;
+    api
+      .getProfile()
+      .then(({ user }) => {
+        if (!cancelled) setProfile(user);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        clearSession();
+        redirectToLogin("expired");
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [pathname, isAuthPage, profile?.user_type]);
 
   const handleLogout = async (reason: LogoutReason = "manual") => {
     try {
@@ -178,6 +213,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
         <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
           {navItems.map((item) => {
+            if (item.superAdminOnly && profile?.user_type?.type !== "superAdmin") {
+              return null;
+            }
             const isActive = pathname?.startsWith(item.href);
             return (
               <button
@@ -204,7 +242,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               </div>
               <div className="text-xs">
                 <p className="font-medium text-gray-900">{profile.username}</p>
-                <p className="text-gray-500">{profile.user_type.type === "superAdmin" ? "Super Admin" : "Admin"}</p>
+                <p className="text-gray-500">{profile.user_type?.type === "superAdmin" ? "Super Admin" : "Admin"}</p>
               </div>
             </div>
             <button
