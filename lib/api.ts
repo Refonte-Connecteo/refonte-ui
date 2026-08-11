@@ -154,12 +154,12 @@ class ApiClient {
     );
   }
 
-  setPassword(email: string, password: string): Promise<MfaSetupResponse> {
+  setPassword(email: string, password: string, invitationToken: string): Promise<MfaSetupResponse> {
     return this.request<MfaSetupResponse>(
       "/admin/set-password",
       {
         method: "POST",
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password, invitationToken }),
       }
     );
   }

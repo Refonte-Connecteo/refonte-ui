@@ -6,6 +6,7 @@ export interface User {
   is_active: boolean;
   mfa_enabled: boolean;
   created_at: string;
+  last_login_at?: string | null;
   user_type?: {
     id: number;
     type: string;
@@ -59,6 +60,8 @@ export type LoginResponse = MfaChallengeResponse | MfaSetupResponse | AuthSucces
 export interface InviteResponse {
   message: string;
   user: User;
+  invitation_token: string;
+  invitation_token_expires: string;
 }
 
 export interface SetPasswordResponse {

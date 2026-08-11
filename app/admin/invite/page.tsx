@@ -3,13 +3,15 @@
 import { useState, type FormEvent, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
+import type { InviteResponse } from "@/app/admin/types";
 
 export default function AdminInvitePage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [invitation, setInvitation] = useState<InviteResponse | null>(null);
+  const [copied, setCopied] = useState(false);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -19,17 +21,29 @@ export default function AdminInvitePage() {
     }
   }, [router]);
 
+  const activationUrl = invitation
+    ? `${window.location.origin}/admin/set-password?email=${encodeURIComponent(invitation.user.email)}&token=${encodeURIComponent(invitation.invitation_token)}`
+    : "";
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(activationUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      setError("Impossible de copier le lien. Copiez-le manuellement.");
+    }
+  };
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError("");
-    setSuccess("");
+    setInvitation(null);
     setLoading(true);
 
     try {
       const result = await api.inviteAdmin(email, username);
-      setSuccess(
-        `${result.user.email} a été ajouté comme administrateur. L'utilisateur peut maintenant activer son compte depuis la page de connexion.`
-      );
+      setInvitation(result);
       setEmail("");
       setUsername("");
     } catch (err) {
@@ -77,15 +91,6 @@ export default function AdminInvitePage() {
               </div>
             )}
 
-            {success && (
-              <div className="bg-green-50 border border-green-200 text-green-700 text-sm rounded-lg p-3 flex items-center gap-2">
-                <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                {success}
-              </div>
-            )}
-
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
                 Email
@@ -124,6 +129,30 @@ export default function AdminInvitePage() {
               {loading ? "Ajout..." : "Ajouter l'administrateur"}
             </button>
           </form>
+
+          {invitation && (
+            <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg space-y-3">
+              <p className="text-sm text-green-700">
+                {invitation.user.email} a été ajouté comme administrateur. Transmettez-lui ce
+                lien d&apos;activation <strong>(valable 72 h)</strong> :
+              </p>
+              <div className="flex items-center gap-2">
+                <input
+                  readOnly
+                  value={activationUrl}
+                  onFocus={(e) => e.target.select()}
+                  className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-xs bg-white focus:outline-none"
+                />
+                <button
+                  type="button"
+                  onClick={handleCopy}
+                  className="shrink-0 bg-white border border-gray-300 text-gray-700 px-3 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
+                >
+                  {copied ? "Copié" : "Copier"}
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </main>
     </div>
