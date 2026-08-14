@@ -73,6 +73,50 @@ export interface ListAdminsResponse {
   users: User[];
 }
 
+// --- Analytics (dashboard) ---
+export interface DailyPoint {
+  date: string;
+  views: number;
+  visitors: number;
+}
+
+export interface TopPath {
+  path: string;
+  views: number;
+  visitors: number;
+}
+
+export interface TopReferrer {
+  referrer: string;
+  views: number;
+}
+
+export interface DeviceStat {
+  device: string;
+  views: number;
+}
+
+export interface AnalyticsSummary {
+  rangeDays: number;
+  totalViews: number;
+  uniqueVisitors: number;
+  viewsPerDay: number;
+  dailySeries: DailyPoint[];
+  topPages: TopPath[];
+  topReferrers: TopReferrer[];
+  deviceBreakdown: DeviceStat[];
+  counts: {
+    applications: number;
+    spontaneousApplications: number;
+    contactMessages: number;
+    unreadContactMessages: number;
+  };
+}
+
+export interface AnalyticsSummaryResponse {
+  summary: AnalyticsSummary;
+}
+
 // --- AuditLog ---
 export interface AuditLog {
   id: number;

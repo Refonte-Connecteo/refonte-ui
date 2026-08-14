@@ -1,6 +1,7 @@
 import type {
   AuthSuccessResponse,
   AuditLogPage,
+  AnalyticsSummaryResponse,
   ChangePasswordResponse,
   DisableMfaResponse,
   InviteResponse,
@@ -626,6 +627,26 @@ class ApiClient {
       method: "POST",
       body: formData,
     });
+  }
+
+  // Remontée de vue du site public — fire-and-forget, jamais bloquant
+  async trackPageView(path: string, visitorId: string, referrer?: string): Promise<void> {
+    try {
+      await fetch(`${this.baseUrl}/analytics/page-view`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        keepalive: true,
+        body: JSON.stringify({ path, visitorId, referrer: referrer || null }),
+      });
+    } catch {
+      // Le tracking ne doit jamais perturber la navigation.
+    }
+  }
+
+  getAnalyticsSummary(range: number): Promise<AnalyticsSummaryResponse> {
+    return this.request<AnalyticsSummaryResponse>(
+      `/analytics/summary?range=${range}`,
+    );
   }
 }
 

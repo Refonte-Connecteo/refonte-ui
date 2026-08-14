@@ -2,138 +2,80 @@
 
 import { useState, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
+import {
+  LayoutDashboard,
+  ScrollText,
+  MessageSquare,
+  Image,
+  BarChart3,
+  Star,
+  FolderOpen,
+  FileText,
+  CalendarDays,
+  ImagePlus,
+  Briefcase,
+  Inbox,
+  Mail,
+  Send,
+  Shield,
+  LogOut,
+  Menu,
+  X,
+  Sparkles,
+  type LucideIcon,
+} from "lucide-react";
 import { api } from "@/lib/api";
 import { clearSession, redirectToLogin, type LogoutReason } from "@/lib/session";
 import { useIdleTimer } from "@/app/admin/hooks/useIdleTimer";
+import { SectionTitle } from "@/app/admin/components/ui";
 
 const IDLE_TIMEOUT_MS = 5 * 60 * 1000;
 
-const navItems: { href: string; label: string; icon: string; superAdminOnly?: boolean }[] = [
-  { href: "/admin/dashboard", label: "Administrateurs", icon: "users" },
-  { href: "/admin/audit-logs", label: "Journal d'audit", icon: "audit", superAdminOnly: true },
-  { href: "/admin/ceomessage", label: "Messages CEO", icon: "message" },
-  { href: "/admin/heroslide", label: "Slides Hero", icon: "image" },
-  { href: "/admin/kpistat", label: "Statistiques KPI", icon: "chart" },
-  { href: "/admin/reference", label: "Références", icon: "star" },
-  { href: "/admin/catalogue", label: "Catalogues", icon: "folder" },
-  { href: "/admin/job-posting", label: "Offres d'emploi", icon: "briefcase" },
-  { href: "/admin/application", label: "Candidatures", icon: "inbox" },
-  { href: "/admin/spontaneous-application", label: "Candidatures spontanées", icon: "mail" },
-  { href: "/admin/article", label: "Articles", icon: "file" },
-  { href: "/admin/event", label: "Événements", icon: "calendar" },
-  { href: "/admin/event-image", label: "Images événements", icon: "photos" },
-  { href: "/admin/contact-message", label: "Messages contact", icon: "envelope" },
-  { href: "/admin/profile", label: "Sécurité", icon: "shield" },
-];
-
-function NavIcon({ icon }: { icon: string }) {
-  if (icon === "users") {
-    return (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
-      </svg>
-    );
-  }
-  if (icon === "message") {
-    return (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-      </svg>
-    );
-  }
-  if (icon === "image") {
-    return (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-      </svg>
-    );
-  }
-  if (icon === "chart") {
-    return (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-      </svg>
-    );
-  }
-  if (icon === "star") {
-    return (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
-      </svg>
-    );
-  }
-  if (icon === "folder") {
-    return (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
-      </svg>
-    );
-  }
-  if (icon === "briefcase") {
-    return (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-      </svg>
-    );
-  }
-  if (icon === "inbox") {
-    return (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
-      </svg>
-    );
-  }
-  if (icon === "mail") {
-    return (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-      </svg>
-    );
-  }
-  if (icon === "file") {
-    return (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-      </svg>
-    );
-  }
-  if (icon === "calendar") {
-    return (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-      </svg>
-    );
-  }
-  if (icon === "photos") {
-    return (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-      </svg>
-    );
-  }
-  if (icon === "envelope") {
-    return (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-      </svg>
-    );
-  }
-  if (icon === "shield") {
-    return (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-      </svg>
-    );
-  }
-  if (icon === "audit") {
-    return (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-      </svg>
-    );
-  }
-  return null;
+interface NavItem {
+  href: string;
+  label: string;
+  icon: LucideIcon;
+  superAdminOnly?: boolean;
 }
+
+const navGroups: { title: string; items: NavItem[] }[] = [
+  {
+    title: "Pilotage",
+    items: [
+      { href: "/admin/dashboard", label: "Tableau de bord", icon: LayoutDashboard },
+      { href: "/admin/audit-logs", label: "Journal d'audit", icon: ScrollText, superAdminOnly: true },
+    ],
+  },
+  {
+    title: "Contenu",
+    items: [
+      { href: "/admin/ceomessage", label: "Messages CEO", icon: MessageSquare },
+      { href: "/admin/heroslide", label: "Slides Hero", icon: Image },
+      { href: "/admin/kpistat", label: "Statistiques KPI", icon: BarChart3 },
+      { href: "/admin/reference", label: "Références", icon: Star },
+      { href: "/admin/catalogue", label: "Catalogues", icon: FolderOpen },
+      { href: "/admin/article", label: "Articles", icon: FileText },
+      { href: "/admin/event", label: "Événements", icon: CalendarDays },
+      { href: "/admin/event-image", label: "Images événements", icon: ImagePlus },
+    ],
+  },
+  {
+    title: "Recrutement",
+    items: [
+      { href: "/admin/job-posting", label: "Offres d'emploi", icon: Briefcase },
+      { href: "/admin/application", label: "Candidatures", icon: Inbox },
+      { href: "/admin/spontaneous-application", label: "Candidatures spontanées", icon: Mail },
+    ],
+  },
+  {
+    title: "Relation",
+    items: [{ href: "/admin/contact-message", label: "Messages contact", icon: Send }],
+  },
+  {
+    title: "Compte",
+    items: [{ href: "/admin/profile", label: "Sécurité & profil", icon: Shield }],
+  },
+];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -146,13 +88,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   } | null>(null);
 
   const isAuthPage = pathname === "/admin/login" || pathname === "/admin/set-password";
-
-  useEffect(() => {
-    const userStr = localStorage.getItem("admin_user");
-    if (userStr) {
-      try { setProfile(JSON.parse(userStr)); } catch { /* ignore */ }
-    }
-  }, []);
 
   // Le user stocké localement n'inclut pas toujours user_type ; on rafraîchit
   // depuis le profil API pour connaître le rôle de façon fiable.
@@ -177,6 +112,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     };
   }, [pathname, isAuthPage, profile?.user_type]);
 
+  const isSuperAdmin = profile?.user_type?.type === "superAdmin";
+
   const handleLogout = async (reason: LogoutReason = "manual") => {
     try {
       await api.logout();
@@ -198,7 +135,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }
 
   return (
-    <div className="min-h-screen flex bg-gray-50">
+    <div className="min-h-screen flex bg-slate-50">
       {/* Mobile overlay */}
       {sidebarOpen && (
         <div className="fixed inset-0 bg-black/30 z-20 lg:hidden" onClick={() => setSidebarOpen(false)} />
@@ -206,49 +143,80 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
       {/* Sidebar */}
       <aside className={`fixed lg:sticky top-0 left-0 z-30 h-screen w-64 bg-white border-r border-gray-200 flex flex-col transition-transform lg:translate-x-0 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}>
-        <div className="p-5 border-b border-gray-200">
-          <h2 className="text-lg font-bold text-gray-900">Connecteo</h2>
-          <p className="text-xs text-gray-500 mt-0.5">Administration</p>
+        {/* Brand */}
+        <div className="p-5 bg-gradient-to-br from-blue-600 via-indigo-600 to-violet-600">
+          <div className="flex items-center gap-3">
+            <span className="w-10 h-10 rounded-xl bg-white/15 backdrop-blur flex items-center justify-center text-white shrink-0">
+              <Sparkles className="w-5 h-5" />
+            </span>
+            <div>
+              <h2 className="text-lg font-bold text-white leading-tight">Connecteo</h2>
+              <p className="text-xs text-blue-100 mt-0.5 flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                Administration
+              </p>
+            </div>
+          </div>
         </div>
 
-        <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-          {navItems.map((item) => {
-            if (item.superAdminOnly && profile?.user_type?.type !== "superAdmin") {
-              return null;
-            }
-            const isActive = pathname?.startsWith(item.href);
-            return (
-              <button
-                key={item.href}
-                onClick={() => { router.push(item.href); setSidebarOpen(false); }}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                  isActive
-                    ? "bg-blue-50 text-blue-700"
-                    : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
-                }`}
-              >
-                <NavIcon icon={item.icon} />
-                {item.label}
-              </button>
-            );
-          })}
+        {/* Nav */}
+        <nav className="flex-1 px-3 py-4 overflow-y-auto">
+          {navGroups.map((group) => (
+            <div key={group.title}>
+              <SectionTitle>{group.title}</SectionTitle>
+              <div className="space-y-0.5">
+                {group.items.map((item) => {
+                  if (item.superAdminOnly && !isSuperAdmin) return null;
+                  const isActive = pathname?.startsWith(item.href);
+                  const Icon = item.icon;
+                  return (
+                    <button
+                      key={item.href}
+                      onClick={() => { router.push(item.href); setSidebarOpen(false); }}
+                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                        isActive
+                          ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-sm shadow-blue-200"
+                          : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                      }`}
+                    >
+                      <Icon className={`w-4.5 h-4.5 shrink-0 ${isActive ? "text-white" : "text-gray-400"}`} />
+                      {item.label}
+                      {item.superAdminOnly && !isActive && (
+                        <span className="ml-auto text-[9px] uppercase tracking-wide px-1.5 py-0.5 rounded bg-gray-100 text-gray-400 font-semibold">
+                          admin
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
         </nav>
 
+        {/* User footer */}
         {profile && (
-          <div className="p-4 border-t border-gray-200">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="w-7 h-7 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 text-xs font-bold">
+          <div className="p-4 border-t border-gray-200 bg-gray-50/60">
+            <div className="flex items-center gap-3 mb-3">
+              <div className={`w-9 h-9 rounded-full flex items-center justify-center text-white text-sm font-bold shrink-0 ${
+                isSuperAdmin
+                  ? "bg-gradient-to-br from-violet-500 to-fuchsia-500"
+                  : "bg-gradient-to-br from-blue-500 to-indigo-500"
+              }`}>
                 {profile.username.charAt(0).toUpperCase()}
               </div>
-              <div className="text-xs">
-                <p className="font-medium text-gray-900">{profile.username}</p>
-                <p className="text-gray-500">{profile.user_type?.type === "superAdmin" ? "Super Admin" : "Admin"}</p>
+              <div className="min-w-0">
+                <p className="font-medium text-gray-900 text-sm truncate">{profile.username}</p>
+                <p className="text-xs text-gray-500">
+                  {isSuperAdmin ? "Super Admin" : "Admin"}
+                </p>
               </div>
             </div>
             <button
               onClick={() => handleLogout()}
-              className="w-full text-left text-xs text-red-600 hover:text-red-700 font-medium px-1 py-1 rounded hover:bg-red-50 transition-colors"
+              className="w-full inline-flex items-center gap-2 text-xs text-rose-600 hover:text-rose-700 font-medium px-2 py-1.5 rounded-lg hover:bg-rose-50 transition-colors"
             >
+              <LogOut className="w-3.5 h-3.5" />
               Déconnexion
             </button>
           </div>
@@ -258,16 +226,23 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       {/* Main content */}
       <div className="flex-1 flex flex-col min-h-screen">
         {/* Mobile header */}
-        <header className="lg:hidden bg-white border-b border-gray-200 px-4 py-3 flex items-center gap-3">
+        <header className="lg:hidden bg-white border-b border-gray-200 px-4 py-3 flex items-center gap-3 sticky top-0 z-10">
           <button onClick={() => setSidebarOpen(true)} className="text-gray-600 hover:text-gray-900">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
+            <Menu className="w-6 h-6" />
           </button>
           <h1 className="text-lg font-bold text-gray-900">Connecteo Admin</h1>
+          <button
+            onClick={() => setSidebarOpen(false)}
+            className={`ml-auto text-gray-500 ${sidebarOpen ? "" : "hidden"}`}
+            aria-label="Fermer"
+          >
+            <X className="w-5 h-5" />
+          </button>
         </header>
 
-        {children}
+        <main className="flex-1 p-5 lg:p-8 max-w-[1200px] w-full mx-auto space-y-6">
+          {children}
+        </main>
       </div>
     </div>
   );

@@ -1,9 +1,20 @@
 "use client";
 
 import { useEffect, useState, type FormEvent } from "react";
+import { KeyRound, ShieldCheck, ShieldOff, User as UserIcon, AlertCircle, CheckCircle2 } from "lucide-react";
 import { api } from "@/lib/api";
 import { clearSession, redirectToLogin } from "@/lib/session";
 import type { User } from "@/app/admin/types";
+import {
+  Card,
+  CardHeader,
+  Badge,
+  Button,
+  PageHeader,
+} from "@/app/admin/components/ui";
+
+const inputClass =
+  "w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow";
 
 export default function AdminProfilePage() {
   const [profile, setProfile] = useState<User | null>(null);
@@ -88,26 +99,24 @@ export default function AdminProfilePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      <header className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <h1 className="text-xl font-bold text-gray-900">Sécurité du compte</h1>
-          </div>
+    <div className="space-y-6">
+      {profileError && (
+        <div className="bg-rose-50 border border-rose-200 text-rose-700 text-sm rounded-xl p-4 flex items-center gap-2">
+          <AlertCircle className="w-4 h-4 shrink-0" />
+          {profileError}
         </div>
-      </header>
+      )}
 
-      <main className="max-w-4xl mx-auto px-6 py-8 space-y-6">
-        {profileError && (
-          <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg p-4">
-            {profileError}
-          </div>
-        )}
+      <PageHeader
+        title="Sécurité & profil"
+        subtitle="Vos informations et les paramètres de sécurité du compte"
+      />
 
-        <section className="bg-white shadow-sm border border-gray-200 rounded-xl p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Profil</h2>
+      <Card>
+        <CardHeader title="Profil" icon={UserIcon} subtitle="Informations du compte connecté" />
+        <div className="p-6">
           {profile ? (
-            <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+            <dl className="grid grid-cols-1 sm:grid-cols-2 gap-5 text-sm">
               <div>
                 <dt className="text-gray-500 text-xs uppercase tracking-wider mb-1">Email</dt>
                 <dd className="text-gray-900 font-medium">{profile.email}</dd>
@@ -118,39 +127,46 @@ export default function AdminProfilePage() {
               </div>
               <div>
                 <dt className="text-gray-500 text-xs uppercase tracking-wider mb-1">Rôle</dt>
-                <dd className="text-gray-900 font-medium">{profile.user_type?.type ?? "Administrateur"}</dd>
+                <dd className="text-gray-900 font-medium">
+                  {profile.user_type?.type === "superAdmin" ? "Super Admin" : "Administrateur"}
+                </dd>
               </div>
               <div>
                 <dt className="text-gray-500 text-xs uppercase tracking-wider mb-1">Authentification à deux facteurs</dt>
                 <dd>
-                  <span
-                    className={
-                      profile.mfa_enabled
-                        ? "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800"
-                        : "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600"
-                    }
-                  >
-                    {profile.mfa_enabled ? "Activée" : "Désactivée"}
-                  </span>
+                  {profile.mfa_enabled ? (
+                    <Badge color="green" dot>Activée</Badge>
+                  ) : (
+                    <Badge color="gray" dot>Désactivée</Badge>
+                  )}
                 </dd>
               </div>
             </dl>
           ) : (
             <p className="text-sm text-gray-500">Chargement...</p>
           )}
-        </section>
+        </div>
+      </Card>
 
-        <section className="bg-white shadow-sm border border-gray-200 rounded-xl p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-1">Changer le mot de passe</h2>
-          <p className="text-sm text-gray-500 mb-4">
-            Votre mot de passe actuel est requis. Vous devrez vous reconnecter après le changement.
-          </p>
+      <Card>
+        <CardHeader
+          title="Changer le mot de passe"
+          icon={KeyRound}
+          subtitle="Votre mot de passe actuel est requis. Vous devrez vous reconnecter après le changement."
+        />
+        <div className="p-6">
           <form onSubmit={handleChangePassword} className="space-y-4">
             {passwordError && (
-              <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg p-3">{passwordError}</div>
+              <div className="bg-rose-50 border border-rose-200 text-rose-700 text-sm rounded-lg p-3 flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                {passwordError}
+              </div>
             )}
             {passwordSuccess && (
-              <div className="bg-green-50 border border-green-200 text-green-700 text-sm rounded-lg p-3">{passwordSuccess}</div>
+              <div className="bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm rounded-lg p-3 flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 shrink-0" />
+                {passwordSuccess}
+              </div>
             )}
             <div>
               <label htmlFor="currentPassword" className="block text-sm font-medium text-gray-700 mb-1">
@@ -162,7 +178,7 @@ export default function AdminProfilePage() {
                 value={currentPassword}
                 onChange={(e) => setCurrentPassword(e.target.value)}
                 required
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={inputClass}
               />
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -176,7 +192,7 @@ export default function AdminProfilePage() {
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   required
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className={inputClass}
                 />
               </div>
               <div>
@@ -189,32 +205,37 @@ export default function AdminProfilePage() {
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className={inputClass}
                 />
               </div>
             </div>
-            <button
-              type="submit"
-              disabled={passwordLoading}
-              className="inline-flex items-center gap-1.5 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
-            >
+            <Button type="submit" disabled={passwordLoading}>
               {passwordLoading ? "Modification..." : "Changer le mot de passe"}
-            </button>
+            </Button>
           </form>
-        </section>
+        </div>
+      </Card>
 
-        {profile?.mfa_enabled && (
-          <section className="bg-white shadow-sm border border-red-200 rounded-xl p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-1">Désactiver l&apos;authentification à deux facteurs</h2>
-            <p className="text-sm text-gray-500 mb-4">
-              Votre mot de passe actuel est requis. Vous devrez vous reconnecter après la désactivation.
-            </p>
+      {profile?.mfa_enabled && (
+        <Card className="border-rose-200">
+          <CardHeader
+            title="Désactiver la double authentification"
+            icon={ShieldOff}
+            subtitle="Votre mot de passe actuel est requis. Vous devrez vous reconnecter après la désactivation."
+          />
+          <div className="p-6">
             <form onSubmit={handleDisableMfa} className="space-y-4">
               {mfaError && (
-                <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg p-3">{mfaError}</div>
+                <div className="bg-rose-50 border border-rose-200 text-rose-700 text-sm rounded-lg p-3 flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 shrink-0" />
+                  {mfaError}
+                </div>
               )}
               {mfaSuccess && (
-                <div className="bg-green-50 border border-green-200 text-green-700 text-sm rounded-lg p-3">{mfaSuccess}</div>
+                <div className="bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm rounded-lg p-3 flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 shrink-0" />
+                  {mfaSuccess}
+                </div>
               )}
               <div>
                 <label htmlFor="mfaPassword" className="block text-sm font-medium text-gray-700 mb-1">
@@ -226,20 +247,17 @@ export default function AdminProfilePage() {
                   value={mfaPassword}
                   onChange={(e) => setMfaPassword(e.target.value)}
                   required
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
+                  className={inputClass}
                 />
               </div>
-              <button
-                type="submit"
-                disabled={mfaLoading}
-                className="inline-flex items-center gap-1.5 bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-red-700 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
-              >
+              <Button variant="danger" type="submit" disabled={mfaLoading}>
+                <ShieldCheck className="w-4 h-4" />
                 {mfaLoading ? "Désactivation..." : "Désactiver la double authentification"}
-              </button>
+              </Button>
             </form>
-          </section>
-        )}
-      </main>
+          </div>
+        </Card>
+      )}
     </div>
   );
 }
