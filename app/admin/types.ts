@@ -18,6 +18,7 @@ export interface AuthSuccessResponse {
   user: User;
   token: string;
   refreshToken: string;
+  forcePasswordChange?: boolean;
 }
 
 export interface RefreshResponse {
@@ -53,6 +54,7 @@ export interface MfaChallengeResponse {
   requireMfa: true;
   mfaToken: string;
   userId: number;
+  forcePasswordChange?: boolean;
 }
 
 export type LoginResponse = MfaChallengeResponse | MfaSetupResponse | AuthSuccessResponse;
@@ -147,6 +149,10 @@ export interface AuditLogPage {
 
 export interface ApiError {
   error: string;
+}
+
+export interface ForceChangePasswordResponse {
+  message: string;
 }
 
 // --- CeoMessage ---

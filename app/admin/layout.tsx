@@ -85,9 +85,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     username: string;
     email?: string;
     user_type?: { id: number; type: string };
+    force_password_change?: boolean;
   } | null>(null);
 
-  const isAuthPage = pathname === "/admin/login" || pathname === "/admin/set-password";
+  const isAuthPage = pathname === "/admin/login" || pathname === "/admin/set-password" || pathname === "/admin/force-change-password";
 
   // Le user stocké localement n'inclut pas toujours user_type ; on rafraîchit
   // depuis le profil API pour connaître le rôle de façon fiable.
@@ -99,7 +100,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     api
       .getProfile()
       .then(({ user }) => {
-        if (!cancelled) setProfile(user);
+        if (cancelled) return;
+        setProfile(user);
+        if (user.force_password_change && pathname !== "/admin/force-change-password") {
+          window.location.href = "/admin/force-change-password";
+        }
       })
       .catch(() => {
         if (cancelled) return;

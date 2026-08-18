@@ -4,6 +4,7 @@ import type {
   AnalyticsSummaryResponse,
   ChangePasswordResponse,
   DisableMfaResponse,
+  ForceChangePasswordResponse,
   InviteResponse,
   ListAdminsResponse,
   LoginResponse,
@@ -35,6 +36,7 @@ const AUTH_ENDPOINTS = [
   "/admin/check-pending",
   "/admin/mfa/",
   "/auth/refresh",
+  "/auth/force-change-password",
 ];
 
 class ApiClient {
@@ -118,6 +120,14 @@ class ApiClient {
       throw new SessionExpiredError();
     }
 
+    if (response.status === 403) {
+      const errorData = await response.json() as { forcePasswordChange?: boolean };
+      if (errorData.forcePasswordChange) {
+        window.location.href = "/admin/force-change-password";
+        throw new Error("Changement de mot de passe obligatoire");
+      }
+    }
+
     const data = await response.json();
 
     if (!response.ok) {
@@ -189,6 +199,13 @@ class ApiClient {
     return this.request<ChangePasswordResponse>("/auth/change-password", {
       method: "POST",
       body: JSON.stringify({ currentPassword, newPassword }),
+    });
+  }
+
+  forceChangePassword(newPassword: string): Promise<ForceChangePasswordResponse> {
+    return this.request<ForceChangePasswordResponse>("/auth/force-change-password", {
+      method: "POST",
+      body: JSON.stringify({ newPassword }),
     });
   }
 
