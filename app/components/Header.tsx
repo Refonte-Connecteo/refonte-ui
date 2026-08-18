@@ -119,7 +119,7 @@ export default function Header() {
                 : "border border-white/30 text-white hover:bg-white hover:text-gray-900"
             }`}
           >
-            Contactez-nous
+            Contactez-nous Maintenant
           </a>
         </div>
 
@@ -203,7 +203,7 @@ export default function Header() {
               className="inline-block rounded-full bg-[#FFA900] px-6 py-2.5 text-sm font-semibold text-gray-900 transition-all hover:bg-[#00AFA9] hover:text-white"
               onClick={() => setMenuOpen(false)}
             >
-              Contactez-nous
+              Contactez-nous Maintenant
             </a>
           </div>
         </nav>
