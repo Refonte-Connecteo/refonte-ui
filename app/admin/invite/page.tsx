@@ -9,6 +9,7 @@ export default function AdminInvitePage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
+  const [userTypeId, setUserTypeId] = useState(2);
   const [error, setError] = useState("");
   const [invitation, setInvitation] = useState<InviteResponse | null>(null);
   const [copied, setCopied] = useState(false);
@@ -42,7 +43,7 @@ export default function AdminInvitePage() {
     setLoading(true);
 
     try {
-      const result = await api.inviteAdmin(email, username);
+      const result = await api.inviteAdmin(email, username, userTypeId);
       setInvitation(result);
       setEmail("");
       setUsername("");
@@ -121,6 +122,21 @@ export default function AdminInvitePage() {
               />
             </div>
 
+            <div>
+              <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-1">
+                Rôle
+              </label>
+              <select
+                id="role"
+                value={userTypeId}
+                onChange={(e) => setUserTypeId(Number(e.target.value))}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow bg-white"
+              >
+                <option value={2}>Administrateur</option>
+                <option value={1}>Super Administrateur</option>
+              </select>
+            </div>
+
             <button
               type="submit"
               disabled={loading}
@@ -133,7 +149,7 @@ export default function AdminInvitePage() {
           {invitation && (
             <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg space-y-3">
               <p className="text-sm text-green-700">
-                {invitation.user.email} a été ajouté comme administrateur. Transmettez-lui ce
+                {invitation.user.email} a été ajouté comme {invitation.user.user_type_id === 1 ? "super administrateur" : "administrateur"}. Transmettez-lui ce
                 lien d&apos;activation <strong>(valable 72 h)</strong> :
               </p>
               <div className="flex items-center gap-2">

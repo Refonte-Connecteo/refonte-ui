@@ -145,12 +145,12 @@ class ApiClient {
     });
   }
 
-  inviteAdmin(email: string, username: string): Promise<InviteResponse> {
+  inviteAdmin(email: string, username: string, userTypeId?: number): Promise<InviteResponse> {
     return this.request<InviteResponse>(
       "/admin/invite",
       {
         method: "POST",
-        body: JSON.stringify({ email, username }),
+        body: JSON.stringify({ email, username, userTypeId }),
       }
     );
   }
