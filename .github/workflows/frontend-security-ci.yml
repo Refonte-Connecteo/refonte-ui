@@ -1,0 +1,373 @@
+# =============================================================================
+#  FRONTEND SECURITY CI — SAST + DAST intégrés à la chaîne CI/CD
+# =============================================================================
+#  Exigence d'audit couverte :
+#    "Les applications à risque élevé/moyen font l'objet d'analyses de code
+#     obligatoires (SAST) et de tests dynamiques (DAST) intégrés à la CI/CD."
+#
+#  Dépôt : site web public FRONTEND (Next.js / React)
+#
+#  Job 1 (SAST)  : Semgrep (p/react, p/javascript, p/owasp-top-10 + règles
+#                  custom XSS-DOM), détection de secrets (gitleaks),
+#                  audit des dépendances (npm audit --audit-level=high).
+#  Job 2 (DAST)  : build de production (`next build`), serveur local
+#                  (`next start`), scan dynamique OWASP ZAP Baseline
+#                  (en-têtes de sécurité, injections client, mauvaises
+#                  configurations). Échec du job si faille HIGH/CRITICAL.
+#  Artefacts     : rapports HTML/JSON/SARIF conservés 30 jours.
+# =============================================================================
+
+name: Frontend Security CI (SAST + DAST)
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  # Re-scan hebdomadaire : nouvelles CVE dépendances + nouvelles règles ZAP
+  schedule:
+    - cron: "0 6 * * 1" # tous les lundis à 06:00 UTC
+  workflow_dispatch: # déclenchement manuel possible
+
+permissions:
+  contents: read
+  security-events: write # nécessaire pour publier la SARIF Semgrep
+
+concurrency:
+  group: frontend-security-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  APP_PORT: "3000"
+  TARGET_URL: http://127.0.0.1:3000
+
+jobs:
+  # ===========================================================================
+  #  JOB 1 — SAST : analyse statique du code + secrets + dépendances
+  # ===========================================================================
+  sast:
+    name: SAST — Analyse statique (Semgrep, Secrets, npm audit)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout du dépôt
+        uses: actions/checkout@v4
+
+      # -----------------------------------------------------------------------
+      # 1.1 Détection de clés API / jetons oubliés dans le code client
+      #     (exécuté AVANT `npm ci` pour ne pas scanner node_modules)
+      # -----------------------------------------------------------------------
+      - name: Détection de secrets (gitleaks)
+        run: |
+          docker run --rm -v "$PWD:/repo" -w /repo \
+            ghcr.io/gitleaks/gitleaks:latest \
+            dir . --redact \
+            --report-format json \
+            --report-path /repo/gitleaks-report.json
+          echo "::notice::Aucun secret détecté dans le code source."
+
+      # -----------------------------------------------------------------------
+      # 1.2 Règles Semgrep custom : failles XSS basées sur le DOM
+      #     (dangerouslySetInnerHTML, v-html, eval, innerHTML, document.write…)
+      # -----------------------------------------------------------------------
+      - name: Génération des règles Semgrep custom (XSS DOM)
+        run: |
+          mkdir -p .semgrep
+          cat > .semgrep/dom-xss.yml <<'EOF'
+          rules:
+            - id: react-dangerously-set-inner-html
+              message: >
+                dangerouslySetInnerHTML injecte du HTML brut dans le DOM :
+                risque de XSS si le contenu n'est pas assaini (DOMPurify).
+              severity: ERROR
+              languages: [js, ts, jsx, tsx]
+              patterns:
+                - pattern-either:
+                    - pattern: React.createElement($E, { dangerouslySetInnerHTML: $H }, ...)
+                    - pattern: <$E ... dangerouslySetInnerHTML={$H} />
+              metadata:
+                cwe: "CWE-79: Cross-site Scripting"
+
+            - id: vue-v-html
+              message: >
+                La directive v-html rend du HTML brut : vecteur classique de
+                XSS si les données proviennent d'une source non fiable.
+              severity: ERROR
+              languages: [html]
+              patterns:
+                - pattern-regex: 'v-html\s*='
+              metadata:
+                cwe: "CWE-79: Cross-site Scripting"
+
+            - id: js-eval
+              message: "eval() exécute du code arbitraire : interdit côté client."
+              severity: ERROR
+              languages: [js, ts, jsx, tsx]
+              pattern: eval(...)
+              metadata:
+                cwe: "CWE-95: Code Injection"
+
+            - id: js-new-function
+              message: "new Function() est équivalent à eval() : exécution dynamique de code."
+              severity: ERROR
+              languages: [js, ts, jsx, tsx]
+              pattern: new Function(...)
+              metadata:
+                cwe: "CWE-95: Code Injection"
+
+            - id: dom-innerhtml-assignment
+              message: "Assignation directe à .innerHTML : risque de XSS basé sur le DOM."
+              severity: WARNING
+              languages: [js, ts, jsx, tsx]
+              patterns:
+                - pattern-either:
+                    - pattern: $EL.innerHTML = $X
+                    - pattern: $EL.outerHTML = $X
+                    - pattern: $EL.insertAdjacentHTML(...)
+              metadata:
+                cwe: "CWE-79: Cross-site Scripting"
+
+            - id: dom-document-write
+              message: "document.write() permet l'injection HTML/JS dans le document."
+              severity: WARNING
+              languages: [js, ts, jsx, tsx]
+              pattern: document.write(...)
+              metadata:
+                cwe: "CWE-79: Cross-site Scripting"
+          EOF
+
+      # -----------------------------------------------------------------------
+      # 1.3 Scan Semgrep : packs communautaires + règles custom ci-dessus
+      #     Sorties : JSON (artefact) + SARIF (GitHub Code Scanning)
+      # -----------------------------------------------------------------------
+      - name: Scan SAST Semgrep (react, javascript, owasp-top-10)
+        run: |
+          docker run --rm -v "$PWD:/src" -w /src \
+            semgrep/semgrep:latest \
+            semgrep scan \
+              --config p/react \
+              --config p/javascript \
+              --config p/owasp-top-10 \
+              --config .semgrep/dom-xss.yml \
+              --exclude node_modules --exclude .next \
+              --json > semgrep-report.json
+          docker run --rm -v "$PWD:/src" -w /src \
+            semgrep/semgrep:latest \
+            semgrep scan \
+              --config p/react \
+              --config p/javascript \
+              --config p/owasp-top-10 \
+              --config .semgrep/dom-xss.yml \
+              --exclude node_modules --exclude .next \
+              --sarif > semgrep.sarif
+
+      - name: Publication SARIF dans GitHub Code Scanning
+        uses: github/codeql-action/upload-sarif@v3
+        continue-on-error: true # ne bloque pas sur les PR de forks (permissions)
+        with:
+          sarif_file: semgrep.sarif
+
+      # -----------------------------------------------------------------------
+      # 1.4 Audit des dépendances frontend (bloquant dès HIGH)
+      # -----------------------------------------------------------------------
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Installation des dépendances (lockfile strict)
+        run: npm ci
+
+      - name: Rapport d'audit des dépendances (JSON)
+        run: |
+          npm audit --json > npm-audit-report.json || true
+          npm audit --omit=dev --json > npm-audit-prod-report.json || true
+
+      - name: Porte SAST — échec si vulnérabilité >= HIGH
+        run: npm audit --audit-level=high
+
+      # -----------------------------------------------------------------------
+      # 1.5 Artefacts SAST (toujours sauvegardés, même en cas d'échec)
+      # -----------------------------------------------------------------------
+      - name: Upload des rapports SAST
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sast-reports
+          path: |
+            semgrep-report.json
+            semgrep.sarif
+            gitleaks-report.json
+            npm-audit-report.json
+            npm-audit-prod-report.json
+          retention-days: 30
+          if-no-files-found: warn
+
+  # ===========================================================================
+  #  JOB 2 — DAST : build + serveur local + OWASP ZAP Baseline
+  # ===========================================================================
+  dast:
+    name: DAST — Scan dynamique OWASP ZAP (site web public)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    # Indépendant du job SAST : les deux analyses doivent toujours s'exécuter,
+    # même si l'une des deux échoue (exigence d'audit = traçabilité complète).
+
+    steps:
+      - name: Checkout du dépôt
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Installation des dépendances
+        run: npm ci
+
+      # -----------------------------------------------------------------------
+      # 2.1 Build de production.
+      #     NB : ce projet Next.js n'est PAS un export statique pur :
+      #     `npx serve -s build` ne suffirait pas. On utilise le serveur
+      #     de production officiel `next start` (cf. docs Next.js).
+      # -----------------------------------------------------------------------
+      - name: Build de production
+        env:
+          NEXT_TELEMETRY_DISABLED: "1"
+        run: npm run build
+
+      # -----------------------------------------------------------------------
+      # 2.2 Lancement du serveur local servant le site (simule la prod)
+      # -----------------------------------------------------------------------
+      - name: Démarrage du serveur local
+        run: |
+          PORT=${{ env.APP_PORT }} nohup npm run start > next-server.log 2>&1 &
+          echo "Serveur Next.js démarré en arrière-plan (port ${{ env.APP_PORT }})."
+
+      - name: Attente de disponibilité du serveur
+        run: |
+          for i in $(seq 1 60); do
+            if curl -fsS -o /dev/null "${{ env.TARGET_URL }}"; then
+              echo "Serveur disponible après ${i} tentative(s)."
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "::error::Le serveur ne répond pas sur ${{ env.TARGET_URL }}"
+          cat next-server.log
+          exit 1
+
+      # -----------------------------------------------------------------------
+      # 2.3 Configuration ZAP : ajustement fin par règle (FAIL/WARN/IGNORE).
+      #     Décommentez et adaptez les lignes nécessaires pour traiter les
+      #     faux positifs. Format : <id_règle>\t<niveau>\t(commentaire)
+      # -----------------------------------------------------------------------
+      - name: Préparation configuration ZAP
+        run: |
+          mkdir -p security-reports
+          chmod 777 security-reports # écriture par l'utilisateur du conteneur ZAP
+          cat > zap-rules.conf <<'EOF'
+          # =====================================================================
+          # Règles OWASP ZAP Baseline — niveaux : IGNORE | WARN | FAIL
+          # Liste officielle : https://www.zaproxy.org/docs/alerts/
+          # =====================================================================
+          # 10038	COMMENT	Réponse cacheable — à ignorer derrière notre CDN
+          # 10063	IGNORE	En-tête Permissions-Policy absent (cas particulier)
+          EOF
+
+      # -----------------------------------------------------------------------
+      # 2.4 Scan dynamique OWASP ZAP Baseline ("robot d'attaque").
+      #     Vérifie notamment : en-têtes HTTP de sécurité (CSP, HSTS,
+      #     X-Frame-Options…), injections client, cookies, ressources
+      #     mal configurées, erreurs applicatives exposées.
+      #
+      #     --network host : permet au conteneur ZAP d'atteindre le serveur
+      #     lancé sur le runner (127.0.0.1). Valide sur runners ubuntu-latest.
+      #
+      #     -I : on ne fait pas échouer le scan sur les simples WARN ;
+      #     la politique de blocage (HIGH/CRITICAL) est appliquée par la
+      #     porte dédiée à l'étape 2.6, à partir du rapport JSON.
+      # -----------------------------------------------------------------------
+      - name: Scan OWASP ZAP Baseline
+        id: zap
+        run: |
+          set +e
+          docker run --rm --network host \
+            -v "$PWD/security-reports:/zap/wrk" \
+            zaproxy/zap-stable:latest \
+            zap-baseline.py \
+              -t "${{ env.TARGET_URL }}" \
+              -c zap-rules.conf \
+              -J zap-report.json \
+              -r zap-report.html \
+              -w zap-warnings.md \
+              -I
+          code=$?
+          set -e
+          echo "Code retour ZAP brut : $code"
+          echo "zap_exit=$code" >> "$GITHUB_OUTPUT"
+          # Codes ZAP baseline : 0 = rien, 1 = alertes WARN/FAIL détectées,
+          # >=2 = erreur d'exécution (traitée comme un échec infra ci-dessous).
+          if [ "$code" -ge 2 ]; then
+            echo "::error::Échec d'exécution du scanner ZAP (code $code)."
+            exit 1
+          fi
+
+      # -----------------------------------------------------------------------
+      # 2.5 PORTE DE SÉCURITÉ : échec du job si faille HIGH/CRITICAL.
+      #     Échelle de risque ZAP : 0=Info, 1=Low, 2=Medium, 3=High.
+      #     (ZAP n'a pas de niveau "Critical" distinct : High = seuil max.)
+      # -----------------------------------------------------------------------
+      - name: Porte DAST — échec si faille HIGH/CRITICAL
+        run: |
+          python3 - <<'PY'
+          import json, sys, os
+
+          path = "security-reports/zap-report.json"
+          if not os.path.exists(path):
+              print("::error::Rapport JSON ZAP introuvable — scan invalide.")
+              sys.exit(2)
+
+          with open(path) as f:
+              data = json.load(f)
+
+          high, medium = [], []
+          for site in data.get("site") or []:
+              for alert in site.get("alerts") or []:
+                  try:
+                      risk = int(alert.get("riskcode", 0))
+                  except (TypeError, ValueError):
+                      risk = 0
+                  uris = [i.get("uri", "") for i in (alert.get("instances") or [])][:3]
+                  entry = f"{alert.get('name', '?')} | risque={alert.get('riskdesc', '?')} | {', '.join(filter(None, uris))}"
+                  (high if risk >= 3 else medium if risk == 2 else []).append(entry)
+
+          print(f"=== Résumé ZAP : {len(high)} HIGH/CRITICAL, {len(medium)} MEDIUM ===")
+          for e in high:
+              print(f"::error::[HIGH] {e}")
+          for e in medium:
+              print(f"::warning::[MEDIUM] {e}")
+
+          if high:
+              print("::error::Politique de sécurité : failles HIGH/CRITICAL détectées → pipeline bloqué.")
+              sys.exit(1)
+          PY
+
+      # -----------------------------------------------------------------------
+      # 2.6 Artefacts DAST (rapports ZAP HTML/JSON/MD + logs serveur)
+      # -----------------------------------------------------------------------
+      - name: Upload des rapports DAST
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dast-reports
+          path: |
+            security-reports/zap-report.html
+            security-reports/zap-report.json
+            security-reports/zap-warnings.md
+            next-server.log
+          retention-days: 30
+          if-no-files-found: warn
