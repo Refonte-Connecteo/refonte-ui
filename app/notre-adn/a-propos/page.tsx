@@ -9,20 +9,20 @@ const visionMissionValeurs = [
   {
     title: "Vision",
     description:
-      "Devenir le leader régional du recrutement humain et innovant en Afrique, en créant un écosystème où chaque talent trouve sa place et chaque entreprise, son collaborateur idéal.",
-    accent: "#00AFA9",
-  },
-  {
-    title: "Mission",
-    description:
-    "Connecter les talents aux opportunités avec une approche humaine et sur-mesure, en révélant le potentiel unique de chaque individu à travers des événements immersifs et un accompagnement personnalisé.",
-    accent: "#00AFA9",
+      "Devenir la référence africaine de l'expérience et de la relation client.",
+    accent: "#096475",
   },
   {
     title: "Valeurs",
     description:
-      "L'excellence, l'humanité, l'innovation et l'intégrité sont les piliers qui guident chacune de nos actions et façonnent notre culture d'entreprise au quotidien.",
-    accent: "#FFA900",
+      "Culture du service · Agilité · Co-construction · Bienveillance.",
+    accent: "#096475",
+  },
+  {
+    title: "Mission",
+    description:
+      "Créer pour chaque marque des parcours mémorables, humains et performants.",
+    accent: "#096475",
   },
 ];
 
@@ -34,7 +34,7 @@ function Section({ children, className = "" }: { children: React.ReactNode; clas
       className={`transition-all duration-1000 ease-out ${className}`}
       style={{
         opacity: inView ? 1 : 0,
-        transform: inView ? "translateY(0)" : "translateY(40px)",
+        transform: inView ? "translateY(0)" : "translateY(30px)",
       }}
     >
       {children}
@@ -43,133 +43,137 @@ function Section({ children, className = "" }: { children: React.ReactNode; clas
 }
 
 export default function APropos() {
-  const [stats, setStats] = useState<{value: string; label: string; color: string}[]>([
-    { value: "15 000+", label: "Talents accompagnés", color: "#00AFA9" },
-    { value: "98%", label: "Satisfaction candidats", color: "#FFA900" },
-    { value: "200+", label: "Événements / an", color: "#00AFA9" },
-    { value: "12", label: "Agences", color: "#FFA900" },
+  // Positions en % de la pilule (mesurées sur Figma : pilule 1237 × 476, cercle 382)
+  const circles = [
+    { rest: { left: -30.9, top: 9.9 }, on: { left: 6.9, top: 9.9 }, center: 22.4 },   // Vision  : vient de la gauche
+    { rest: { left: 33.4, top: 105.7 }, on: { left: 33.4, top: 9.9 }, center: 48.9 }, // Valeurs : vient du bas
+    { rest: { left: 100.2, top: 9.9 }, on: { left: 62.2, top: 9.9 }, center: 77.7 },  // Mission : vient de la droite
+  ];
+  const [active, setActive] = useState<number | null>(null); // colonne survolée              // le cercle glisse-t-il ?
+
+  const ease = "cubic-bezier(0.22, 1, 0.36, 1)";
+
+  const [stats, setStats] = useState<{ value: string; label: string; color: string }[]>([
+    { value: "850", label: "Collaborateurs", color: "#FFA900" },
+    { value: "+100", label: "Collaborateurs", color: "#FFA900" },
+    { value: "10", label: "Collaborateurs", color: "#FFA900" },
+    { value: "10", label: "Collaborateurs", color: "#FFA900" },
   ]);
 
   useEffect(() => {
     api.getActiveKpiStats().then((res) => {
-      const colors = ["#00AFA9", "#FFA900"];
-      const mapped = res.stats.map((s, i) => ({
+      const mapped = res.stats.map((s) => ({
         value: s.value,
         label: s.label,
-        color: colors[i % colors.length],
+        color: "#FFA900",
       }));
       if (mapped.length > 0) setStats(mapped);
     }).catch(() => {});
   }, []);
 
   return (
-    <div className="min-h-screen bg-white">
-
+    <div className="min-h-screen bg-white text-[#0B1D20]">
       <Chronologie />
 
-      <section className="relative py-28 md:py-36 px-8 md:px-12 lg:px-16 overflow-hidden">
-        <div className="absolute -right-40 top-1/2 -translate-y-1/2 w-[45rem] h-[45rem] rounded-full bg-[#096475]/[0.06] blur-[120px] pointer-events-none" />
-        <div className="absolute -right-20 top-1/3 w-[25rem] h-[25rem] rounded-full bg-[#096475]/[0.04] blur-[100px] pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-80 h-80 rounded-full bg-[#FFA900]/[0.03] blur-3xl pointer-events-none" />
+{/* Section Vision, Valeurs & Mission */}
+      <section className="py-12 md:py-20 px-6 md:px-12 lg:px-16">
+        <div className="max-w-6xl mx-auto">
+          <Section>
+            <div
+              className="relative overflow-hidden bg-[#EFEEED]/70 rounded-[60px] md:rounded-full
+                        px-8 py-14 md:p-0 md:aspect-[1237/476] [container-type:inline-size]"
+              onMouseLeave={() => setActive(null)}
+            >
+              {/* Cercles orange : un par colonne, coupés par la pilule (desktop) */}
+              {circles.map((c, i) => {
+                const pos = active === i ? c.on : c.rest;
+                return (
+                  <div
+                    key={i}
+                    aria-hidden
+                    className="hidden md:block absolute rounded-full bg-[#FFA900] pointer-events-none"
+                    style={{
+                      width: "30.9%",
+                      aspectRatio: "1 / 1",
+                      left: `${pos.left}%`,
+                      top: `${pos.top}%`,
+                      transition: `left 900ms ${ease}, top 900ms ${ease}`,
+                    }}
+                  />
+                );
+              })}
 
-        <div className="max-w-7xl mx-auto relative">
-          <Section className="text-center mb-16">
-            <div className="flex items-center justify-center gap-3 mb-4">
-              <span className="h-px w-8 bg-gradient-to-r from-transparent to-[#00AFA9]/40" />
-              <span className="inline-block text-sm font-semibold uppercase tracking-[0.2em] text-[#0B1D20]/50">
-                Notre ADN
-              </span>
-              <span className="h-px w-8 bg-gradient-to-l from-transparent to-[#00AFA9]/40" />
-            </div>
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-[#0B1D20] mb-4 leading-tight">
-              Ce qui nous <span className="text-[#00AFA9]">définit</span>
-            </h2>
-            <p className="text-[#0B1D20]/55 max-w-xl mx-auto text-base md:text-lg">
-              Vision,  mission et valeurs  : le triptyque qui guide notre engagement au quotidien.
-            </p>
-          </Section>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
-            {visionMissionValeurs.map((item, idx) => (
-              <Section key={item.title}>
-                <div
-                  className="group relative h-full rounded-2xl transition-all duration-500"
-                  style={{
-                    backgroundColor: `${item.accent}04`,
-                    transitionDelay: `${idx * 80}ms`,
-                  }}
-                >
-                  <div className="p-8 md:p-10">
-                    <div className="flex items-center gap-3 mb-8">
-                      <span
-                        className="text-xs font-semibold tracking-[0.15em]"
-                        style={{ color: item.accent }}
-                      >
-                        {String(idx + 1).padStart(2, "0")}
-                      </span>
-                      <span
-                        className="h-px flex-1"
-                        style={{ backgroundColor: `${item.accent}12` }}
-                      />
+              {/* Colonnes de texte */}
+              <div className="relative z-10 grid grid-cols-1 gap-10 md:block md:absolute md:inset-0">
+                {visionMissionValeurs.map((item, i) => {
+                  const isActive = active === i;
+                  return (
+                    <div
+                      key={item.title}
+                      onMouseEnter={() => setActive(i)}
+                      className="flex flex-col items-start md:absolute md:top-0 md:h-full md:w-[30.9%]
+                                md:items-center md:justify-center md:-translate-x-1/2 md:left-[var(--x)]"
+                      style={{ "--x": `${circles[i].center}%` } as React.CSSProperties}
+                    >
+                      <div className="flex flex-col items-start md:w-[54%]">
+                        <h3
+                          className="text-3xl text-[#096475] font-light mb-2 tracking-wide md:[font-size:clamp(1.1rem,3.2cqw,2.5rem)]"
+                          style={{
+                            transition: `color 900ms ${ease}`,
+                          }}
+                        >
+                          {item.title}
+                        </h3>
+                        <div
+                          className="w-16 md:w-[45%] h-[1.5px] mb-6 md:mb-[3cqw]"
+                          style={{
+                            backgroundColor: "#096475",
+                            transition: `background-color 900ms ${ease}`,
+                          }}
+                        />
+                        <p
+                          className="text-md text-[#096475] leading-relaxed font-normal break-words md:[font-size:clamp(0.6rem,1.45cqw,0.95rem)]"
+                          style={{
+                            transition: `color 900ms ${ease}`,
+                          }}
+                        >
+                          {item.description}
+                        </p>
+                      </div>
                     </div>
-
-                    <h3 className="text-2xl font-bold text-[#0B1D20] mb-3 leading-snug">
-                      {item.title}
-                    </h3>
-
-                    <p className="text-[#0B1D20]/55 leading-relaxed text-[15px]">
-                      {item.description}
-                    </p>
-                  </div>
-                </div>
-              </Section>
-            ))}
-          </div>
+                  );
+                })}
+              </div>
+            </div>
+          </Section>
         </div>
       </section>
 
-      <section className="relative py-28 md:py-36 px-8 md:px-12 lg:px-16 overflow-hidden">
-        <div className="absolute -right-40 top-1/2 -translate-y-1/2 w-[45rem] h-[45rem] rounded-full bg-[#096475]/[0.06] blur-[120px] pointer-events-none" />
-        <div className="absolute -right-20 top-1/4 w-[25rem] h-[25rem] rounded-full bg-[#096475]/[0.04] blur-[100px] pointer-events-none" />
-
-        <div className="max-w-7xl mx-auto text-center relative">
-          <Section>
-            <div className="flex items-center justify-center gap-3 mb-4">
-              <span className="h-px w-8 bg-gradient-to-r from-transparent to-[#FFA900]/40" />
-              <span className="inline-block text-sm font-semibold uppercase tracking-[0.2em] text-[#0B1D20]/50">
-                Chiffres clés
-              </span>
-              <span className="h-px w-8 bg-gradient-to-l from-transparent to-[#FFA900]/40" />
-            </div>
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-[#0B1D20] mb-4 leading-tight">
-              Connecteo en <span className="text-[#00AFA9]">chiffres</span>
+      {/* Section Chiffres Clés */}
+      <section className="pb-20 md:pb-28 px-6 md:px-12 lg:px-16">
+        <div className="max-w-6xl mx-auto">
+          <Section className="mb-8">
+            <h2 className="text-2xl md:text-3xl font-bold text-[#096475] tracking-tight">
+              Nos chiffres clés
             </h2>
-            <p className="text-[#0B1D20]/55 max-w-xl mx-auto text-base md:text-lg mb-16 md:mb-20">
-              L&apos;impact concret de notre engagement au service des talents et des entreprises.
-            </p>
           </Section>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-5 md:gap-6">
-            {stats.map((stat, idx) => (
-              <Section key={stat.label}>
-                <div
-                  className="relative rounded-2xl p-7 md:p-9 bg-white transition-all duration-700 hover:-translate-y-1"
-                  style={{
-                    boxShadow: "0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03)",
-                    transitionDelay: `${idx * 80}ms`,
-                  }}
-                >
-
-                  <span className="block text-3xl md:text-5xl font-bold mb-2 tracking-tight" style={{ color: stat.color }}>
-                    {stat.value}
-                  </span>
-                  <span className="text-[13px] text-[#0B1D20]/50 uppercase tracking-wider font-medium">
-                    {stat.label}
-                  </span>
-                </div>
-              </Section>
-            ))}
-          </div>
+          <Section>
+            <div className="bg-[#E5F3F3] rounded-full px-8 py-10 md:px-16 md:py-12">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-6 text-center items-center">
+                {stats.map((stat, idx) => (
+                  <div key={idx} className="flex flex-col items-center justify-center">
+                    <span className="block text-4xl md:text-6xl font-extrabold text-[#FFA900] mb-3 tracking-tight">
+                      {stat.value}
+                    </span>
+                    <span className="text-xs md:text-sm font-semibold text-[#096475] tracking-wide">
+                      {stat.label}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </Section>
         </div>
       </section>
     </div>

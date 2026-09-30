@@ -14,7 +14,6 @@ function resolveImageUrl(url: string): string {
 export default function HeroSection() {
   const [current, setCurrent] = useState(0);
   const [slides, setSlides] = useState<{image: string; title: string; description: string; cta_label: string | null; cta_url: string | null}[]>([]);
-  const [stats, setStats] = useState<{value: string; label: string}[]>([]);
 
   useEffect(() => {
     api.getActiveHeroSlides().then((res) => {
@@ -26,10 +25,6 @@ export default function HeroSection() {
         cta_url: s.cta_url,
       }));
       setSlides(mapped.length > 0 ? mapped : [{ image: "/images/c8.jpg", title: "Bienvenue chez Connecteo", description: "Ensemble, connectons les talents aux opportunités de demain.", cta_label: null, cta_url: null }]);
-    }).catch(() => {});
-    api.getActiveKpiStats().then((res) => {
-      const mapped = res.stats.map(s => ({ value: s.value, label: s.label }));
-      setStats(mapped.length > 0 ? mapped : [{ value: "15 000+", label: "Talents" }]);
     }).catch(() => {});
   }, []);
   const [scrollY, setScrollY] = useState(0);
@@ -153,22 +148,6 @@ export default function HeroSection() {
             </div>
           </div>
         ))}
-
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 mt-12 md:mt-16 w-full max-w-xl">
-          {stats.map((stat) => (
-            <div key={stat.label}>
-              <span
-                className="block text-2xl font-bold"
-                style={{ color: "#00AFA9" }}
-              >
-                {stat.value}
-              </span>
-              <span className="block text-xs text-white/50 mt-1 font-medium uppercase tracking-wider">
-                {stat.label}
-              </span>
-            </div>
-          ))}
-        </div>
       </div>
 
       <div className="absolute bottom-10 left-1/2 z-20 flex -translate-x-1/2 items-center gap-3">

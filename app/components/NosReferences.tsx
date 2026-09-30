@@ -57,7 +57,7 @@ export default function NosReferences() {
       </div>
 
       <div className="relative z-10 mx-auto max-w-7xl px-6 md:px-10 lg:px-5">
-        <div className="text-center mb-14 md:mb-18">
+        {/* <div className="text-center mb-14 md:mb-18">
           <span className="inline-block text-sm font-semibold uppercase tracking-[0.15em] text-[#FFA900]/80 mb-4">
             Ils nous font confiance
           </span>
@@ -68,7 +68,7 @@ export default function NosReferences() {
             <span className="w-12 h-0.5 bg-gradient-to-r from-[#FFA900] to-[#00AFA9]" />
             <p className="text-sm text-[#0B1D20]/50 font-light tracking-wide" />
           </div>
-        </div>
+        </div> */}
 
         <div
           className="relative overflow-hidden"

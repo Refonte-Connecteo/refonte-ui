@@ -25,7 +25,7 @@ export default function MotDuDG() {
   return (
     <section
       ref={ref}
-      className="relative w-full bg-white py-24 md:py-32"
+      className="relative w-full bg-white pt-8 md:pt-12 pb-20 md:pb-28"
     >
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-10 left-1/4 w-[500px] h-[500px] rounded-full opacity-[0.04] blur-3xl bg-[#FFA900]" />
