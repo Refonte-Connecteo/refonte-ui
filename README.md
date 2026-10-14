@@ -6,15 +6,28 @@ First, run the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3001](http://localhost:3001) with your browser to see the result.
+
+## Ports
+
+Le front Next.js écoute sur le port **3001** (voir `dev` / `start:local` dans
+`package.json`) pour ne pas entrer en conflit avec l'API Express du dossier
+`back`, qui écoute sur **3000**.
+
+| Service | Port | URL                   |
+| ------- | ---- | --------------------- |
+| back    | 3000 | http://localhost:3000 |
+| front   | 3001 | http://localhost:3001 |
+
+`NEXT_PUBLIC_API_URL` (`front/.env.local`) pointe vers l'API : `http://localhost:3000/api`.
+Côté back, `FRONTEND_URL` doit valoir `http://localhost:3001`, sinon le navigateur
+bloque les appels API (CORS).
+
+Pour un build de production local : `npm run build && npm run start:local`.
+Le script `npm start` respecte la variable d'environnement `PORT` (utilisée par
+l'hébergeur et la CI).
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 

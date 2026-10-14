@@ -9,12 +9,20 @@ const subMenuItems = [
   { label: "AXIAN Group", href: "https://www.axian.com" },
 ];
 
+const experienceClientSubItems = [
+  { label: "Nos Solutions CX", href: "/test" },
+  { label: "Outsourcing", href: "/outs" },
+  { label: "Consulting", href: "/cons" },
+];
+
 export default function Header() {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [subOpen, setSubOpen] = useState(false);
+  const [ecSubOpen, setEcSubOpen] = useState(false);
   const subRef = useRef<HTMLLIElement>(null);
+  const ecSubRef = useRef<HTMLLIElement>(null);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
@@ -27,6 +35,9 @@ export default function Header() {
     const handleClickOutside = (e: MouseEvent) => {
       if (subRef.current && !subRef.current.contains(e.target as Node)) {
         setSubOpen(false);
+      }
+      if (ecSubRef.current && !ecSubRef.current.contains(e.target as Node)) {
+        setEcSubOpen(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -53,8 +64,8 @@ export default function Header() {
                   className="h-15 w-auto transition-transform duration-300 hover:scale-105"
                 />
               </a>
-        <nav className="hidden md:flex items-center gap-8">
-          <li ref={subRef} className="list-none relative">
+<nav className="hidden md:flex items-center gap-8">
+<li ref={subRef} className="list-none relative">
             <button
               onClick={() => setSubOpen(!subOpen)}
               onMouseEnter={() => setSubOpen(true)}
@@ -85,7 +96,46 @@ export default function Header() {
                 <a
                   key={item.label}
                   href={item.href}
-            className="block rounded-lg px-4 py-2.5 text-sm text-white/80 transition-all duration-200 hover:bg-[#00AFA9]/10 hover:text-white backdrop-blur-2xl shadow-xl"
+                  className="block rounded-lg px-4 py-2.5 text-sm text-white/80 transition-all duration-200 hover:bg-[#00AFA9]/10 hover:text-white backdrop-blur-2xl shadow-xl"
+                >
+                  {item.label}
+                </a>
+              ))}
+            </div>
+          </li>
+
+<li ref={ecSubRef} className="list-none relative">
+            <button
+              onClick={() => setEcSubOpen(!ecSubOpen)}
+              onMouseEnter={() => setEcSubOpen(true)}
+              className={`relative flex items-center gap-1.5 text-sm font-medium transition-all duration-300 after:absolute after:-bottom-1 after:left-0 after:h-0.5 after:w-0 after:bg-[#FFA900] after:transition-all after:duration-300 hover:after:w-full ${
+                scrolled ? "text-white hover:text-white" : "text-white/80 hover:text-white"
+              }`}
+            >
+              Experience Client
+              <svg
+                className={`h-3.5 w-3.5 transition-transform duration-200 ${ecSubOpen ? "rotate-180" : ""}`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+
+            <div
+              className={`absolute left-0 top-full mt-2 w-64 origin-top-right rounded-xl border border-white/10 bg-[#0B1D20]/95 backdrop-blur-3xl p-2 shadow-2xl transition-all duration-200 ${
+                ecSubOpen
+                  ? "visible translate-y-0 opacity-100"
+                  : "invisible -translate-y-2 opacity-0"
+              }`}
+              onMouseLeave={() => setEcSubOpen(false)}
+            >
+              {experienceClientSubItems.map((item) => (
+                <a
+                  key={item.label}
+                  href={item.href}
+                  className="block rounded-lg px-4 py-2.5 text-sm text-white/80 transition-all duration-200 hover:bg-[#00AFA9]/10 hover:text-white backdrop-blur-2xl shadow-xl"
                 >
                   {item.label}
                 </a>
@@ -94,7 +144,6 @@ export default function Header() {
           </li>
 
           {[
-            { label: "Nos Solutions CX", href: "/experience-client" },
             { label: "Carrière", href: "/carriere" },
             { label: "Actus & Événement", href: "/actus-et-evenement" },
           ].map((item) => (
@@ -183,8 +232,38 @@ export default function Header() {
               </div>
             )}
           </div>
+          <div className="space-y-1">
+            <button
+              type="button"
+              onClick={() => setEcSubOpen(!ecSubOpen)}
+              className="flex items-center justify-between w-full px-3 py-2 text-sm font-medium text-white/80"
+            >
+              Experience Client
+              <svg
+                className={`h-3.5 w-3.5 text-white/40 transition-transform duration-200 ${ecSubOpen ? "rotate-180" : ""}`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            {ecSubOpen && (
+              <div className="ml-4 space-y-1 border-l border-white/10 pl-3">
+                {experienceClientSubItems.map((item) => (
+                  <a
+                    key={item.label}
+                    href={item.href}
+                    className="block rounded-lg px-3 py-2 text-sm text-white/60 transition-colors hover:text-white"
+                    onClick={() => { setMenuOpen(false); setEcSubOpen(false) }}
+                  >
+                    {item.label}
+                  </a>
+                ))}
+              </div>
+            )}
+          </div>
           {[
-            { label: "Nos Solutions CX", href: "/experience-client" },
             { label: "Carrière", href: "/carriere" },
             { label: "Actus & Événement", href: "/actus-et-evenement" },
           ].map((item) => (
