@@ -6,6 +6,8 @@ export interface User {
   is_active: boolean;
   mfa_enabled: boolean;
   created_at: string;
+  last_login_at?: string | null;
+  force_password_change?: boolean;
   user_type?: {
     id: number;
     type: string;
@@ -17,6 +19,7 @@ export interface AuthSuccessResponse {
   user: User;
   token: string;
   refreshToken: string;
+  forcePasswordChange?: boolean;
 }
 
 export interface RefreshResponse {
@@ -52,6 +55,7 @@ export interface MfaChallengeResponse {
   requireMfa: true;
   mfaToken: string;
   userId: number;
+  forcePasswordChange?: boolean;
 }
 
 export type LoginResponse = MfaChallengeResponse | MfaSetupResponse | AuthSuccessResponse;
@@ -59,6 +63,8 @@ export type LoginResponse = MfaChallengeResponse | MfaSetupResponse | AuthSucces
 export interface InviteResponse {
   message: string;
   user: User;
+  invitation_token: string;
+  invitation_token_expires: string;
 }
 
 export interface SetPasswordResponse {
@@ -70,8 +76,84 @@ export interface ListAdminsResponse {
   users: User[];
 }
 
+// --- Analytics (dashboard) ---
+export interface DailyPoint {
+  date: string;
+  views: number;
+  visitors: number;
+}
+
+export interface TopPath {
+  path: string;
+  views: number;
+  visitors: number;
+}
+
+export interface TopReferrer {
+  referrer: string;
+  views: number;
+}
+
+export interface DeviceStat {
+  device: string;
+  views: number;
+}
+
+export interface AnalyticsSummary {
+  rangeDays: number;
+  totalViews: number;
+  uniqueVisitors: number;
+  viewsPerDay: number;
+  dailySeries: DailyPoint[];
+  topPages: TopPath[];
+  topReferrers: TopReferrer[];
+  deviceBreakdown: DeviceStat[];
+  counts: {
+    applications: number;
+    spontaneousApplications: number;
+    contactMessages: number;
+    unreadContactMessages: number;
+  };
+}
+
+export interface AnalyticsSummaryResponse {
+  summary: AnalyticsSummary;
+}
+
+// --- AuditLog ---
+export interface AuditLog {
+  id: number;
+  event_type: string;
+  action: string;
+  actor_user_id: number | null;
+  actor_email: string | null;
+  resource_type: string | null;
+  resource_id: string | null;
+  success: boolean;
+  status_code: number | null;
+  error_code: string | null;
+  ip: string | null;
+  user_agent: string | null;
+  request_id: string | null;
+  method: string | null;
+  route: string | null;
+  details: Record<string, unknown> | null;
+  created_at: string;
+}
+
+export interface AuditLogPage {
+  logs: AuditLog[];
+  total: number;
+  page: number;
+  pageSize: number;
+}
+
 export interface ApiError {
   error: string;
+}
+
+export interface ForceChangePasswordResponse {
+  message: string;
 }
 
 // --- CeoMessage ---

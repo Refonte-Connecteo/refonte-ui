@@ -3,11 +3,15 @@
 import { api } from "@/lib/api";
 import { useState, useEffect, type FormEvent } from "react";
 
+const MAX_CV_SIZE_BYTES = 5 * 1024 * 1024; // 5 Mo
+const CV_EXTENSIONS = [".pdf", ".doc", ".docx"];
+
 export default function Carriere() {
   const [offres, setOffres] = useState<{id: number; poste: string; lieu: string; contrat: string; description: string}[]>([]);
   const [selectedJobId, setSelectedJobId] = useState<number | null>(null);
   const [formData, setFormData] = useState({ nom: "", email: "", telephone: "", poste: "", message: "" });
   const [cvFile, setCvFile] = useState<File | null>(null);
+  const [cvError, setCvError] = useState("");
   const [formLoading, setFormLoading] = useState(false);
   const [formSuccess, setFormSuccess] = useState("");
   const [formError, setFormError] = useState("");
@@ -38,7 +42,7 @@ export default function Carriere() {
     try {
       let cvUrl = "";
       if (cvFile) {
-        const uploadResult = await api.uploadFile(cvFile);
+        const uploadResult = await api.uploadCvPublic(cvFile);
         cvUrl = uploadResult.url;
       }
       const nameParts = formData.nom.split(" ");
@@ -213,11 +217,29 @@ export default function Carriere() {
                     <span className="text-sm">{cvFile ? cvFile.name : "Joindre mon CV"}</span>
                     <input
                       type="file"
-                      accept=".pdf,.doc,.docx"
+                      accept={CV_EXTENSIONS.join(",")}
                       className="hidden"
-                      onChange={(e) => setCvFile(e.target.files?.[0] ?? null)}
+                      onChange={(e) => {
+                        const file = e.target.files?.[0] ?? null;
+                        setCvError("");
+                        if (file) {
+                          const ext = file.name.toLowerCase().match(/\.[a-z0-9]+$/)?.[0] ?? "";
+                          if (!CV_EXTENSIONS.includes(ext)) {
+                            setCvError("Format de CV non supporté (PDF, DOC ou DOCX uniquement).");
+                            setCvFile(null);
+                            return;
+                          }
+                          if (file.size > MAX_CV_SIZE_BYTES) {
+                            setCvError("Le CV ne doit pas dépasser 5 Mo.");
+                            setCvFile(null);
+                            return;
+                          }
+                        }
+                        setCvFile(file);
+                      }}
                     />
                   </label>
+                  {cvError && <p className="text-xs text-red-600">{cvError}</p>}
                 </div>
                 <textarea
                   rows={3}

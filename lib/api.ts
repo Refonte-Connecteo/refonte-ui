@@ -1,7 +1,10 @@
 import type {
   AuthSuccessResponse,
+  AuditLogPage,
+  AnalyticsSummaryResponse,
   ChangePasswordResponse,
   DisableMfaResponse,
+  ForceChangePasswordResponse,
   InviteResponse,
   ListAdminsResponse,
   LoginResponse,
@@ -33,6 +36,7 @@ const AUTH_ENDPOINTS = [
   "/admin/check-pending",
   "/admin/mfa/",
   "/auth/refresh",
+  "/auth/force-change-password",
 ];
 
 class ApiClient {
@@ -116,6 +120,14 @@ class ApiClient {
       throw new SessionExpiredError();
     }
 
+    if (response.status === 403) {
+      const errorData = await response.json() as { forcePasswordChange?: boolean };
+      if (errorData.forcePasswordChange) {
+        window.location.href = "/admin/force-change-password";
+        throw new Error("Changement de mot de passe obligatoire");
+      }
+    }
+
     const data = await response.json();
 
     if (!response.ok) {
@@ -133,12 +145,12 @@ class ApiClient {
     });
   }
 
-  inviteAdmin(email: string, username: string): Promise<InviteResponse> {
+  inviteAdmin(email: string, username: string, userTypeId?: number): Promise<InviteResponse> {
     return this.request<InviteResponse>(
       "/admin/invite",
       {
         method: "POST",
-        body: JSON.stringify({ email, username }),
+        body: JSON.stringify({ email, username, userTypeId }),
       }
     );
   }
@@ -153,12 +165,12 @@ class ApiClient {
     );
   }
 
-  setPassword(email: string, password: string): Promise<MfaSetupResponse> {
+  setPassword(email: string, password: string, invitationToken: string): Promise<MfaSetupResponse> {
     return this.request<MfaSetupResponse>(
       "/admin/set-password",
       {
         method: "POST",
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password, invitationToken }),
       }
     );
   }
@@ -190,6 +202,13 @@ class ApiClient {
     });
   }
 
+  forceChangePassword(newPassword: string): Promise<ForceChangePasswordResponse> {
+    return this.request<ForceChangePasswordResponse>("/auth/force-change-password", {
+      method: "POST",
+      body: JSON.stringify({ newPassword }),
+    });
+  }
+
   disableMfa(currentPassword: string): Promise<DisableMfaResponse> {
     return this.request<DisableMfaResponse>("/auth/mfa/disable", {
       method: "POST",
@@ -201,6 +220,30 @@ class ApiClient {
     return this.request<ListAdminsResponse>(
       "/admin"
     );
+  }
+
+  getAuditLogs(
+    params: {
+      page?: number;
+      pageSize?: number;
+      eventType?: string;
+      success?: string;
+      email?: string;
+      from?: string;
+      to?: string;
+    } = {}
+  ): Promise<AuditLogPage> {
+    const query = new URLSearchParams();
+    if (params.page !== undefined) query.set("page", String(params.page));
+    if (params.pageSize !== undefined) query.set("pageSize", String(params.pageSize));
+    if (params.eventType) query.set("eventType", params.eventType);
+    if (params.success !== undefined) query.set("success", params.success);
+    if (params.email) query.set("email", params.email);
+    if (params.from) query.set("from", params.from);
+    if (params.to) query.set("to", params.to);
+
+    const qs = query.toString();
+    return this.request<AuditLogPage>(`/admin/audit-logs${qs ? `?${qs}` : ""}`);
   }
 
   deactivateAdmin(id: number): Promise<{ message: string; user: User }> {
@@ -591,6 +634,36 @@ class ApiClient {
       method: "POST",
       body: formData,
     });
+  }
+
+  // Upload de CV public (formulaire carriere) — sans authentification
+  uploadCvPublic(file: File) {
+    const formData = new FormData();
+    formData.append("file", file);
+    return this.request<{ url: string; filename: string }>("/upload/cv", {
+      method: "POST",
+      body: formData,
+    });
+  }
+
+  // Remontée de vue du site public — fire-and-forget, jamais bloquant
+  async trackPageView(path: string, visitorId: string, referrer?: string): Promise<void> {
+    try {
+      await fetch(`${this.baseUrl}/analytics/page-view`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        keepalive: true,
+        body: JSON.stringify({ path, visitorId, referrer: referrer || null }),
+      });
+    } catch {
+      // Le tracking ne doit jamais perturber la navigation.
+    }
+  }
+
+  getAnalyticsSummary(range: number): Promise<AnalyticsSummaryResponse> {
+    return this.request<AnalyticsSummaryResponse>(
+      `/analytics/summary?range=${range}`,
+    );
   }
 }
 

@@ -3,24 +3,55 @@
 import { useState, useRef } from "react";
 import { api } from "@/lib/api";
 
+const MAX_IMAGE_SIZE_BYTES = 10 * 1024 * 1024; // 10 Mo
+const IMAGE_EXTENSIONS = [".jpg", ".jpeg", ".png", ".webp", ".gif"];
+const DOC_EXTENSIONS = [".pdf", ".doc", ".docx"];
+
 interface ImageUploadProps {
   value: string;
   onChange: (url: string) => void;
+  /** Accepte aussi les documents (pdf/doc/docx) en plus des images. */
+  acceptDocuments?: boolean;
 }
 
-export default function ImageUpload({ value, onChange }: ImageUploadProps) {
+export default function ImageUpload({
+  value,
+  onChange,
+  acceptDocuments = false,
+}: ImageUploadProps) {
   const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const acceptedExtensions = acceptDocuments
+    ? [...IMAGE_EXTENSIONS, ...DOC_EXTENSIONS]
+    : IMAGE_EXTENSIONS;
 
   const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    setError("");
+
+    const ext = file.name.toLowerCase().match(/\.[a-z0-9]+$/)?.[0] ?? "";
+    if (!acceptedExtensions.includes(ext)) {
+      setError(
+        `Format non supporté (${acceptedExtensions.join(", ")} uniquement).`,
+      );
+      if (inputRef.current) inputRef.current.value = "";
+      return;
+    }
+    if (file.size > MAX_IMAGE_SIZE_BYTES) {
+      setError("Le fichier ne doit pas dépasser 10 Mo.");
+      if (inputRef.current) inputRef.current.value = "";
+      return;
+    }
+
     setUploading(true);
     try {
       const result = await api.uploadFile(file);
       onChange(result.url);
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Erreur lors de l'upload");
+      setError(err instanceof Error ? err.message : "Erreur lors de l'upload");
     } finally {
       setUploading(false);
       if (inputRef.current) inputRef.current.value = "";
@@ -53,11 +84,12 @@ export default function ImageUpload({ value, onChange }: ImageUploadProps) {
             </>
           )}
         </button>
-        <input ref={inputRef} type="file" accept="image/*" onChange={handleFile} className="hidden" />
+        <input ref={inputRef} type="file" accept={acceptDocuments ? acceptedExtensions.join(",") : "image/*"} onChange={handleFile} className="hidden" />
         {value && (
           <span className="text-xs text-green-600">Fichier chargé</span>
         )}
       </div>
+      {error && <p className="text-xs text-red-600">{error}</p>}
 
       <div className="flex gap-2 items-center">
         <span className="text-xs text-gray-400 shrink-0">ou URL :</span>

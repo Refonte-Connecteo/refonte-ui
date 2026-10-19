@@ -174,7 +174,7 @@ export default function ActusEvenement() {
                       {event.date}
                     </span>
                     <h3 className="text-white font-semibold text-xs md:text-sm leading-snug">
-                      {event.title}
+                      {event.title} So it's up. What the automatic from an appeal is the phase.
                     </h3>
                     <span className="text-[10px] text-white/30 mt-0.5 block">
                       {event.lieu}

@@ -1,0 +1,36 @@
+# Code Owners - Frontend
+# Define code review responsibilities for the frontend repository
+
+# Configuration & Security (requires security team review)
+*.env*                @equipe-secu
+lib/security.ts       @equipe-secu
+lib/session.ts        @equipe-secu
+Dockerfile            @equipe-secu
+docker-compose*       @equipe-secu
+
+# Admin Panel (sensitive routes)
+app/admin/            @equipe-dev @equipe-secu
+
+# Public Pages
+app/actus-*           @equipe-dev
+app/carriere/         @equipe-dev
+app/contact/          @equipe-dev
+app/experience-*      @equipe-dev
+app/impact/           @equipe-dev
+app/notre-adn/        @equipe-dev
+app/oc_init/          @equipe-dev
+
+# Components & Hooks
+components/           @equipe-dev
+app/components/       @equipe-dev
+app/hooks/            @equipe-dev
+
+# API Layer
+lib/api.ts            @equipe-dev
+
+# CI/CD & Hooks
+.github/              @equipe-dev
+.githooks/            @equipe-secu
+
+# Default: require review from at least one team member
+*                     @equipe-dev
