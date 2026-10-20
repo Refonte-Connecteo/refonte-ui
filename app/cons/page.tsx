@@ -19,12 +19,12 @@ const EXPERTISES: Expertise[] = [
     title: "Stratégie & Transformation de la Relation Client",
     offers: [
       {
-        slug: "accompagnement-creation-centre-de-contact",
+        slug: "Accompagnement à la Création d'un Centre de Contact",
         title: "Accompagnement à la Création d'un Centre de Contact",
         description: "Votre centre de contact, pensé et lancé par des experts.",
       },
       {
-        slug: "optimisation-processus-relation-client",
+        slug: "Optimisation des Processus de Relation Client",
         title: "Optimisation des Processus de Relation Client",
         description: "Des process qui éliminent enfin les irritants.",
       },
@@ -38,58 +38,64 @@ const EXPERTISES: Expertise[] = [
         title: "Formation & Coaching",
         description: "Des équipes formées, motivées, qui durent.",
       },
+    ],
+  },
+  {
+    title: "Innovation & Digitalisation de la Relation Client",
+    offers: [
       {
-        slug: "audit-evaluation-competences",
-        title: "Audit & Évaluation des Compétences",
-        description: "Mesurez les savoir-faire, révélez les potentiels.",
+        slug: "Innovation & Digitalisation de la Relation Client",
+        title: "Innovation & Digitalisation de la Relation Client",
+        description: "La technologie au service d'une relation client plus humaine.",
       },
     ],
   },
   {
-    title: "Qualité, Satisfaction & Fidélisation",
+    title: "Mise à Disposition d'Infrastructure & Espaces de Travail",
     offers: [
       {
-        slug: "pilotage-qualite-satisfaction",
-        title: "Pilotage de la Qualité & Satisfaction",
-        description: "Des indicateurs qui racontent la vérité du terrain.",
-      },
-      {
-        slug: "programmes-fidelisation-clients",
-        title: "Programmes de Fidélisation Client",
-        description: "Transformer les clients satisfaits en clients fidèles.",
+        slug: "Location de Positions & Espaces de Travail",
+        title: "Location de Positions & Espaces de Travail",
+        description: "Un centre de contact opérationnel, sans immobiliser votre capital.",
       },
     ],
   },
   {
-    title: "Digitalisation, Outils & Données Clients",
+    title: "Études & Voix du Client (VoC)",
     offers: [
       {
-        slug: "integration-parametrage-crm",
-        title: "Intégration & Paramétrage CRM",
-        description: "Le bon outil, bien configuré, adopté par tous.",
+        slug: "Enquêtes Mystères & Retail Check",
+        title: "Enquêtes Mystères & Retail Check",
+        description: "La vérité sur votre qualité de service, mesurée objectivement.",
       },
       {
-        slug: "analytics-tableaux-de-bord",
-        title: "Analytics & Tableaux de Bord",
-        description: "Décidez avec des données, plus avec des intuitions.",
+        slug: "Validation de Concept & Études d'Impact",
+        title: "Validation de Concept & Études d'Impact",
+        description: "Validez avant d'investir.",
+      },
+      {
+        slug: "Études de Perception, Satisfaction & Positionnement",
+        title: "Études de Perception, Satisfaction & Positionnement",
+        description: "Votre image de marque, enfin mesurée.",
       },
     ],
   },
   {
-    title: "Management, Pilotage & Performance des Équipes",
+    title: "Diagnostic CX 360° & Optimisation des Parcours Client",
     offers: [
       {
-        slug: "accompagnement-managers",
-        title: "Accompagnement des Managers",
-        description: "Des managers assurés, à l'écoute de leurs équipes.",
+        slug: "Étude & Analyse du Parcours Client",
+        title: "Étude & Analyse du Parcours Client",
+        description: "Voyez votre parcours client comme vos clients le vivent.",
       },
       {
-        slug: "motivation-engagement-equipes",
-        title: "Motivation & Engagement des Équipes",
-        description: "L'envie de bien faire, au quotidien.",
+        slug: "Formalisation des Standards d'Expérience Client",
+        title: "Formalisation des Standards d'Expérience Client",
+        description: "Une expérience homogène, sur tous les canaux.",
       },
     ],
   },
+
 ];
 
 function Arrow({ className = "h-4 w-4" }: { className?: string }) {

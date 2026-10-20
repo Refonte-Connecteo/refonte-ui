@@ -40,7 +40,7 @@ const SOLUTIONS: Solution[] = [
     idleRotation: "rotate-6",
     smallRotation: "rotate-[20deg]",
     items: [
-      { label: "Stratégie & Transformation de la Relation Client" },
+      { label: "Stratégie & Transformation de la Relation Client", href: "/cons-detail" },
       { label: "Renforcement des Compétences & Excellence Opérationnelle" },
       { label: "Innovation & Digitalisation de la Relation Client" },
       { label: "Mise à Disposition d'Infrastructure & Espaces de Travail" },

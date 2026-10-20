@@ -24,12 +24,20 @@ export default function Header() {
   const subRef = useRef<HTMLLIElement>(null);
   const ecSubRef = useRef<HTMLLIElement>(null);
 
+  const isHome = pathname === "/";
+  const forceScrolled = !isHome;
+  const isScrolled = forceScrolled || scrolled;
+
   useEffect(() => {
+    if (forceScrolled) {
+      setScrolled(true);
+      return;
+    }
     const onScroll = () => setScrolled(window.scrollY > 40);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  }, [forceScrolled]);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -44,33 +52,40 @@ export default function Header() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  useEffect(() => {
+    setMenuOpen(false);
+    setSubOpen(false);
+    setEcSubOpen(false);
+  }, [pathname]);
+
   return (
     <header
       className={`fixed left-0 right-0 z-50 transition-all duration-500 ${
-        scrolled || pathname === "/contact" || pathname === "/carriere" || pathname === "/actus-et-evenement"
-          ? "top-3 mx-4 md:top-4 md:mx-8 lg:mx-auto lg:left-6 lg:right-6 xl:left-0 xl:right-0 xl:max-w-7xl xl:mx-auto rounded-[2rem] bg-[#0B1D20]/70 backdrop-blur-2xl shadow-xl shadow-black/5 border border-white/20"
+        isScrolled
+          ? "top-3 mx-4 sm:mx-6 md:top-4 md:mx-8 lg:mx-auto lg:left-6 lg:right-6 xl:left-0 xl:right-0 xl:max-w-7xl xl:mx-auto rounded-[1.5rem] md:rounded-[2rem] bg-[#0B1D20]/70 backdrop-blur-2xl shadow-xl shadow-black/5 border border-white/20"
           : "top-0 bg-transparent"
       }`}
     >
       <div
         className={`mx-auto flex items-center justify-between transition-all duration-500 ${
-          scrolled || pathname === "/contact" || pathname === "/carriere" || pathname === "/actus-et-evenement" ? "px-5 py-3 md:px-8 md:py-3" : "px-6 py-4 max-w-7xl"
+          isScrolled ? "px-4 py-2.5 sm:px-5 sm:py-3 md:px-8 md:py-3" : "px-6 py-4 max-w-7xl"
         }`}
       >
-              <a href="/" className="shrink-0">
-                <img
-                  src="/images/logo1.png"
-                  alt="Logo"
-                  className="h-15 w-auto transition-transform duration-300 hover:scale-105"
-                />
-              </a>
-<nav className="hidden md:flex items-center gap-8">
-<li ref={subRef} className="list-none relative">
+        <a href="/" className="shrink-0">
+          <img
+            src="/images/logo1.png"
+            alt="Logo"
+            className="h-10 w-auto transition-transform duration-300 hover:scale-105 sm:h-12 md:h-14 lg:h-15"
+          />
+        </a>
+
+        <nav className="hidden md:flex items-center gap-8">
+          <li ref={subRef} className="list-none relative">
             <button
               onClick={() => setSubOpen(!subOpen)}
               onMouseEnter={() => setSubOpen(true)}
               className={`relative flex items-center gap-1.5 text-sm font-medium transition-all duration-300 after:absolute after:-bottom-1 after:left-0 after:h-0.5 after:w-0 after:bg-[#FFA900] after:transition-all after:duration-300 hover:after:w-full ${
-                scrolled ? "text-white hover:text-white" : "text-white/80 hover:text-white"
+                isScrolled ? "text-white hover:text-white" : "text-white/80 hover:text-white"
               }`}
             >
               Notre ADN
@@ -104,12 +119,12 @@ export default function Header() {
             </div>
           </li>
 
-<li ref={ecSubRef} className="list-none relative">
+          <li ref={ecSubRef} className="list-none relative">
             <button
               onClick={() => setEcSubOpen(!ecSubOpen)}
               onMouseEnter={() => setEcSubOpen(true)}
               className={`relative flex items-center gap-1.5 text-sm font-medium transition-all duration-300 after:absolute after:-bottom-1 after:left-0 after:h-0.5 after:w-0 after:bg-[#FFA900] after:transition-all after:duration-300 hover:after:w-full ${
-                scrolled ? "text-white hover:text-white" : "text-white/80 hover:text-white"
+                isScrolled ? "text-white hover:text-white" : "text-white/80 hover:text-white"
               }`}
             >
               Experience Client
@@ -151,7 +166,7 @@ export default function Header() {
               key={item.label}
               href={item.href}
               className={`relative text-sm font-medium transition-all duration-300 after:absolute after:-bottom-1 after:left-0 after:h-0.5 after:w-0 after:bg-[#FFA900] after:transition-all after:duration-300 hover:after:w-full ${
-                scrolled ? "text-white hover:text-white" : "text-white/80 hover:text-white"
+                isScrolled ? "text-white hover:text-white" : "text-white/80 hover:text-white"
               }`}
             >
               {item.label}
@@ -162,8 +177,8 @@ export default function Header() {
         <div className="hidden md:flex items-center gap-3">
           <a
             href="/contact"
-            className={`rounded-full px-5 py-2 text-sm font-semibold transition-all duration-300 ${
-              scrolled
+            className={`rounded-full px-5 py-2 text-sm font-semibold whitespace-nowrap transition-all duration-300 ${
+              isScrolled
                 ? "bg-[#FFA900] text-gray-900 hover:bg-[#00AFA9] hover:text-white hover:shadow-lg hover:shadow-[#00AFA9]/30"
                 : "border border-white/30 text-white hover:bg-white hover:text-gray-900"
             }`}
@@ -176,28 +191,29 @@ export default function Header() {
           onClick={() => setMenuOpen(!menuOpen)}
           className="md:hidden flex flex-col gap-1.5 p-2"
           aria-label="Menu"
+          aria-expanded={menuOpen}
         >
           <span
-            className={`block h-0.5 w-6 transition-all duration-300 ${
-              scrolled ? "bg-white" : "bg-white"
-            } ${menuOpen ? "translate-y-2 rotate-45" : ""}`}
+            className={`block h-0.5 w-6 bg-white transition-all duration-300 ${
+              menuOpen ? "translate-y-2 rotate-45" : ""
+            }`}
           />
           <span
-            className={`block h-0.5 w-6 transition-all duration-300 ${
-              scrolled ? "bg-white" : "bg-white"
-            } ${menuOpen ? "opacity-0" : ""}`}
+            className={`block h-0.5 w-6 bg-white transition-all duration-300 ${
+              menuOpen ? "opacity-0" : ""
+            }`}
           />
           <span
-            className={`block h-0.5 w-6 transition-all duration-300 ${
-              scrolled ? "bg-white" : "bg-white"
-            } ${menuOpen ? "-translate-y-2 -rotate-45" : ""}`}
+            className={`block h-0.5 w-6 bg-white transition-all duration-300 ${
+              menuOpen ? "-translate-y-2 -rotate-45" : ""
+            }`}
           />
         </button>
       </div>
 
       <div
         className={`overflow-hidden transition-all duration-500 md:hidden ${
-          menuOpen ? "max-h-[32rem]" : "max-h-0"
+          menuOpen ? "max-h-[40rem]" : "max-h-0"
         }`}
       >
         <nav className="flex flex-col gap-3 bg-[#0B1D20]/95 backdrop-blur-2xl px-6 pb-6 pt-3 shadow-lg rounded-b-[2rem]">
