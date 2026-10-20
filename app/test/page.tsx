@@ -27,10 +27,10 @@ const SOLUTIONS: Solution[] = [
     idleRotation: "-rotate-6",
     smallRotation: "-rotate-12",
     items: [
-      { label: "Expérience Client Omnicanale Externalisée", href: "/offer-detail" },
-      { label: "Back-Office Client & Gestion Administrative" },
-      { label: "Support Technique & Continuité de Service" },
-      { label: "Activation Commerciale & Croissance Client" },
+      { label: "Expérience Client Omnicanale Externalisée", href: "/outs#experience-client-omnicanale-externalisee" },
+      { label: "Back-Office Client & Gestion Administrative", href: "/outs#back-office-client-gestion-administrative" },
+      { label: "Support Technique & Continuité de Service", href: "/outs#support-technique-continuite-de-service" },
+      { label: "Activation Commerciale & Croissance Client", href: "/outs#activation-commerciale-croissance-client" },
     ],
   },
   {
@@ -40,12 +40,12 @@ const SOLUTIONS: Solution[] = [
     idleRotation: "rotate-6",
     smallRotation: "rotate-[20deg]",
     items: [
-      { label: "Stratégie & Transformation de la Relation Client", href: "/cons-detail" },
-      { label: "Renforcement des Compétences & Excellence Opérationnelle" },
-      { label: "Innovation & Digitalisation de la Relation Client" },
-      { label: "Mise à Disposition d'Infrastructure & Espaces de Travail" },
-      { label: "Études & Voix du Client (VoC)" },
-      { label: "Diagnostic CX 360° & Optimisation des Parcours Client" },
+      { label: "Stratégie & Transformation de la Relation Client", href: "/cons#strategie-transformation-relation-client" },
+      { label: "Renforcement des Compétences & Excellence Opérationnelle", href: "/cons#renforcement-competences-excellence-operationnelle" },
+      { label: "Innovation & Digitalisation de la Relation Client", href: "/cons#innovation-digitalisation-relation-client" },
+      { label: "Mise à Disposition d'Infrastructure & Espaces de Travail", href: "/cons#mise-a-disposition-infrastructure-espaces-travail" },
+      { label: "Études & Voix du Client (VoC)", href: "/cons#etudes-voix-du-client-voc" },
+      { label: "Diagnostic CX 360° & Optimisation des Parcours Client", href: "/cons#diagnostic-cx-360-optimisation-parcours-client" },
     ],
   },
 ];

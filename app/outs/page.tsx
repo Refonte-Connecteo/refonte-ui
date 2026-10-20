@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 
 type Offer = {
   slug: string;
@@ -10,6 +10,7 @@ type Offer = {
 };
 
 type Expertise = {
+  slug: string;
   label: string;
   offers: Offer[];
 };
@@ -18,6 +19,7 @@ type Expertise = {
 // Complétez les `offers` des 3 autres (18 offres au total).
 const EXPERTISES: Expertise[] = [
   {
+    slug: "experience-client-omnicanale-externalisee",
     label: "Expérience Client Omnicanale Externalisée",
     offers: [
       {
@@ -70,7 +72,7 @@ const EXPERTISES: Expertise[] = [
       },
     ],
   },
-  { label: "Back-Office Client & Gestion Administrative", offers: [
+  { slug: "back-office-client-gestion-administrative", label: "Back-Office Client & Gestion Administrative", offers: [
           {
         slug: "Facturation & Encaissement",
         title: "Facturation & Encaissement",
@@ -103,7 +105,7 @@ const EXPERTISES: Expertise[] = [
           "Des contrôles clients rigoureux, traçables et conformes aux exigences réglementaires.",
       },
   ] },
-  { label: "Support Technique & Continuité de Service", offers: [
+  { slug: "support-technique-continuite-de-service", label: "Support Technique & Continuité de Service", offers: [
       {
         slug: "Support Technique à Distance ",
         title: "Support Technique à Distance ",
@@ -118,7 +120,7 @@ const EXPERTISES: Expertise[] = [
           "Prolonger la relation client au plus près des usages et des territoires.",
       },
   ] },
-  { label: "Activation Commerciale & Croissance Client", offers: [
+  { slug: "activation-commerciale-croissance-client", label: "Activation Commerciale & Croissance Client", offers: [
       {
         slug: "Télévente & Développement Commercial ",
         title: "Télévente & Développement Commercial ",
@@ -168,6 +170,23 @@ export default function OutsourcingExpertises() {
   const [activeExpertise, setActiveExpertise] = useState(0);
   // Carte mise en avant : la 1re par défaut, puis celle survolée / focalisée
   const [highlighted, setHighlighted] = useState(0);
+
+  useEffect(() => {
+    const applyHash = () => {
+      const slug = decodeURIComponent(window.location.hash.replace(/^#/, ""));
+      if (!slug) return;
+      const index = EXPERTISES.findIndex((e) => e.slug === slug);
+      if (index >= 0) {
+        setActiveExpertise(index);
+        setHighlighted(0);
+      }
+    };
+    applyHash();
+    // Un hash d'ancre peut déclencher un scroll natif parasite au chargement.
+    window.scrollTo(0, 0);
+    window.addEventListener("hashchange", applyHash);
+    return () => window.removeEventListener("hashchange", applyHash);
+  }, []);
 
   const offers = EXPERTISES[activeExpertise].offers;
   // 1 ligne par expertise, davantage si l'expertise active a plus de 8 offres

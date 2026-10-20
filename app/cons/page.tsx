@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type Offer = {
   slug: string;
@@ -10,12 +10,14 @@ type Offer = {
 };
 
 type Expertise = {
+  slug: string;
   title: string;
   offers: Offer[];
 };
 
 const EXPERTISES: Expertise[] = [
   {
+    slug: "strategie-transformation-relation-client",
     title: "Stratégie & Transformation de la Relation Client",
     offers: [
       {
@@ -31,6 +33,7 @@ const EXPERTISES: Expertise[] = [
     ],
   },
   {
+    slug: "renforcement-competences-excellence-operationnelle",
     title: "Renforcement des Compétences & Excellence Opérationnelle",
     offers: [
       {
@@ -41,6 +44,7 @@ const EXPERTISES: Expertise[] = [
     ],
   },
   {
+    slug: "innovation-digitalisation-relation-client",
     title: "Innovation & Digitalisation de la Relation Client",
     offers: [
       {
@@ -51,6 +55,7 @@ const EXPERTISES: Expertise[] = [
     ],
   },
   {
+    slug: "mise-a-disposition-infrastructure-espaces-travail",
     title: "Mise à Disposition d'Infrastructure & Espaces de Travail",
     offers: [
       {
@@ -61,6 +66,7 @@ const EXPERTISES: Expertise[] = [
     ],
   },
   {
+    slug: "etudes-voix-du-client-voc",
     title: "Études & Voix du Client (VoC)",
     offers: [
       {
@@ -81,6 +87,7 @@ const EXPERTISES: Expertise[] = [
     ],
   },
   {
+    slug: "diagnostic-cx-360-optimisation-parcours-client",
     title: "Diagnostic CX 360° & Optimisation des Parcours Client",
     offers: [
       {
@@ -121,6 +128,21 @@ export default function ConsultingExpertises() {
   const last = EXPERTISES.length - 1;
 
   const go = (i: number) => setActive(Math.min(Math.max(i, 0), last));
+
+  useEffect(() => {
+    const applyHash = () => {
+      const slug = decodeURIComponent(window.location.hash.replace(/^#/, ""));
+      if (!slug) return;
+      const index = EXPERTISES.findIndex((e) => e.slug === slug);
+      if (index >= 0) setActive(index);
+    };
+    applyHash();
+    // Un hash d'ancre peut déclencher un scroll natif vers une carte hors-écran
+    // (le carrousel étant masqué en overflow-x). On le neutralise.
+    window.scrollTo(0, 0);
+    window.addEventListener("hashchange", applyHash);
+    return () => window.removeEventListener("hashchange", applyHash);
+  }, []);
 
   return (
     <main className="min-h-screen overflow-x-hidden bg-[#ffab00] pt-25 py-14 font-sans text-[#0b6477]">
