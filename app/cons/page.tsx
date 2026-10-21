@@ -229,7 +229,7 @@ export default function ConsultingExpertises() {
                   {e.offers.map((o) => (
                     <li key={o.slug}>
                       <Link
-                        href={`/solutions/consulting/${o.slug}`}
+                        href={`/offer/${e.slug}/${o.slug}`}
                         tabIndex={isActive ? 0 : -1}
                         className="group flex h-full flex-col gap-5 rounded-[1.75rem] bg-[#0b6477] p-8 text-sm leading-relaxed text-white transition-all duration-300 hover:-translate-y-1 hover:bg-[#0a5565] hover:shadow-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ffab00]"
                       >

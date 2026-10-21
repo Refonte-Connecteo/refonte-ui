@@ -201,7 +201,7 @@ export default function OutsourcingExpertises() {
     const isOn = i === highlighted;
     return (
       <Link
-        href={`/solutions/outsourcing/${o.slug}`}
+        href={`/offer/${EXPERTISES[activeExpertise].slug}/${o.slug}`}
         onMouseEnter={() => setHighlighted(i)}
         onFocus={() => setHighlighted(i)}
         className={`group flex h-full min-h-[7.5rem] flex-col justify-between rounded-[1.75rem] p-6 text-xs leading-snug transition-colors duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#f5a30f] ${
