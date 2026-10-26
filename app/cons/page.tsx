@@ -2,108 +2,13 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { CONSULTING_EXPERTISES, offerHref } from "@/lib/solutions";
 
-type Offer = {
-  slug: string;
-  title: string;
-  description: string;
-};
+// Source unique de vérité : les slugs doivent correspondre à ceux résolus
+// par /offer/[expertise]/[offer] (cf. lib/solutions.ts), sinon 404.
+const EXPERTISES = CONSULTING_EXPERTISES;
 
-type Expertise = {
-  slug: string;
-  title: string;
-  offers: Offer[];
-};
-
-const EXPERTISES: Expertise[] = [
-  {
-    slug: "strategie-transformation-relation-client",
-    title: "Stratégie & Transformation de la Relation Client",
-    offers: [
-      {
-        slug: "Accompagnement à la Création d'un Centre de Contact",
-        title: "Accompagnement à la Création d'un Centre de Contact",
-        description: "Votre centre de contact, pensé et lancé par des experts.",
-      },
-      {
-        slug: "Optimisation des Processus de Relation Client",
-        title: "Optimisation des Processus de Relation Client",
-        description: "Des process qui éliminent enfin les irritants.",
-      },
-    ],
-  },
-  {
-    slug: "renforcement-competences-excellence-operationnelle",
-    title: "Renforcement des Compétences & Excellence Opérationnelle",
-    offers: [
-      {
-        slug: "formation-coaching",
-        title: "Formation & Coaching",
-        description: "Des équipes formées, motivées, qui durent.",
-      },
-    ],
-  },
-  {
-    slug: "innovation-digitalisation-relation-client",
-    title: "Innovation & Digitalisation de la Relation Client",
-    offers: [
-      {
-        slug: "Innovation & Digitalisation de la Relation Client",
-        title: "Innovation & Digitalisation de la Relation Client",
-        description: "La technologie au service d'une relation client plus humaine.",
-      },
-    ],
-  },
-  {
-    slug: "mise-a-disposition-infrastructure-espaces-travail",
-    title: "Mise à Disposition d'Infrastructure & Espaces de Travail",
-    offers: [
-      {
-        slug: "Location de Positions & Espaces de Travail",
-        title: "Location de Positions & Espaces de Travail",
-        description: "Un centre de contact opérationnel, sans immobiliser votre capital.",
-      },
-    ],
-  },
-  {
-    slug: "etudes-voix-du-client-voc",
-    title: "Études & Voix du Client (VoC)",
-    offers: [
-      {
-        slug: "Enquêtes Mystères & Retail Check",
-        title: "Enquêtes Mystères & Retail Check",
-        description: "La vérité sur votre qualité de service, mesurée objectivement.",
-      },
-      {
-        slug: "Validation de Concept & Études d'Impact",
-        title: "Validation de Concept & Études d'Impact",
-        description: "Validez avant d'investir.",
-      },
-      {
-        slug: "Études de Perception, Satisfaction & Positionnement",
-        title: "Études de Perception, Satisfaction & Positionnement",
-        description: "Votre image de marque, enfin mesurée.",
-      },
-    ],
-  },
-  {
-    slug: "diagnostic-cx-360-optimisation-parcours-client",
-    title: "Diagnostic CX 360° & Optimisation des Parcours Client",
-    offers: [
-      {
-        slug: "Étude & Analyse du Parcours Client",
-        title: "Étude & Analyse du Parcours Client",
-        description: "Voyez votre parcours client comme vos clients le vivent.",
-      },
-      {
-        slug: "Formalisation des Standards d'Expérience Client",
-        title: "Formalisation des Standards d'Expérience Client",
-        description: "Une expérience homogène, sur tous les canaux.",
-      },
-    ],
-  },
-
-];
+const TOTAL_OFFERS = EXPERTISES.reduce((n, e) => n + e.offers.length, 0);
 
 function Arrow({ className = "h-4 w-4" }: { className?: string }) {
   return (
@@ -149,8 +54,9 @@ export default function ConsultingExpertises() {
       <header className="mx-auto max-w-2xl px-6 text-center">
         <h1 className="cons-fade text-4xl font-bold">Consulting</h1>
         <p className="cons-fade mt-5 text-sm leading-relaxed" style={{ animationDelay: "100ms" }}>
-          10 offres réparties en 5 expertises. Chaque offre constitue un point
-          d&apos;entrée autonome vers l&apos;accompagnement associé.
+          {TOTAL_OFFERS} offres réparties en {EXPERTISES.length} expertises.
+          Chaque offre constitue un point d&apos;entrée autonome vers
+          l&apos;accompagnement associé.
         </p>
       </header>
 
@@ -197,7 +103,7 @@ export default function ConsultingExpertises() {
             const isActive = i === active;
             return (
               <li
-                key={e.title}
+                key={e.label}
                 className={`cons-card relative flex w-[var(--card-w)] shrink-0 flex-col rounded-[2.5rem] p-12 transition-all duration-500 ${
                   isActive
                     ? "z-10 scale-105 bg-white shadow-[0_40px_80px_-32px_rgba(11,100,119,0.7)]"
@@ -209,7 +115,7 @@ export default function ConsultingExpertises() {
                   <button
                     type="button"
                     onClick={() => go(i)}
-                    aria-label={`Afficher : ${e.title}`}
+                    aria-label={`Afficher : ${e.label}`}
                     className="absolute inset-0 z-10 rounded-[2.5rem] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0b6477]"
                   />
                 )}
@@ -219,7 +125,7 @@ export default function ConsultingExpertises() {
                     isActive ? "text-[#0b6477]" : "text-[#4f7f8a]"
                   }`}
                 >
-                  {e.title}
+                  {e.label}
                 </h2>
 
                 <ul
@@ -229,7 +135,7 @@ export default function ConsultingExpertises() {
                   {e.offers.map((o) => (
                     <li key={o.slug}>
                       <Link
-                        href={`/offer/${e.slug}/${o.slug}`}
+                        href={offerHref(e.slug, o.slug)}
                         tabIndex={isActive ? 0 : -1}
                         className="group flex h-full flex-col gap-5 rounded-[1.75rem] bg-[#0b6477] p-8 text-sm leading-relaxed text-white transition-all duration-300 hover:-translate-y-1 hover:bg-[#0a5565] hover:shadow-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ffab00]"
                       >

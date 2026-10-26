@@ -2,152 +2,15 @@
 
 import Link from "next/link";
 import { Fragment, useEffect, useState } from "react";
+import { OUTSOURCING_EXPERTISES, offerHref } from "@/lib/solutions";
+import type { Offer } from "@/lib/solutions";
 
-type Offer = {
-  slug: string;
-  title: string;
-  description: string;
-};
+// Source unique de vérité : les slugs doivent correspondre à ceux résolus
+// par /offer/[expertise]/[offer] (cf. lib/solutions.ts), sinon 404.
+const EXPERTISES = OUTSOURCING_EXPERTISES;
 
-type Expertise = {
-  slug: string;
-  label: string;
-  offers: Offer[];
-};
+const TOTAL_OFFERS = EXPERTISES.reduce((n, e) => n + e.offers.length, 0);
 
-// 👉 Seule la 1re expertise est remplie d'après la maquette.
-// Complétez les `offers` des 3 autres (18 offres au total).
-const EXPERTISES: Expertise[] = [
-  {
-    slug: "experience-client-omnicanale-externalisee",
-    label: "Expérience Client Omnicanale Externalisée",
-    offers: [
-      {
-        slug: "accueil-assistance-client-citoyenne",
-        title: "Accueil & Assistance Client / Citoyenne",
-        description:
-          "Une assistance accessible, réactive et cohérente sur chaque canal.",
-      },
-      {
-        slug: "campagnes-sortantes-engagement",
-        title: "Campagnes Sortantes & Engagement Client / Citoyen",
-        description:
-          "Le bon contact au bon moment pour informer, accompagner et engager.",
-      },
-      {
-        slug: "coordination-routage-omnicanal",
-        title: "Coordination & Routage Omnicanal",
-        description:
-          "Une orchestration fluide pour une expérience cohérente sur tous les canaux.",
-      },
-      {
-        slug: "reclamations-resolution-client",
-        title: "Réclamations & Résolution Client",
-        description:
-          "Transformer chaque demande en résolution et chaque réclamation en opportunité de confiance.",
-      },
-      {
-        // ⚠️ Doublon présent dans la maquette : à remplacer par la vraie offre
-        slug: "reclamations-resolution-client",
-        title: "Réclamations & Résolution Client",
-        description:
-          "Transformer chaque demande en résolution et chaque réclamation en opportunité de confiance.",
-      },
-      {
-        slug: "support-dedie-grands-comptes-vip",
-        title: "Support Dédié Grands Comptes & VIP",
-        description:
-          "Un accompagnement premium pour vos clients et partenaires stratégiques.",
-      },
-      {
-        slug: "orchestration-cycle-de-vie-client",
-        title: "Orchestration du Cycle de Vie Client",
-        description: "Le bon message, au bon moment, sur le bon canal.",
-      },
-      {
-        slug: "engagement-animation-communautes-digitales",
-        title: "Engagement & Animation des Communautés Digitales",
-        description:
-          "Des communautés animées, modérées et engagées au quotidien.",
-      },
-    ],
-  },
-  { slug: "back-office-client-gestion-administrative", label: "Back-Office Client & Gestion Administrative", offers: [
-          {
-        slug: "Facturation & Encaissement",
-        title: "Facturation & Encaissement",
-        description:
-          "Des opérations de facturation et d'encaissement fiables, traçables et fluides.",
-      },
-      {
-        slug: "Devis & Contrats ",
-        title: "Devis & Contrats ",
-        description:
-          "Des documents commerciaux traités avec rapidité, précision et rigueur.",
-      },
-      {
-        slug: "Résiliations & Rétention ",
-        title: "Résiliations & Rétention ",
-        description:
-          "Fluidifier la résiliation tout en identifiant les opportunités de rétention.",
-      },
-      {
-        slug: "Activation de Services",
-        title: "Activation de Services",
-        description:
-          "Une mise en service rapide, conforme et sans friction.",
-      },
-      {
-        // ⚠️ Doublon présent dans la maquette : à remplacer par la vraie offre
-        slug: "Certification & Conformité Client ",
-        title: "Certification & Conformité Client ",
-        description:
-          "Des contrôles clients rigoureux, traçables et conformes aux exigences réglementaires.",
-      },
-  ] },
-  { slug: "support-technique-continuite-de-service", label: "Support Technique & Continuité de Service", offers: [
-      {
-        slug: "Support Technique à Distance ",
-        title: "Support Technique à Distance ",
-        description:
-          "Un incident, une réponse experte et une résolution structurée.",
-      },
-      {
-        // ⚠️ Doublon présent dans la maquette : à remplacer par la vraie offre
-        slug: "Assistance & Accompagnement Client Terrain  ",
-        title: "Assistance & Accompagnement Client Terrain ",
-        description:
-          "Prolonger la relation client au plus près des usages et des territoires.",
-      },
-  ] },
-  { slug: "activation-commerciale-croissance-client", label: "Activation Commerciale & Croissance Client", offers: [
-      {
-        slug: "Télévente & Développement Commercial ",
-        title: "Télévente & Développement Commercial ",
-        description:
-          "Transformer les opportunités qualifiées en croissance mesurable.",
-      },
-      {
-        slug: "Activation & Reconquête Client",
-        title: "Activation & Reconquête Client",
-        description:
-          " Réactiver les clients dormants et reconquérir les clients perdus.",
-      },
-      {
-        slug: "Rétention & Fidélisation Client ",
-        title: "Rétention & Fidélisation Client ",
-        description:
-          "Préserver la valeur de votre base installée et réduire l'attrition.",
-      },
-      {
-        // ⚠️ Doublon présent dans la maquette : à remplacer par la vraie offre
-        slug: "Recouvrement & Créances ",
-        title: "Recouvrement & Créances ",
-        description:
-          "Optimiser le recouvrement tout en préservant la qualité de la relation.",
-      },
-  ] },
-];
 
 function Arrow() {
   return (
@@ -201,7 +64,7 @@ export default function OutsourcingExpertises() {
     const isOn = i === highlighted;
     return (
       <Link
-        href={`/offer/${EXPERTISES[activeExpertise].slug}/${o.slug}`}
+        href={offerHref(EXPERTISES[activeExpertise].slug, o.slug)}
         onMouseEnter={() => setHighlighted(i)}
         onFocus={() => setHighlighted(i)}
         className={`group flex h-full min-h-[7.5rem] flex-col justify-between rounded-[1.75rem] p-6 text-xs leading-snug transition-colors duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#f5a30f] ${
@@ -224,9 +87,9 @@ export default function OutsourcingExpertises() {
       <header className="mx-auto max-w-2xl text-center">
         <h1 className="text-4xl font-bold">Outsourcing</h1>
         <p className="mt-5 text-sm leading-relaxed text-white/85">
-          18 offres réparties en 4 expertises métiers. Chaque expertise
-          constitue un point d&apos;entrée vers ses offres, sans notion de
-          package
+          {TOTAL_OFFERS} offres réparties en {EXPERTISES.length} expertises
+          métiers. Chaque expertise constitue un point d&apos;entrée vers ses
+          offres, sans notion de package
         </p>
       </header>
 

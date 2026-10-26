@@ -24,6 +24,33 @@ export type OfferDetail = {
   related: { label: string; href: string }[];
 };
 
+/**
+ * Normalise un fragment d'URL (expertise ou offre) afin de pouvoir le
+ * comparer à un slug de référence sans se soucier de la casse, des
+ * accents, des espaces ou de l'encodage percent.
+ */
+export function normalizeSlug(value: string): string {
+  let decoded = value;
+  if (/%[0-9a-f]{2}/i.test(value)) {
+    try {
+      decoded = decodeURIComponent(value);
+    } catch {
+      decoded = value;
+    }
+  }
+  return decoded
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+/** URL canonique d'une page d'offre. */
+export function offerHref(expertiseSlug: string, offerSlug: string): string {
+  return `/offer/${expertiseSlug}/${offerSlug}`;
+}
+
 export const OUTSOURCING_EXPERTISES: Expertise[] = [
   {
     slug: "experience-client-omnicanale-externalisee",
@@ -258,6 +285,25 @@ const DEFAULT_BENEFITS = [
   "Disponibilité multicanale sans surinvestissement technologique",
 ];
 
+function findExpertise(expertises: Expertise[], slug: string): Expertise | undefined {
+  const exact = expertises.find((e) => e.slug === slug);
+  if (exact) return exact;
+  const normalized = normalizeSlug(slug);
+  return expertises.find((e) => normalizeSlug(e.slug) === normalized);
+}
+
+function findOffer(expertise: Expertise, slug: string): Offer | undefined {
+  const exact = expertise.offers.find((o) => o.slug === slug);
+  if (exact) return exact;
+  const normalized = normalizeSlug(slug);
+  // Les anciennes versions des pages listaires utilisaient le titre brut
+  // comme slug : on tolère ce format pour ne pas casser les liens déjà diffusés.
+  return (
+    expertise.offers.find((o) => normalizeSlug(o.slug) === normalized) ??
+    expertise.offers.find((o) => normalizeSlug(o.title) === normalized)
+  );
+}
+
 export function getOfferDetail(
   expertiseSlug: string,
   offerSlug: string
@@ -278,16 +324,16 @@ export function getOfferDetail(
   ];
 
   for (const config of configs) {
-    const expertise = config.expertises.find((e) => e.slug === expertiseSlug);
+    const expertise = findExpertise(config.expertises, expertiseSlug);
     if (!expertise) continue;
-    const offer = expertise.offers.find((o) => o.slug === offerSlug);
+    const offer = findOffer(expertise, offerSlug);
     if (!offer) continue;
 
     const related = expertise.offers
       .filter((o) => o.slug !== offer.slug)
       .map((o) => ({
         label: o.title,
-        href: `/offer/${expertise.slug}/${o.slug}`,
+        href: offerHref(expertise.slug, o.slug),
       }));
 
     return {
