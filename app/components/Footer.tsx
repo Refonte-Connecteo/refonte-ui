@@ -3,14 +3,14 @@ import Link from "next/link";
 const navLinks = [
   { label: "Notre ADN", href: "/notre-adn/a-propos" },
   { label: "Expérience Client", href: "/experience-client" },
-  { label: "Carrière", href: "/carriere" },
+  { label: "Carrière", href: "/carriere2" },
   { label: "Actus & Événement", href: "/actus-et-evenement" },
   { label: "Impact", href: "/impact" },
 ];
 
 const serviceLinks = [
   { label: "Expérience Client", href: "/experience-client" },
-  { label: "Carrière", href: "/carriere" },
+  { label: "Carrière", href: "/carriere2" },
   { label: "Actus & Événements", href: "/actus-et-evenement" },
   { label: "Impact & RSE", href: "/impact" },
   { label: "Contact", href: "/contact" },

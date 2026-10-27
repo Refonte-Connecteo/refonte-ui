@@ -159,7 +159,7 @@ export default function Header() {
           </li>
 
           {[
-            { label: "Carrière", href: "/carriere" },
+            { label: "Carrière", href: "/carriere2" },
             { label: "Actus & Événement", href: "/actus-et-evenement" },
           ].map((item) => (
             <a
@@ -280,7 +280,7 @@ export default function Header() {
             )}
           </div>
           {[
-            { label: "Carrière", href: "/carriere" },
+            { label: "Carrière", href: "/carriere2" },
             { label: "Actus & Événement", href: "/actus-et-evenement" },
           ].map((item) => (
             <a

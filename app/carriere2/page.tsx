@@ -1,30 +1,20 @@
 "use client";
 
-import Link from "next/link";
-import { useState, type FormEvent } from "react";
+import { api } from "@/lib/api";
+import { useEffect, useState, type FormEvent } from "react";
+
+const MAX_CV_SIZE_BYTES = 5 * 1024 * 1024; // 5 Mo
+const CV_EXTENSIONS = [".pdf", ".doc", ".docx"];
 
 type Job = {
-  slug: string;
-  title: string;
-  location: string;
-  contract: string;
+  id: number;
+  poste: string;
+  lieu: string;
+  contrat: string;
+  description: string;
 };
 
-// 👉 La maquette montre 6 fois la même offre : remplacez par vos vraies offres
-// (ou chargez-les depuis votre API).
-const JOBS: Job[] = Array.from({ length: 6 }, (_, i) => ({
-  slug: `conseiller-clientele-bilingue-${i + 1}`,
-  title: "Conseiller·e clientèle bilingue FR/EN",
-  location: "Antananarivo",
-  contract: "CDI",
-}));
-
-// 👉 À brancher sur votre backend (ex. POST /api/candidatures sur votre API Express).
-// Pour l'instant, la fonction se contente de réussir après un court délai.
-async function submitApplication(data: Record<string, FormDataEntryValue>) {
-  console.log("Candidature spontanée", data);
-  await new Promise((resolve) => setTimeout(resolve, 600));
-}
+type Status = "idle" | "sending" | "sent" | "error";
 
 function ArrowUpRight({ className = "h-5 w-5" }: { className?: string }) {
   return (
@@ -90,20 +80,117 @@ function Field({
 }
 
 export default function CareersSection() {
-  const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">(
-    "idle",
-  );
+  const [offres, setOffres] = useState<Job[]>([]);
+  const [jobsLoaded, setJobsLoaded] = useState(false);
+  const [selectedJobId, setSelectedJobId] = useState<number | null>(null);
+  const [cvFile, setCvFile] = useState<File | null>(null);
+  const [cvError, setCvError] = useState("");
+  const [status, setStatus] = useState<Status>("idle");
+  const [errorMessage, setErrorMessage] = useState("");
+
+  useEffect(() => {
+    let cancelled = false;
+
+    api
+      .getActiveJobPostings()
+      .then((res) => {
+        if (cancelled) return;
+        setOffres(
+          res.jobPostings.map((job) => ({
+            id: job.id,
+            poste: job.title,
+            lieu: "Antananarivo",
+            contrat: job.contract_type,
+            description: job.description || "",
+          })),
+        );
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (!cancelled) setJobsLoaded(true);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const selectedJob = offres.find((job) => job.id === selectedJobId) ?? null;
+
+  const handleSelectJob = (id: number) => {
+    setSelectedJobId((current) => (current === id ? null : id));
+    setStatus("idle");
+    setErrorMessage("");
+  };
+
+  const handleCvChange = (file: File | null) => {
+    setCvError("");
+    if (!file) {
+      setCvFile(null);
+      return;
+    }
+
+    const ext = file.name.toLowerCase().match(/\.[a-z0-9]+$/)?.[0] ?? "";
+    if (!CV_EXTENSIONS.includes(ext)) {
+      setCvError("Format de CV non supporté (PDF, DOC ou DOCX uniquement).");
+      setCvFile(null);
+      return;
+    }
+
+    if (file.size > MAX_CV_SIZE_BYTES) {
+      setCvError("Le CV ne doit pas dépasser 5 Mo.");
+      setCvFile(null);
+      return;
+    }
+
+    setCvFile(file);
+  };
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = e.currentTarget;
+    const data = Object.fromEntries(new FormData(form)) as Record<string, string>;
+
     setStatus("sending");
+    setErrorMessage("");
+
     try {
-      await submitApplication(Object.fromEntries(new FormData(form)));
+      let cvUrl = "";
+      if (cvFile) {
+        const uploadResult = await api.uploadCvPublic(cvFile);
+        cvUrl = uploadResult.url;
+      }
+
+      const basePayload = {
+        first_name: (data.nom || "").trim(),
+        last_name: (data.prenoms || "").trim(),
+        email: (data.email || "").trim(),
+        phone: (data.telephone || "").trim() || undefined,
+        cv_url: cvUrl,
+      };
+
+      if (selectedJobId) {
+        await api.createApplication({
+          ...basePayload,
+          job_id: selectedJobId,
+          cover_letter: data.message || undefined,
+        });
+      } else {
+        await api.createSpontaneousApplication({
+          ...basePayload,
+          motivation: data.message || undefined,
+        });
+      }
+
       form.reset();
+      setCvFile(null);
+      setSelectedJobId(null);
       setStatus("sent");
-    } catch {
+    } catch (err) {
       setStatus("error");
+      setErrorMessage(
+        err instanceof Error ? err.message : "Une erreur est survenue, merci de réessayer.",
+      );
     }
   }
 
@@ -116,45 +203,87 @@ export default function CareersSection() {
             Devenez acteur·rice de l&apos;expérience client africaine.
           </h1>
           <h2 className="mt-8 text-sm font-bold">Postes à pourvoir</h2>
+          <p className="mt-2 text-sm text-white/70">
+            {offres.length > 0
+              ? `${offres.length} poste${offres.length > 1 ? "s" : ""} disponible${offres.length > 1 ? "s" : ""} — cliquez sur une offre pour postuler.`
+              : jobsLoaded
+                ? "Aucune offre disponible pour le moment."
+                : "Chargement des offres…"}
+          </p>
         </header>
 
         {/* Offres d'emploi */}
-        <ul className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6">
-          {JOBS.map((job) => (
-            <li key={job.slug}>
-              <Link
-                href={`/carrieres/${job.slug}`}
-                className="group flex min-h-[5.5rem] items-center justify-between gap-4 rounded-[3.75rem] bg-[#00aeaa] px-6 py-5 transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#00bdb8] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#f5a30f] motion-reduce:transition-none motion-reduce:hover:translate-y-0"
-              >
-                <span className="text-sm leading-snug p-1.5">
-                  <span className="block max-w-[14rem] font-bold">
-                    {job.title}
-                  </span>
-                  <span className="mt-0.5 block">
-                    {job.location} · {job.contract}
-                  </span>
-                </span>
-                <ArrowUpRight className="h-5 w-5 shrink-0 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
-              </Link>
-            </li>
-          ))}
-        </ul>
+        {offres.length > 0 && (
+          <ul className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6">
+            {offres.map((job) => {
+              const isSelected = selectedJobId === job.id;
+              return (
+                <li key={job.id}>
+                  <button
+                    type="button"
+                    onClick={() => handleSelectJob(job.id)}
+                    aria-pressed={isSelected}
+                    className={`group flex min-h-[5.5rem] w-full items-center justify-between gap-4 rounded-[3.75rem] border-2 px-6 py-5 text-left transition-all duration-300 hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#f5a30f] motion-reduce:transition-none motion-reduce:hover:translate-y-0 ${
+                      isSelected
+                        ? "border-[#f5a30f] bg-[#00bdb8]"
+                        : "border-transparent bg-[#00aeaa] hover:bg-[#00bdb8]"
+                    }`}
+                  >
+                    <span className="text-sm leading-snug p-1.5">
+                      <span className="block max-w-[14rem] font-bold">
+                        {job.poste}
+                      </span>
+                      <span className="mt-0.5 block">
+                        {job.lieu} · {job.contrat}
+                      </span>
+                    </span>
+                    <ArrowUpRight
+                      className={`h-5 w-5 shrink-0 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 ${
+                        isSelected ? "rotate-90" : ""
+                      }`}
+                    />
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        )}
 
-        {/* Candidature spontanée */}
+        {/* Candidature */}
         <section
-          aria-labelledby="spontanee-title"
+          aria-labelledby="candidature-title"
           className="relative mt-20 grid items-center gap-10 lg:mt-28 lg:grid-cols-[1fr_1.1fr] lg:gap-6"
         >
           <Asterisk className="pointer-events-none absolute -right-16 bottom-0 h-64 w-64 text-[#00aeaa] opacity-40 lg:bottom-auto lg:left-[26%] lg:right-auto lg:top-1/2 lg:h-[28rem] lg:w-[28rem] lg:-translate-y-1/2 lg:opacity-100" />
 
           <div className="relative z-10 max-w-md">
-            <h2 id="spontanee-title" className="text-2xl font-bold sm:text-3xl">
-              Candidature spontanée
+            <h2 id="candidature-title" className="text-2xl font-bold sm:text-3xl">
+              {selectedJob ? "Candidature" : "Candidature spontanée"}
             </h2>
             <p className="mt-4 text-base leading-relaxed text-white/90 sm:text-lg">
-              Vous ne trouvez pas l&apos;offre qui vous correspond ?
-              Présentez-vous, nous reviendrons vers vous.
+              {selectedJob ? (
+                <>
+                  Vous postulez au poste de{" "}
+                  <span className="font-bold text-white">{selectedJob.poste}</span>{" "}
+                  ({selectedJob.lieu} · {selectedJob.contrat}). Complétez le
+                  formulaire, nous reviendrons vers vous.
+                </>
+              ) : (
+                <>
+                  Vous ne trouvez pas l&apos;offre qui vous correspond ?
+                  Présentez-vous, nous reviendrons vers vous.
+                </>
+              )}
             </p>
+            {selectedJob && (
+              <button
+                type="button"
+                onClick={() => setSelectedJobId(null)}
+                className="mt-4 text-sm font-medium text-[#f5a30f] underline-offset-4 transition-colors hover:text-white hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#f5a30f]"
+              >
+                Revenir à une candidature spontanée
+              </button>
+            )}
           </div>
 
           <form
@@ -168,6 +297,44 @@ export default function CareersSection() {
               <Field id="telephone" label="Téléphone" type="tel" autoComplete="tel" />
               <Field id="societe" label="Société" autoComplete="organization" />
               <Field id="pays" label="Pays" autoComplete="country-name" />
+
+              <div className="sm:col-span-2">
+                <label htmlFor="cv" className="mb-1.5 ml-3 block text-xs text-white">
+                  CV (PDF, DOC ou DOCX — 5 Mo max)
+                </label>
+                <label
+                  htmlFor="cv"
+                  className="flex h-10 w-full cursor-pointer items-center gap-2 rounded-full bg-[#a9c1c6]/80 px-4 text-sm text-[#0b4f5c] transition-colors hover:bg-[#c8dadd] focus-within:ring-2 focus-within:ring-[#f5a30f]"
+                >
+                  <svg
+                    aria-hidden="true"
+                    className="h-4 w-4 shrink-0"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"
+                    />
+                  </svg>
+                  <span className="truncate">
+                    {cvFile ? cvFile.name : "Joindre mon CV"}
+                  </span>
+                  <input
+                    id="cv"
+                    type="file"
+                    accept={CV_EXTENSIONS.join(",")}
+                    className="hidden"
+                    onChange={(e) => handleCvChange(e.target.files?.[0] ?? null)}
+                  />
+                </label>
+                {cvError && (
+                  <p className="mt-1.5 ml-3 text-xs text-[#ffd166]">{cvError}</p>
+                )}
+              </div>
 
               <div className="sm:col-span-2">
                 <label htmlFor="message" className="mb-1.5 ml-3 block text-xs text-white">
@@ -184,9 +351,10 @@ export default function CareersSection() {
 
             <div className="mt-6 flex flex-col-reverse items-stretch gap-4 sm:flex-row sm:items-center sm:justify-between">
               <p role="status" aria-live="polite" className="text-sm">
-                {status === "sent" && "Merci ! Nous reviendrons vers vous."}
+                {status === "sent" &&
+                  "Merci ! Votre candidature a été envoyée avec succès."}
                 {status === "error" &&
-                  "Une erreur est survenue, merci de réessayer."}
+                  (errorMessage || "Une erreur est survenue, merci de réessayer.")}
               </p>
               <button
                 type="submit"
