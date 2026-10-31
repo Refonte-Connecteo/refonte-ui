@@ -4,6 +4,9 @@ import { useRef, useEffect, useState } from "react";
 import Image from "next/image";
 import ParallaxLayer from "./ParallaxLayer";
 import { api } from "@/lib/api";
+import { formatKpiValue } from "@/lib/kpi";
+import { useInView } from "../hooks/useInView";
+import CountUp from "./CountUp";
 
 export default function StickyStack({
   top,
@@ -13,6 +16,7 @@ export default function StickyStack({
   bottom: React.ReactNode;
 }) {
   const contentRef = useRef<HTMLDivElement>(null);
+  const { ref: statsRef, inView: statsInView } = useInView();
   const [contentHeight, setContentHeight] = useState(0);
   const [mounted, setMounted] = useState(false);
   const [stats, setStats] = useState<{ value: string; label: string }[]>([
@@ -26,7 +30,7 @@ export default function StickyStack({
     setMounted(true);
     api.getActiveKpiStats().then((res) => {
       const mapped = res.stats.map((s) => ({
-        value: s.unit ? `${s.value}${/^[^\w+]/.test(s.unit) ? "" : " "}${s.unit}` : s.value,
+        value: formatKpiValue(s.value, s.unit),
         label: s.label,
       }));
       if (mapped.length > 0) setStats(mapped);
@@ -61,12 +65,12 @@ export default function StickyStack({
       >
 
         <div className="relative z-10 w-full bg-white">
-          <div className="mx-auto max-w-6xl px-6 md:px-10 pt-36 md:pt-40 pb-8 md:pb-12">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-10 md:gap-8">
+          <div className="mx-auto max-w-6xl px-6 md:px-10 pt-20 md:pt-28 pb-10 md:pb-12">
+            <div ref={statsRef} className="grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-10 md:gap-8">
               {stats.map((stat) => (
                 <div key={stat.label} className="text-center">
-                  <span className="block text-4xl md:text-5xl lg:text-[3.5rem] font-bold tracking-tight text-[#00AFA9] leading-none">
-                    {stat.value}
+                  <span className="block text-4xl md:text-5xl lg:text-[3.5rem] font-bold tracking-tight tabular-nums text-[#00AFA9] leading-none">
+                    <CountUp value={stat.value} start={statsInView} />
                   </span>
                   <span className="block text-sm md:text-[15px] text-[#0B1D20]/45 mt-3 font-normal">
                     {stat.label}
@@ -79,7 +83,7 @@ export default function StickyStack({
 
         {top}
         {bottom}
-        <div className="absolute right-0 top-0 bottom-0 w-[39%] pointer-events-none z-0 overflow-hidden">
+        <div className="hidden md:block absolute right-0 top-0 bottom-0 w-[39%] pointer-events-none z-0 overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-l from-white/5 via-white/30 to-white/90" />
           <div className="relative w-full h-full">
             <ParallaxLayer speed={-0.15} className="w-full h-full">
@@ -88,7 +92,7 @@ export default function StickyStack({
                   src="/images/c12.png"
                   alt=""
                   fill
-                  className="object-cover object-left opacity-50"
+                  className="object-cover object-left opacity-30"
                 />
               </div>
             </ParallaxLayer>

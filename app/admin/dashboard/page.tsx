@@ -3,19 +3,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import {
-  Eye,
-  Users,
-  MousePointerClick,
-  Briefcase,
-  Send,
-  Mail,
-  TrendingUp,
-  Globe,
-  MonitorSmartphone,
-  UserPlus,
-  AlertCircle,
-} from "lucide-react";
-import {
   AreaChart,
   Area,
   XAxis,
@@ -24,18 +11,34 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import {
+  Briefcase,
+  Eye,
+  Globe,
+  Mail,
+  MonitorSmartphone,
+  MousePointerClick,
+  Send,
+  TrendingUp,
+  UserPlus,
+  Users,
+} from "lucide-react";
 import { api } from "@/lib/api";
 import { clearSession, redirectToLogin } from "@/lib/session";
 import type { AnalyticsSummary } from "@/app/admin/types";
 import {
   Card,
   CardHeader,
-  StatCard,
   Badge,
   Button,
   PageHeader,
   EmptyState,
   LoadingScreen,
+  StatCard,
+  Alert,
+  DataTable,
+  Th,
+  RowAction,
 } from "@/app/admin/components/ui";
 
 interface AdminUser {
@@ -81,12 +84,12 @@ function AnalyticsCharts({ summary }: { summary: AnalyticsSummary }) {
               <AreaChart data={series} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <defs>
                   <linearGradient id="viewsFill" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#2563eb" stopOpacity={0.25} />
-                    <stop offset="95%" stopColor="#2563eb" stopOpacity={0} />
+                    <stop offset="5%" stopColor="#00AFA9" stopOpacity={0.25} />
+                    <stop offset="95%" stopColor="#00AFA9" stopOpacity={0} />
                   </linearGradient>
                   <linearGradient id="visitorsFill" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#7c3aed" stopOpacity={0.2} />
-                    <stop offset="95%" stopColor="#7c3aed" stopOpacity={0} />
+                    <stop offset="5%" stopColor="#FFA900" stopOpacity={0.2} />
+                    <stop offset="95%" stopColor="#FFA900" stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" vertical={false} />
@@ -111,17 +114,17 @@ function AnalyticsCharts({ summary }: { summary: AnalyticsSummary }) {
                     fontSize: 12,
                   }}
                 />
-                <Area type="monotone" dataKey="views" name="Visites" stroke="#2563eb" strokeWidth={2} fill="url(#viewsFill)" />
-                <Area type="monotone" dataKey="visitors" name="Visiteurs uniques" stroke="#7c3aed" strokeWidth={2} fill="url(#visitorsFill)" />
+                <Area type="monotone" dataKey="views" name="Visites" stroke="#00AFA9" strokeWidth={2} fill="url(#viewsFill)" />
+                <Area type="monotone" dataKey="visitors" name="Visiteurs uniques" stroke="#FFA900" strokeWidth={2} fill="url(#visitorsFill)" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
           <div className="flex items-center gap-4 mt-3 text-xs text-gray-500">
             <span className="inline-flex items-center gap-1.5">
-              <span className="w-3 h-1 rounded-full bg-blue-600" /> Visites
+              <span className="w-3 h-1 rounded-full bg-brand-500" /> Visites
             </span>
             <span className="inline-flex items-center gap-1.5">
-              <span className="w-3 h-1 rounded-full bg-violet-600" /> Visiteurs uniques
+              <span className="w-3 h-1 rounded-full bg-amber-400" /> Visiteurs uniques
             </span>
           </div>
         </div>
@@ -140,9 +143,9 @@ function AnalyticsCharts({ summary }: { summary: AnalyticsSummary }) {
                   <span className="font-medium text-gray-700 truncate">{p.path}</span>
                   <span className="text-gray-500 tabular-nums">{p.views}</span>
                 </div>
-                <div className="h-1.5 rounded-full bg-gray-100 overflow-hidden">
+                <div className="h-2 rounded-full bg-gray-100 overflow-hidden">
                   <div
-                    className="h-full rounded-full bg-gradient-to-r from-blue-500 to-indigo-500"
+                    className="h-full rounded-full bg-brand-500"
                     style={{ width: `${(p.views / maxPageViews) * 100}%` }}
                   />
                 </div>
@@ -163,9 +166,9 @@ function AnalyticsCharts({ summary }: { summary: AnalyticsSummary }) {
                   <span className="font-medium text-gray-700 truncate">{r.referrer}</span>
                   <span className="text-gray-500 tabular-nums">{r.views}</span>
                 </div>
-                <div className="h-1.5 rounded-full bg-gray-100 overflow-hidden">
+                <div className="h-2 rounded-full bg-gray-100 overflow-hidden">
                   <div
-                    className="h-full rounded-full bg-gradient-to-r from-violet-500 to-fuchsia-500"
+                    className="h-full rounded-full bg-amber-400"
                     style={{ width: `${(r.views / maxReferrer) * 100}%` }}
                   />
                 </div>
@@ -192,9 +195,9 @@ function AnalyticsCharts({ summary }: { summary: AnalyticsSummary }) {
                       {pct}% · {d.views}
                     </span>
                   </div>
-                  <div className="h-1.5 rounded-full bg-gray-100 overflow-hidden">
+                  <div className="h-2 rounded-full bg-gray-100 overflow-hidden">
                     <div
-                      className="h-full rounded-full bg-gradient-to-r from-cyan-500 to-blue-500"
+                      className="h-full rounded-full bg-ink"
                       style={{ width: `${(d.views / maxDevice) * 100}%` }}
                     />
                   </div>
@@ -299,27 +302,22 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="space-y-6">
-      {error && (
-        <div className="bg-rose-50 border border-rose-200 text-rose-700 text-sm rounded-xl p-4 flex items-center gap-2">
-          <AlertCircle className="w-4 h-4 shrink-0" />
-          {error}
-        </div>
-      )}
+      {error && <Alert>{error}</Alert>}
 
       <PageHeader
         title="Tableau de bord"
         subtitle={isSuperAdmin ? "Trafic du site et gestion des accès" : "Gestion des administrateurs"}
         actions={
           isSuperAdmin && summary ? (
-            <div className="flex items-center gap-1 p-1 bg-white border border-gray-200 rounded-xl">
+            <div className="flex items-center gap-1 p-1 bg-gray-100 rounded-xl">
               {[7, 30].map((r) => (
                 <button
                   key={r}
                   onClick={() => setRange(r)}
                   className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
                     range === r
-                      ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white"
-                      : "text-gray-500 hover:bg-gray-100"
+                      ? "bg-white text-brand-700 shadow-sm"
+                      : "text-gray-500 hover:text-gray-700"
                   }`}
                 >
                   {r} j
@@ -379,32 +377,21 @@ export default function AdminDashboardPage() {
         </div>
 
         <Card className="overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+          <DataTable>
               <thead>
-                <tr className="bg-gray-50/80 border-b border-gray-200">
-                  <th className="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">
-                    Email
-                  </th>
-                  <th className="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">
-                    Utilisateur
-                  </th>
-                  <th className="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">
-                    Statut
-                  </th>
-                  <th className="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">
-                    Créé le
-                  </th>
+                <tr>
+                  <Th>Email</Th>
+                  <Th>Utilisateur</Th>
+                  <Th>Statut</Th>
+                  <Th>Créé le</Th>
                   {isSuperAdmin && (
-                    <th className="text-right px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">
-                      Actions
-                    </th>
+                    <Th align="right">Actions</Th>
                   )}
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {admins.map((admin) => (
-                  <tr key={admin.id} className="hover:bg-gray-50 transition-colors">
+                  <tr key={admin.id} className="hover:bg-brand-50/40 transition-colors">
                     <td className="px-5 py-3.5 text-gray-900 font-medium">{admin.email}</td>
                     <td className="px-5 py-3.5 text-gray-700">{admin.username}</td>
                     <td className="px-5 py-3.5">
@@ -425,29 +412,18 @@ export default function AdminDashboardPage() {
                       <td className="px-5 py-3.5 text-right">
                         <div className="flex items-center justify-end gap-1.5">
                           {admin.is_active ? (
-                            <button
-                              onClick={() => handleDeactivate(admin.id)}
-                              className="inline-flex items-center gap-1 text-amber-600 hover:text-amber-700 text-xs font-medium px-2.5 py-1.5 rounded-lg hover:bg-amber-50 transition-colors"
-                            >
-                              Désactiver
-                            </button>
+                            <RowAction onClick={() => handleDeactivate(admin.id)} tone="warning">Désactiver</RowAction>
                           ) : (
                             <span className="text-xs text-gray-300">—</span>
                           )}
-                          <button
-                            onClick={() => handleDelete(admin.id)}
-                            className="inline-flex items-center gap-1 text-rose-600 hover:text-rose-700 text-xs font-medium px-2.5 py-1.5 rounded-lg hover:bg-rose-50 transition-colors"
-                          >
-                            Supprimer
-                          </button>
+                          <RowAction onClick={() => handleDelete(admin.id)} tone="danger">Supprimer</RowAction>
                         </div>
                       </td>
                     )}
                   </tr>
                 ))}
               </tbody>
-            </table>
-          </div>
+            </DataTable>
 
           {admins.length === 0 && (
             <EmptyState

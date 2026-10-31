@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, type FormEvent } from "react";
-import { KeyRound, ShieldCheck, ShieldOff, User as UserIcon, AlertCircle, CheckCircle2 } from "lucide-react";
+import { KeyRound, ShieldCheck, ShieldOff, UserIcon } from "lucide-react";
 import { api } from "@/lib/api";
 import { clearSession, redirectToLogin } from "@/lib/session";
 import type { User } from "@/app/admin/types";
@@ -11,10 +11,10 @@ import {
   Badge,
   Button,
   PageHeader,
+  Alert,
+  Label,
+  Input,
 } from "@/app/admin/components/ui";
-
-const inputClass =
-  "w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow";
 
 export default function AdminProfilePage() {
   const [profile, setProfile] = useState<User | null>(null);
@@ -100,12 +100,7 @@ export default function AdminProfilePage() {
 
   return (
     <div className="space-y-6">
-      {profileError && (
-        <div className="bg-rose-50 border border-rose-200 text-rose-700 text-sm rounded-xl p-4 flex items-center gap-2">
-          <AlertCircle className="w-4 h-4 shrink-0" />
-          {profileError}
-        </div>
-      )}
+      {profileError && <Alert>{profileError}</Alert>}
 
       <PageHeader
         title="Sécurité & profil"
@@ -156,57 +151,41 @@ export default function AdminProfilePage() {
         />
         <div className="p-6">
           <form onSubmit={handleChangePassword} className="space-y-4">
-            {passwordError && (
-              <div className="bg-rose-50 border border-rose-200 text-rose-700 text-sm rounded-lg p-3 flex items-center gap-2">
-                <AlertCircle className="w-4 h-4 shrink-0" />
-                {passwordError}
-              </div>
-            )}
-            {passwordSuccess && (
-              <div className="bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm rounded-lg p-3 flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 shrink-0" />
-                {passwordSuccess}
-              </div>
-            )}
+            {passwordError && <Alert>{passwordError}</Alert>}
+            {passwordSuccess && <Alert variant="success">{passwordSuccess}</Alert>}
             <div>
-              <label htmlFor="currentPassword" className="block text-sm font-medium text-gray-700 mb-1">
+              <Label htmlFor="currentPassword">
                 Mot de passe actuel
-              </label>
-              <input
+              </Label>
+              <Input
                 id="currentPassword"
                 type="password"
                 value={currentPassword}
                 onChange={(e) => setCurrentPassword(e.target.value)}
-                required
-                className={inputClass}
-              />
+                required />
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700 mb-1">
+                <Label htmlFor="newPassword">
                   Nouveau mot de passe
-                </label>
-                <input
+                </Label>
+                <Input
                   id="newPassword"
                   type="password"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
-                  required
-                  className={inputClass}
-                />
+                  required />
               </div>
               <div>
-                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
+                <Label htmlFor="confirmPassword">
                   Confirmer le nouveau mot de passe
-                </label>
-                <input
+                </Label>
+                <Input
                   id="confirmPassword"
                   type="password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  required
-                  className={inputClass}
-                />
+                  required />
               </div>
             </div>
             <Button type="submit" disabled={passwordLoading}>
@@ -225,30 +204,18 @@ export default function AdminProfilePage() {
           />
           <div className="p-6">
             <form onSubmit={handleDisableMfa} className="space-y-4">
-              {mfaError && (
-                <div className="bg-rose-50 border border-rose-200 text-rose-700 text-sm rounded-lg p-3 flex items-center gap-2">
-                  <AlertCircle className="w-4 h-4 shrink-0" />
-                  {mfaError}
-                </div>
-              )}
-              {mfaSuccess && (
-                <div className="bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm rounded-lg p-3 flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 shrink-0" />
-                  {mfaSuccess}
-                </div>
-              )}
+              {mfaError && <Alert>{mfaError}</Alert>}
+              {mfaSuccess && <Alert variant="success">{mfaSuccess}</Alert>}
               <div>
-                <label htmlFor="mfaPassword" className="block text-sm font-medium text-gray-700 mb-1">
+                <Label htmlFor="mfaPassword">
                   Mot de passe actuel
-                </label>
-                <input
+                </Label>
+                <Input
                   id="mfaPassword"
                   type="password"
                   value={mfaPassword}
                   onChange={(e) => setMfaPassword(e.target.value)}
-                  required
-                  className={inputClass}
-                />
+                  required />
               </div>
               <Button variant="danger" type="submit" disabled={mfaLoading}>
                 <ShieldCheck className="w-4 h-4" />

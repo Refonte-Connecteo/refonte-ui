@@ -31,7 +31,9 @@ export default function PageViewTracker() {
     if (lastSent.current === pathname) return;
     lastSent.current = pathname;
 
-    void api.trackPageView(pathname, getVisitorId(), document.referrer || undefined);
+    const referrer = document.referrer;
+    const isExternal = referrer && !referrer.startsWith(window.location.origin);
+    void api.trackPageView(pathname, getVisitorId(), isExternal ? referrer : undefined);
   }, [pathname]);
 
   return null;

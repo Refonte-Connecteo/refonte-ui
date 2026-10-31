@@ -10,6 +10,10 @@ import {
   PageHeader,
   EmptyState,
   LoadingScreen,
+  Alert,
+  DataTable,
+  Th,
+  RowAction,
 } from "@/app/admin/components/ui";
 
 interface ApplicationItem {
@@ -71,11 +75,7 @@ export default function ApplicationListPage() {
 
   return (
     <div className="space-y-6">
-      {error && (
-        <div className="bg-rose-50 border border-rose-200 text-rose-700 text-sm rounded-xl p-4">
-          {error}
-        </div>
-      )}
+      {error && <Alert>{error}</Alert>}
 
       <PageHeader
         title="Candidatures"
@@ -83,29 +83,28 @@ export default function ApplicationListPage() {
       />
 
       <Card className="overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+        <DataTable>
             <thead>
-              <tr className="bg-gray-50/80 border-b border-gray-200">
-                <th className="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Nom</th>
-                <th className="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Prénom</th>
-                <th className="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Email</th>
-                <th className="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Offre</th>
-                <th className="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">CV</th>
-                <th className="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Date</th>
-                <th className="text-right px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Actions</th>
+              <tr>
+                <Th>Nom</Th>
+                <Th>Prénom</Th>
+                <Th>Email</Th>
+                <Th>Offre</Th>
+                <Th>CV</Th>
+                <Th>Date</Th>
+                <Th align="right">Actions</Th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {applications.map((app) => (
-                <tr key={app.id} className="hover:bg-gray-50 transition-colors">
+                <tr key={app.id} className="hover:bg-brand-50/40 transition-colors">
                   <td className="px-5 py-3.5 text-gray-900 font-medium">{app.last_name}</td>
                   <td className="px-5 py-3.5 text-gray-700">{app.first_name}</td>
                   <td className="px-5 py-3.5 text-gray-700">{app.email}</td>
                   <td className="px-5 py-3.5 text-gray-700">{app.job_posting.title}</td>
                   <td className="px-5 py-3.5 text-xs">
                     {app.cv_url ? (
-                      <a href={resolveAssetUrl(app.cv_url)} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-700 underline">
+                      <a href={resolveAssetUrl(app.cv_url)} target="_blank" rel="noopener noreferrer" className="text-brand-600 hover:text-brand-700 underline">
                         Voir CV
                       </a>
                     ) : (
@@ -119,27 +118,14 @@ export default function ApplicationListPage() {
                   </td>
                   <td className="px-5 py-3.5 text-right">
                     <div className="flex items-center justify-end gap-1.5">
-                      <button
-                        onClick={() => router.push(`/admin/application/${app.id}`)}
-                        className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-700 text-xs font-medium px-2.5 py-1.5 rounded-lg hover:bg-blue-50 transition-colors"
-                      >
-                        <Eye className="w-3.5 h-3.5" />
-                        Voir
-                      </button>
-                      <button
-                        onClick={() => handleDelete(app.id)}
-                        className="inline-flex items-center gap-1 text-rose-600 hover:text-rose-700 text-xs font-medium px-2.5 py-1.5 rounded-lg hover:bg-rose-50 transition-colors"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                        Supprimer
-                      </button>
+                      <RowAction onClick={() => router.push(`/admin/application/${app.id}`)} icon={Eye}>Voir</RowAction>
+                      <RowAction onClick={() => handleDelete(app.id)} icon={Trash2} tone="danger">Supprimer</RowAction>
                     </div>
                   </td>
                 </tr>
               ))}
             </tbody>
-          </table>
-        </div>
+          </DataTable>
 
         {applications.length === 0 && (
           <EmptyState

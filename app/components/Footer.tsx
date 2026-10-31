@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { CONTACT_EMAIL } from "@/lib/contact";
 
 const navLinks = [
   { label: "Accueil", href: "/" },
@@ -17,7 +18,7 @@ const serviceLinks = [
 export default function Footer() {
   return (
     <footer className="w-full bg-[#0D1117] border-t border-white/5">
-      <div className="mx-auto max-w-7xl px-6 pt-16 pb-8">
+      <div className="mx-auto max-w-7xl px-6 md:px-10 lg:px-6 pt-14 md:pt-16 pb-28">
         <div className="grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-4 lg:gap-12">
           <div>
               <a href="/" className="shrink-0">
@@ -44,14 +45,14 @@ export default function Footer() {
                       href={link.href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-sm text-white/50 transition-colors duration-200 hover:text-[#00AFA9]"
+                      className="inline-block text-sm text-white/50 transition-all duration-200 hover:translate-x-0.5 hover:text-[#00AFA9]"
                     >
                       {link.label}
                     </a>
                   ) : (
                     <Link
                       href={link.href}
-                      className="text-sm text-white/50 transition-colors duration-200 hover:text-[#00AFA9]"
+                      className="inline-block text-sm text-white/50 transition-all duration-200 hover:translate-x-0.5 hover:text-[#00AFA9]"
                     >
                       {link.label}
                     </Link>
@@ -70,7 +71,7 @@ export default function Footer() {
                 <li key={link.label}>
                   <Link
                     href={link.href}
-                    className="text-sm text-white/50 transition-colors duration-200 hover:text-[#00AFA9]"
+                    className="inline-block text-sm text-white/50 transition-all duration-200 hover:translate-x-0.5 hover:text-[#00AFA9]"
                   >
                     {link.label}
                   </Link>
@@ -110,8 +111,8 @@ export default function Footer() {
                 <svg className="mt-0.5 h-4 w-4 shrink-0 text-[#00AFA9]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                 </svg>
-                <a href="mailto:contact@connecteo.mg" className="transition-colors hover:text-[#00AFA9]">
-                  mycontact@connecteo.mg
+                <a href={`mailto:${CONTACT_EMAIL}`} className="transition-colors hover:text-[#00AFA9]">
+                  {CONTACT_EMAIL}
                 </a>
               </li>
             </ul>
@@ -120,7 +121,7 @@ export default function Footer() {
                 href="https://www.facebook.com/connecteo"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 text-white/40 transition-all duration-300 hover:border-[#00AFA9] hover:bg-[#00AFA9]/10 hover:text-[#00AFA9]"
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 text-white/40 transition-all duration-300 hover:-translate-y-0.5 hover:border-[#00AFA9] hover:bg-[#00AFA9]/10 hover:text-[#00AFA9]"
                 aria-label="Facebook"
               >
                 <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
@@ -131,7 +132,7 @@ export default function Footer() {
                 href="https://www.linkedin.com/company/connecteo"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 text-white/40 transition-all duration-300 hover:border-[#00AFA9] hover:bg-[#00AFA9]/10 hover:text-[#00AFA9]"
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 text-white/40 transition-all duration-300 hover:-translate-y-0.5 hover:border-[#00AFA9] hover:bg-[#00AFA9]/10 hover:text-[#00AFA9]"
                 aria-label="LinkedIn"
               >
                 <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
@@ -154,15 +155,15 @@ export default function Footer() {
           <p className="text-xs text-white/30">
             &copy; {new Date().getFullYear()} CONNECTEO. Tous droits réservés.
           </p>
-          <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
             <a href="#" className="text-xs text-white/30 transition-colors hover:text-white/60">
               Mentions légales
             </a>
-            <span className="text-white/10">·</span>
+            <span className="hidden text-white/10 sm:inline">·</span>
             <a href="#" className="text-xs text-white/30 transition-colors hover:text-white/60">
               Politique de confidentialité
             </a>
-            <span className="text-white/10">·</span>
+            <span className="hidden text-white/10 sm:inline">·</span>
             <a href="#" className="text-xs text-white/30 transition-colors hover:text-white/60">
               Cookies
             </a>

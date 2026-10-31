@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { api } from "@/lib/api";
+import { Alert, Button, Input, Label } from "@/app/admin/components/ui";
 import type { AuthSuccessResponse } from "@/app/admin/types";
 
 interface MfaVerifyFormProps {
@@ -38,8 +39,8 @@ export default function MfaVerifyForm({ mfaToken, onSuccess, onBack }: MfaVerify
 
   return (
     <div>
-      <div className="space-y-1 mb-6">
-        <h2 className="text-xl font-semibold text-gray-900">Vérification en deux étapes</h2>
+      <div className="space-y-1 mb-7">
+        <h1 className="text-2xl font-bold tracking-tight text-gray-900">Vérification en deux étapes</h1>
         <p className="text-sm text-gray-500">
           Saisissez le code à 6 chiffres généré par Microsoft Authenticator pour finaliser la
           connexion.
@@ -47,17 +48,13 @@ export default function MfaVerifyForm({ mfaToken, onSuccess, onBack }: MfaVerify
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg p-3">
-            {error}
-          </div>
-        )}
+        {error && <Alert>{error}</Alert>}
 
         <div>
-          <label htmlFor="mfa-verify-code" className="block text-sm font-medium text-gray-700 mb-1">
+          <Label htmlFor="mfa-verify-code">
             Code à 6 chiffres
-          </label>
-          <input
+          </Label>
+          <Input
             id="mfa-verify-code"
             type="text"
             inputMode="numeric"
@@ -67,25 +64,21 @@ export default function MfaVerifyForm({ mfaToken, onSuccess, onBack }: MfaVerify
             pattern="\d{6}"
             value={code}
             onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow"
+            className="text-center text-lg tracking-[0.4em] font-semibold tabular-nums"
             placeholder="000000"
           />
         </div>
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-blue-600 text-white rounded-lg py-2.5 text-sm font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-        >
+        <Button type="submit" disabled={loading} className="w-full">
           {loading ? "Vérification..." : "Se connecter"}
-        </button>
+        </Button>
       </form>
 
       {onBack && (
         <div className="mt-4 text-center">
           <button
             onClick={onBack}
-            className="text-sm text-gray-500 hover:text-gray-700"
+            className="text-sm font-medium text-gray-500 hover:text-brand-700"
           >
             ← Retour à la connexion
           </button>

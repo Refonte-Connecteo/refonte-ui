@@ -30,6 +30,7 @@ export default function NosReferences() {
   useEffect(() => {
     const track = trackRef.current;
     if (!track || partenaires.length === 0) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     const speed = 0.5;
 
@@ -50,7 +51,7 @@ export default function NosReferences() {
   }, [partenaires]);
 
   return (
-    <section ref={ref} className="relative w-full bg-white py-20 md:py-28">
+    <section ref={ref} className="relative w-full bg-white py-14 md:py-24">
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 left-1/3 w-96 h-96 rounded-full opacity-[0.04] blur-3xl bg-[#FFA900]" />
         <div className="absolute bottom-20 right-1/3 w-80 h-80 rounded-full opacity-[0.03] blur-3xl bg-[#00AFA9]" />
@@ -78,6 +79,9 @@ export default function NosReferences() {
           }}
           onMouseEnter={() => { pausedRef.current = true; }}
           onMouseLeave={() => { pausedRef.current = false; }}
+          onTouchStart={() => { pausedRef.current = true; }}
+          onTouchEnd={() => { pausedRef.current = false; }}
+          onTouchCancel={() => { pausedRef.current = false; }}
         >
           <div className="absolute left-0 top-0 bottom-0 w-20 md:w-32 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none" />
           <div className="absolute right-0 top-0 bottom-0 w-20 md:w-32 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none" />

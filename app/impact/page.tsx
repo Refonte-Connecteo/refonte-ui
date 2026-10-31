@@ -5,6 +5,7 @@ import { useEffect, useState, FormEvent } from "react";
 import { Download } from "lucide-react";
 import { api } from "@/lib/api";
 import { resolveAssetUrl } from "@/lib/security";
+import Reveal from "../components/Reveal";
 
 interface ImpactPillar {
   title: string;
@@ -87,24 +88,24 @@ export default function ImpactSustainabilitySection() {
   return (
     <section className="w-full">
       {/* Hero */}
-      <div className="relative flex h-[420px] w-full items-center justify-center overflow-hidden md:h-[520px]">
+      <div className="relative flex h-[440px] w-full items-center justify-center overflow-hidden pt-20 md:h-[540px] md:pt-24">
         <Image
           src="/images/c5.jpg"
           alt="Sentier en forêt"
           fill
           priority
-          className="object-cover"
+          className="hero-settle object-cover"
         />
         <div className="absolute inset-0 bg-black/30" />
 
         <div className="relative z-10 flex max-w-2xl flex-col items-center px-6 text-center">
-          <span className="mb-5 rounded-full bg-amber-400 px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-neutral-900">
+          <span className="cons-fade mb-5 rounded-full bg-amber-400 px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-neutral-900">
             Impact &amp; Sustainability
           </span>
-          <h1 className="text-3xl font-bold text-white md:text-5xl">
+          <h1 className="cons-fade text-3xl font-bold text-white md:text-5xl" style={{ animationDelay: "120ms" }}>
             Un impact positif, durable.
           </h1>
-          <p className="mt-4 text-sm text-white/90 md:text-base">
+          <p className="cons-fade mt-4 text-sm text-white/90 md:text-base" style={{ animationDelay: "240ms" }}>
             Parce qu&apos;une entreprise responsable est une entreprise qui
             dure. Voici nos engagements.
           </p>
@@ -112,22 +113,24 @@ export default function ImpactSustainabilitySection() {
       </div>
 
       {/* Piliers */}
-      <div className="mx-auto grid max-w-6xl grid-cols-1 gap-10 px-6 py-16 sm:grid-cols-2 lg:grid-cols-4">
-        {PILLARS.map((pillar) => (
-          <div key={pillar.title} className="border-l-2 border-amber-400 pl-4">
-            <h3 className="mb-2 text-lg font-bold text-neutral-900">
-              {pillar.title}
-            </h3>
-            <p className="text-sm leading-relaxed text-neutral-500">
-              {pillar.description}
-            </p>
-          </div>
+      <div className="mx-auto grid max-w-6xl grid-cols-1 gap-8 px-6 py-14 sm:grid-cols-2 md:gap-10 md:px-10 md:py-20 lg:grid-cols-4 lg:px-6">
+        {PILLARS.map((pillar, index) => (
+          <Reveal key={pillar.title} delay={index * 100}>
+            <div className="group h-full border-l-2 border-amber-400 pl-4 transition-all duration-300 hover:translate-x-1 hover:border-[#00AFA9]">
+              <h3 className="mb-2 text-lg font-bold text-neutral-900">
+                {pillar.title}
+              </h3>
+              <p className="text-sm leading-relaxed text-neutral-500">
+                {pillar.description}
+              </p>
+            </div>
+          </Reveal>
         ))}
       </div>
 
       {/* CTA téléchargement */}
-      <div className="w-full bg-[#B7C0A5] px-6 py-16">
-        <div className="mx-auto flex max-w-xl flex-col items-center text-center">
+      <div className="w-full bg-[#B7C0A5] px-6 py-14 md:py-20">
+        <Reveal className="mx-auto flex max-w-xl flex-col items-center text-center">
           <h2 className="text-xl font-bold text-neutral-900 md:text-2xl">
             Téléchargez notre rapport d&apos;impact{report?.year ? ` ${report.year}` : ""}
           </h2>
@@ -145,14 +148,14 @@ export default function ImpactSustainabilitySection() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="vous@entreprise.com"
-              className="w-full rounded-full border border-neutral-300 bg-white px-5 py-2.5 text-sm text-neutral-700 outline-none placeholder:text-neutral-400 focus:ring-2 focus:ring-teal-600"
+              className="w-full rounded-full border border-neutral-300 bg-white px-5 py-3 text-sm text-neutral-700 outline-none transition-shadow placeholder:text-neutral-400 focus:ring-2 focus:ring-teal-600"
             />
             <button
               type="submit"
               disabled={status === "loading" || reportLoading || !report}
-              className="inline-flex items-center gap-2 rounded-full bg-teal-600 px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-teal-700 disabled:opacity-60"
+              className="btn-shine group relative inline-flex items-center gap-2 overflow-hidden rounded-full bg-teal-600 px-6 py-3 text-sm font-semibold text-white transition-all duration-300 enabled:hover:-translate-y-0.5 enabled:hover:bg-teal-700 enabled:hover:shadow-lg enabled:active:translate-y-0 enabled:active:scale-[0.98] disabled:opacity-60"
             >
-              <Download size={16} />
+              <Download size={16} className="transition-transform duration-300 group-enabled:group-hover:translate-y-0.5" />
               {status === "success"
                 ? "Envoyé !"
                 : reportLoading
@@ -167,7 +170,7 @@ export default function ImpactSustainabilitySection() {
               </p>
             )}
           </form>
-        </div>
+        </Reveal>
       </div>
     </section>
   );

@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useInView } from "../hooks/useInView";
 
 const secteurs = [
@@ -41,7 +41,18 @@ export default function SecteursActivite() {
   const [active, setActive] = useState(0);
   const { ref, inView } = useInView();
 
+  const touchStartX = useRef<number | null>(null);
+
   const goTo = (index: number) => setActive(index);
+
+  const handleSwipeEnd = (clientX: number) => {
+    if (touchStartX.current === null) return;
+    const distance = clientX - touchStartX.current;
+    touchStartX.current = null;
+    if (Math.abs(distance) < 50) return;
+    const step = distance < 0 ? 1 : -1;
+    setActive((current) => (current + step + secteurs.length) % secteurs.length);
+  };
 
   const CardContent = ({ s, isActive }: { s: typeof secteurs[number]; isActive: boolean }) => (
     <div
@@ -104,7 +115,7 @@ export default function SecteursActivite() {
     <section
       ref={ref}
       id="secteurs-activite"
-      className="relative w-full scroll-mt-24 bg-[#0B1D20] py-24 md:py-32 overflow-hidden"
+      className="relative w-full scroll-mt-24 bg-[#0B1D20] py-16 md:py-24 overflow-hidden"
     >
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div
@@ -119,9 +130,9 @@ export default function SecteursActivite() {
       </div>
 
       <div className="relative z-10 mx-auto max-w-7xl px-6 md:px-10 lg:px-5">
-        <div className="flex flex-col lg:flex-row lg:items-center gap-12 lg:gap-20">
+        <div className="flex flex-col xl:flex-row xl:items-center gap-10 xl:gap-20">
           <div
-            className="lg:w-2/5 shrink-0 transition-all duration-1000 ease-out"
+            className="xl:w-2/5 shrink-0 transition-all duration-1000 ease-out"
             style={{
               opacity: inView ? 1 : 0,
               transform: inView ? "translateY(0)" : "translateY(40px)",
@@ -147,14 +158,18 @@ export default function SecteursActivite() {
           </div>
 
           {/* Mobile */}
-          <div className="block lg:hidden w-full">
-            <div className="w-full max-w-sm mx-auto">
+          <div
+            className="block xl:hidden w-full"
+            onTouchStart={(e) => { touchStartX.current = e.touches[0].clientX; }}
+            onTouchEnd={(e) => handleSwipeEnd(e.changedTouches[0].clientX)}
+          >
+            <div key={active} className="cons-fade w-full max-w-sm mx-auto">
               <CardContent s={secteurs[active]} isActive />
             </div>
           </div>
 
           {/* Desktop */}
-          <div className="hidden lg:block flex-1 relative" style={{ height: "560px" }}>
+          <div className="hidden xl:block flex-1 relative" style={{ height: "560px" }}>
             <div
               className="relative w-full h-full flex items-center justify-center"
               style={{ perspective: "1200px" }}
@@ -200,12 +215,12 @@ export default function SecteursActivite() {
           </div>
         </div>
 
-        <div className="flex items-center justify-center gap-3 mt-12">
+        <div className="flex items-center justify-center mt-6 xl:mt-10">
           {secteurs.map((_, index) => (
             <button
               key={index}
               onClick={() => goTo(index)}
-              className="group relative flex items-center"
+              className="group relative flex h-11 min-w-8 items-center justify-center px-1.5"
               aria-label={`Aller au secteur ${index + 1}`}
             >
               <span

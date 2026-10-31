@@ -2,8 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
+import { Paperclip } from "lucide-react";
 import { api } from "@/lib/api";
 import { sanitizeUrl } from "@/lib/security";
+import { Card, FormPage, LoadingScreen, Alert } from "@/app/admin/components/ui";
 
 interface SpontaneousApplicationDetail {
   id: number;
@@ -46,35 +48,13 @@ export default function SpontaneousApplicationDetailPage() {
   };
 
   if (fetching) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <p className="text-gray-500">Chargement...</p>
-      </div>
-    );
+    return <LoadingScreen />;
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      <header className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <h1 className="text-xl font-bold text-gray-900">Détail de la candidature spontanée</h1>
-          <button
-            onClick={() => router.push("/admin/spontaneous-application")}
-            className="inline-flex items-center gap-1 text-sm text-gray-600 hover:text-gray-800 font-medium"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-            Retour
-          </button>
-        </div>
-      </header>
-
-      <main className="max-w-lg mx-auto px-4 py-12">
-        <div className="bg-white shadow-sm border border-gray-200 rounded-xl p-6">
-          {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg p-3 mb-4">{error}</div>
-          )}
+    <FormPage title="Détail de la candidature spontanée" backHref="/admin/spontaneous-application">
+        <Card className="p-6">
+          {error && <Alert>{error}</Alert>}
 
           {application && (
             <div className="space-y-5">
@@ -105,11 +85,9 @@ export default function SpontaneousApplicationDetailPage() {
                     href={sanitizeUrl(application.cv_url)}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 font-medium"
+                    className="inline-flex items-center gap-1 text-sm text-brand-600 hover:text-brand-700 font-medium"
                   >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-                    </svg>
+                    <Paperclip className="w-4 h-4" />
                     Voir le CV
                   </a>
                 ) : (
@@ -132,8 +110,7 @@ export default function SpontaneousApplicationDetailPage() {
               </div>
             </div>
           )}
-        </div>
-      </main>
-    </div>
+        </Card>
+      </FormPage>
   );
 }

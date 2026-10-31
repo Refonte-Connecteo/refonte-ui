@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
+import Reveal from "../components/Reveal";
 import styles from "./page.module.css";
 
 type SolutionKey = "outsourcing" | "consulting";
@@ -71,7 +72,7 @@ function SolutionCard({
     return (
       <section
         aria-label={solution.label}
-        className={`${base} min-h-[380px] w-full -rotate-1 md:w-[46%] ${styles.animateSlideIn}`}
+        className={`${base} min-h-[380px] w-full -rotate-1 md:w-[46%] ${styles["animate-slideIn"]}`}
       >
         <Image
           src={solution.image}
@@ -82,7 +83,7 @@ function SolutionCard({
         />
         <div className="absolute inset-0 bg-black/10 transition-opacity duration-500" />
 
-        <div className={`relative flex h-full min-h-[380px] flex-col p-6 text-left md:p-10 ${styles.animateFadeIn}`}>
+        <div className={`relative flex h-full min-h-[380px] flex-col p-6 text-left md:p-10 ${styles["animate-fadeIn"]}`}>
           <div className="flex items-start justify-between">
             <h2 className="text-3xl font-bold text-white tracking-tight md:text-4xl">{solution.label}</h2>
             <button
@@ -97,7 +98,7 @@ function SolutionCard({
 
           <ul className="mt-8 grid flex-1 content-center gap-4 sm:grid-cols-2">
             {solution.items.map((item, index) => {
-              const pill = `flex min-h-[64px] w-full items-center rounded-full bg-[#00b0ac] px-6 py-3.5 text-[13px] leading-snug text-white shadow-lg md:text-sm ${styles.animateFadeInUp}`;
+              const pill = `flex min-h-[64px] w-full items-center rounded-full bg-[#00b0ac] px-6 py-3.5 text-[13px] leading-snug text-white shadow-lg md:text-sm ${styles["animate-fadeInUp"]}`;
               const animation = { animationDelay: `${index * 0.08}s` };
 
               return (
@@ -105,7 +106,7 @@ function SolutionCard({
                   {item.href ? (
                     <Link
                       href={item.href}
-                      className={`${pill} transition-colors duration-300 hover:bg-[#00c2bd] focus-visible:outline focus-visible:outline-2 focus-visible:outline-white`}
+                      className={`${pill} transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#00c2bd] hover:shadow-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-white`}
                       style={animation}
                     >
                       {item.label}
@@ -126,8 +127,8 @@ function SolutionCard({
 
   // --- Carte fermée (au repos) ou réduite (l'autre est ouverte) ---
   const size = anyActive
-    ? `h-72 w-72 md:h-[380px] md:w-[30%] ${solution.smallRotation}`
-    : `h-64 w-96 ${solution.idleRotation}`;
+    ? `h-56 w-full max-w-72 md:h-[380px] md:w-[30%] md:max-w-none ${solution.smallRotation}`
+    : `h-56 w-full max-w-96 sm:h-64 ${solution.idleRotation}`;
 
   return (
     <button
@@ -157,17 +158,17 @@ export default function CxSolutions() {
   return (
     <main className="font-sans">
       {/* Section 1 : Nos solutions CX */}
-      <section className="bg-[#0b7285] px-6 pb-32 pt-28 text-center text-white">
-        <h1 className="text-5xl font-bold tracking-tight">Nos solutions CX</h1>
-        <p className="mx-auto mt-6 max-w-lg text-lg font-semibold">
+      <section className="overflow-hidden bg-[#0b7285] px-6 pb-20 pt-32 text-center text-white md:pb-28 md:pt-36">
+        <h1 className="cons-fade text-4xl font-bold tracking-tight md:text-5xl">Nos solutions CX</h1>
+        <p className="cons-fade mx-auto mt-6 max-w-lg text-lg font-semibold" style={{ animationDelay: "100ms" }}>
           Deux métiers complémentaires
         </p>
-        <p className="mx-auto mt-3 max-w-lg text-base text-white/85 leading-relaxed">
+        <p className="cons-fade mx-auto mt-3 max-w-lg text-base text-white/85 leading-relaxed" style={{ animationDelay: "200ms" }}>
           Que vous cherchiez à opérer votre relation client au quotidien ou à la
           transformer en profondeur, choisissez votre point d&apos;entrée
         </p>
 
-        <div className="mx-auto mt-20 flex max-w-7xl flex-col items-center justify-center gap-14 md:flex-row md:gap-16">
+        <div className="mx-auto mt-14 flex max-w-7xl flex-col items-center justify-center gap-10 md:mt-20 md:flex-row md:gap-12 lg:gap-16">
           {SOLUTIONS.map((s) => (
             <SolutionCard
               key={s.key}
@@ -182,8 +183,8 @@ export default function CxSolutions() {
       </section>
 
       {/* Section 2 : Vos enjeux en quelques étapes */}
-      <section className="bg-[#cfe0e3] px-6 py-28">
-        <div className="mx-auto max-w-5xl">
+      <section className="bg-[#cfe0e3] px-6 py-16 md:px-12 md:py-24">
+        <Reveal className="mx-auto max-w-5xl">
           <svg
             aria-hidden="true"
             viewBox="0 0 24 24"
@@ -199,7 +200,7 @@ export default function CxSolutions() {
             <path d="M7 6h8a3 3 0 0 1 0 6H9a3 3 0 0 0 0 6h8" />
           </svg>
 
-          <h2 className="mt-6 text-4xl font-bold text-[#0b6f82] tracking-tight">
+          <h2 className="mt-6 text-3xl font-bold text-[#0b6f82] tracking-tight md:text-4xl">
             Vos enjeux en quelques étapes
           </h2>
           <p className="mt-5 max-w-2xl text-lg text-slate-700 leading-relaxed">
@@ -210,27 +211,29 @@ export default function CxSolutions() {
 
           <a
             href="#frise"
-            className="mt-10 inline-flex items-center gap-3 rounded-full bg-[#f5a30f] px-8 py-4 text-lg font-semibold text-slate-900 transition-all duration-300 hover:bg-[#e09400] hover:shadow-lg hover:shadow-[#f5a30f]/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0b6f82]"
+            className="btn-shine group relative mt-8 inline-flex items-center gap-3 overflow-hidden rounded-full bg-[#f5a30f] px-6 py-3.5 text-base font-semibold text-slate-900 transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#e09400] hover:shadow-lg hover:shadow-[#f5a30f]/40 active:translate-y-0 active:scale-[0.98] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0b6f82] md:mt-10 md:px-8 md:py-4 md:text-lg"
           >
             Explorer la frise interactive
-            <span aria-hidden="true">→</span>
+            <span aria-hidden="true" className="transition-transform duration-300 group-hover:translate-x-1">→</span>
           </a>
-        </div>
+        </Reveal>
       </section>
 
       {/* Section 3 : CTA */}
-      <section className="bg-[#0aa9a5] px-6 py-28 text-center text-white">
-        <h2 className="text-3xl font-bold tracking-tight">Prêt à construire votre dispositif CX ?</h2>
-        <p className="mx-auto mt-5 max-w-lg text-lg text-white/90 leading-relaxed">
-          Parlons de vos enjeux : nous vous proposons le bon mix de solutions,
-          avec un démarrage type en 48h.
-        </p>
-        <a
-          href="#contact"
-          className="mt-10 inline-block rounded-full bg-[#f5a30f] px-10 py-4 text-lg font-semibold text-slate-900 transition-all duration-300 hover:bg-[#e09400] hover:shadow-lg hover:shadow-[#f5a30f]/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
-        >
-          Contactez-nous
-        </a>
+      <section className="bg-[#0aa9a5] px-6 py-16 text-center text-white md:py-24">
+        <Reveal>
+          <h2 className="text-3xl font-bold tracking-tight">Prêt à construire votre dispositif CX ?</h2>
+          <p className="mx-auto mt-5 max-w-lg text-lg text-white/90 leading-relaxed">
+            Parlons de vos enjeux : nous vous proposons le bon mix de solutions,
+            avec un démarrage type en 48h.
+          </p>
+          <Link
+            href="/contact"
+            className="btn-shine relative mt-8 inline-block overflow-hidden rounded-full bg-[#f5a30f] px-8 py-3.5 text-base font-semibold text-slate-900 transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#e09400] hover:shadow-lg hover:shadow-[#f5a30f]/40 active:translate-y-0 active:scale-[0.98] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white md:mt-10 md:px-10 md:py-4 md:text-lg"
+          >
+            Contactez-nous
+          </Link>
+        </Reveal>
       </section>
     </main>
   );

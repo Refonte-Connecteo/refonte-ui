@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { RefreshCw, ScrollText, ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, RefreshCw, ScrollText } from "lucide-react";
 import { api } from "@/lib/api";
 import { clearSession, redirectToLogin } from "@/lib/session";
 import type { AuditLog } from "@/app/admin/types";
@@ -13,6 +13,12 @@ import {
   PageHeader,
   EmptyState,
   LoadingScreen,
+  Alert,
+  Label,
+  Input,
+  Select,
+  DataTable,
+  Th,
 } from "@/app/admin/components/ui";
 
 const EVENT_TYPES = [
@@ -125,16 +131,9 @@ export default function AdminAuditLogsPage() {
 
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
-  const inputClass =
-    "w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow";
-
   return (
     <div className="space-y-6">
-      {error && (
-        <div className="bg-rose-50 border border-rose-200 text-rose-700 text-sm rounded-xl p-4">
-          {error}
-        </div>
-      )}
+      {error && <Alert>{error}</Alert>}
 
       <PageHeader
         title="Journal d'audit"
@@ -153,76 +152,66 @@ export default function AdminAuditLogsPage() {
       <Card className="p-5">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
           <div>
-            <label htmlFor="eventType" className="block text-xs font-medium text-gray-600 mb-1">
+            <Label htmlFor="eventType">
               Type d&apos;événement
-            </label>
-            <select
+            </Label>
+            <Select
               id="eventType"
               value={eventType}
-              onChange={(e) => { setEventType(e.target.value); setPage(1); }}
-              className={inputClass}
-            >
+              onChange={(e) => { setEventType(e.target.value); setPage(1); }}>
               <option value="">Tous</option>
               {EVENT_TYPES.map((type) => (
                 <option key={type} value={type}>{type}</option>
               ))}
-            </select>
+            </Select>
           </div>
 
           <div>
-            <label htmlFor="success" className="block text-xs font-medium text-gray-600 mb-1">
+            <Label htmlFor="success">
               Résultat
-            </label>
-            <select
+            </Label>
+            <Select
               id="success"
               value={success}
-              onChange={(e) => { setSuccess(e.target.value); setPage(1); }}
-              className={inputClass}
-            >
+              onChange={(e) => { setSuccess(e.target.value); setPage(1); }}>
               <option value="">Tous</option>
               <option value="true">Succès</option>
               <option value="false">Échec</option>
-            </select>
+            </Select>
           </div>
 
           <div>
-            <label htmlFor="email" className="block text-xs font-medium text-gray-600 mb-1">
+            <Label htmlFor="email">
               Acteur (email)
-            </label>
-            <input
+            </Label>
+            <Input
               id="email"
               type="text"
               value={email}
               onChange={(e) => { setEmail(e.target.value); setPage(1); }}
-              placeholder="admin@connecteo.fr"
-              className={inputClass}
-            />
+              placeholder="admin@connecteo.fr" />
           </div>
 
           <div>
-            <label htmlFor="from" className="block text-xs font-medium text-gray-600 mb-1">
+            <Label htmlFor="from">
               Du
-            </label>
-            <input
+            </Label>
+            <Input
               id="from"
               type="date"
               value={from}
-              onChange={(e) => { setFrom(e.target.value); setPage(1); }}
-              className={inputClass}
-            />
+              onChange={(e) => { setFrom(e.target.value); setPage(1); }} />
           </div>
 
           <div>
-            <label htmlFor="to" className="block text-xs font-medium text-gray-600 mb-1">
+            <Label htmlFor="to">
               Au
-            </label>
-            <input
+            </Label>
+            <Input
               id="to"
               type="date"
               value={to}
-              onChange={(e) => { setTo(e.target.value); setPage(1); }}
-              className={inputClass}
-            />
+              onChange={(e) => { setTo(e.target.value); setPage(1); }} />
           </div>
         </div>
 
@@ -236,7 +225,7 @@ export default function AdminAuditLogsPage() {
               setTo("");
               setPage(1);
             }}
-            className="text-sm text-gray-500 hover:text-gray-700 font-medium"
+            className="text-sm text-gray-500 hover:text-brand-700 font-medium transition-colors"
           >
             Réinitialiser les filtres
           </button>
@@ -244,22 +233,21 @@ export default function AdminAuditLogsPage() {
       </Card>
 
       <Card className="overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm min-w-[900px]">
+        <DataTable className="min-w-[900px]">
             <thead>
-              <tr className="bg-gray-50/80 border-b border-gray-200">
-                <th className="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Date</th>
-                <th className="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Événement</th>
-                <th className="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Action</th>
-                <th className="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Acteur</th>
-                <th className="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Route</th>
-                <th className="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">IP</th>
-                <th className="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Statut</th>
+              <tr>
+                <Th>Date</Th>
+                <Th>Événement</Th>
+                <Th>Action</Th>
+                <Th>Acteur</Th>
+                <Th>Route</Th>
+                <Th>IP</Th>
+                <Th>Statut</Th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {logs.map((log) => (
-                <tr key={log.id} className="hover:bg-gray-50 transition-colors">
+                <tr key={log.id} className="hover:bg-brand-50/40 transition-colors">
                   <td className="px-5 py-3.5 text-gray-500 text-xs whitespace-nowrap">
                     {formatDate(log.created_at)}
                   </td>
@@ -272,7 +260,7 @@ export default function AdminAuditLogsPage() {
                   </td>
                   <td className="px-5 py-3.5">
                     <span className="text-xs text-gray-500">
-                      {log.method ? <span className="font-mono text-blue-600 mr-1">{log.method}</span> : null}
+                      {log.method ? <span className="font-mono text-brand-700 mr-1">{log.method}</span> : null}
                       {log.route ?? ""}
                     </span>
                   </td>
@@ -287,8 +275,7 @@ export default function AdminAuditLogsPage() {
                 </tr>
               ))}
             </tbody>
-          </table>
-        </div>
+          </DataTable>
 
         {loading && <LoadingScreen label="Chargement des événements..." />}
 

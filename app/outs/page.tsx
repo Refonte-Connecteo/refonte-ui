@@ -67,7 +67,7 @@ export default function OutsourcingExpertises() {
         href={offerHref(EXPERTISES[activeExpertise].slug, o.slug)}
         onMouseEnter={() => setHighlighted(i)}
         onFocus={() => setHighlighted(i)}
-        className={`group flex h-full min-h-[7.5rem] flex-col justify-between rounded-[1.75rem] p-6 text-xs leading-snug transition-colors duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#f5a30f] ${
+        className={`group flex h-full min-h-[7.5rem] flex-col justify-between rounded-[1.75rem] p-6 text-xs leading-snug transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#f5a30f] ${
           isOn ? "bg-[#0a8f92] text-white" : "bg-[#0d7280] text-[#86b6bd]"
         }`}
       >
@@ -83,17 +83,16 @@ export default function OutsourcingExpertises() {
   };
 
   return (
-    <main className="min-h-screen bg-[#0b6171] pt-25 px-6 py-14 font-sans text-white md:px-16">
+    <main className="min-h-screen bg-[#0b6171] px-6 pb-14 pt-32 font-sans text-white md:px-12 md:pb-20 md:pt-36 lg:px-16">
       <header className="mx-auto max-w-2xl text-center">
-        <h1 className="text-4xl font-bold">Outsourcing</h1>
-        <p className="mt-5 text-sm leading-relaxed text-white/85">
-          {TOTAL_OFFERS} offres réparties en {EXPERTISES.length} expertises
-          métiers. Chaque expertise constitue un point d&apos;entrée vers ses
+        <h1 className="cons-fade text-4xl font-bold">Outsourcing</h1>
+        <p className="cons-fade mt-5 text-sm leading-relaxed text-white/85" style={{ animationDelay: "100ms" }}>
+          {`${TOTAL_OFFERS} offres réparties en ${EXPERTISES.length} expertises métiers.`}{" "} Chaque expertise constitue un point d&apos;entrée vers ses
           offres, sans notion de package
         </p>
       </header>
 
-      <div className="mx-auto mt-14 max-w-6xl">
+      <div className="cons-fade mx-auto mt-10 max-w-6xl md:mt-14" style={{ animationDelay: "200ms" }}>
         {/* Mobile : les expertises deviennent des onglets */}
         <div className="mb-8 flex flex-wrap gap-2 md:hidden">
           {EXPERTISES.map((e, i) => (

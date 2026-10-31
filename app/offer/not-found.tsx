@@ -12,7 +12,7 @@ const SECTIONS = [
 
 export default function OfferNotFound() {
   return (
-    <main className="min-h-screen bg-[#cfe0e3] pt-25 px-6 py-10 font-sans text-[#0b5f73] md:px-16">
+    <main className="min-h-screen bg-[#cfe0e3] px-6 pb-14 pt-32 font-sans text-[#0b5f73] md:px-12 md:pb-20 md:pt-36 lg:px-16">
       <div className="mx-auto max-w-5xl">
         <nav aria-label="Fil d'Ariane">
           <Link

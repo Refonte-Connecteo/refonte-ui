@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Pencil, Trash2, FileText } from "lucide-react";
+import { FileText, Pencil, Plus, Trash2 } from "lucide-react";
 import { api } from "@/lib/api";
 import {
   Card,
@@ -11,6 +11,10 @@ import {
   PageHeader,
   EmptyState,
   LoadingScreen,
+  Alert,
+  DataTable,
+  Th,
+  RowAction,
 } from "@/app/admin/components/ui";
 
 interface ArticleItem {
@@ -71,11 +75,7 @@ export default function ArticleListPage() {
 
   return (
     <div className="space-y-6">
-      {error && (
-        <div className="bg-rose-50 border border-rose-200 text-rose-700 text-sm rounded-xl p-4">
-          {error}
-        </div>
-      )}
+      {error && <Alert>{error}</Alert>}
 
       <PageHeader
         title="Articles"
@@ -89,21 +89,20 @@ export default function ArticleListPage() {
       />
 
       <Card className="overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+        <DataTable>
             <thead>
-              <tr className="bg-gray-50/80 border-b border-gray-200">
-                <th className="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Titre</th>
-                <th className="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Type</th>
-                <th className="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Publié</th>
-                <th className="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Lead Magnet</th>
-                <th className="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Date</th>
-                <th className="text-right px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Actions</th>
+              <tr>
+                <Th>Titre</Th>
+                <Th>Type</Th>
+                <Th>Publié</Th>
+                <Th>Lead Magnet</Th>
+                <Th>Date</Th>
+                <Th align="right">Actions</Th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {articles.map((article) => (
-                <tr key={article.id} className="hover:bg-gray-50 transition-colors">
+                <tr key={article.id} className="hover:bg-brand-50/40 transition-colors">
                   <td className="px-5 py-3.5 text-gray-900 font-medium">{article.title}</td>
                   <td className="px-5 py-3.5">
                     {article.type ? (
@@ -131,27 +130,14 @@ export default function ArticleListPage() {
                   </td>
                   <td className="px-5 py-3.5 text-right">
                     <div className="flex items-center justify-end gap-1.5">
-                      <button
-                        onClick={() => router.push(`/admin/article/${article.id}/edit`)}
-                        className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-700 text-xs font-medium px-2.5 py-1.5 rounded-lg hover:bg-blue-50 transition-colors"
-                      >
-                        <Pencil className="w-3.5 h-3.5" />
-                        Modifier
-                      </button>
-                      <button
-                        onClick={() => handleDelete(article.id)}
-                        className="inline-flex items-center gap-1 text-rose-600 hover:text-rose-700 text-xs font-medium px-2.5 py-1.5 rounded-lg hover:bg-rose-50 transition-colors"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                        Supprimer
-                      </button>
+                      <RowAction onClick={() => router.push(`/admin/article/${article.id}/edit`)} icon={Pencil}>Modifier</RowAction>
+                      <RowAction onClick={() => handleDelete(article.id)} icon={Trash2} tone="danger">Supprimer</RowAction>
                     </div>
                   </td>
                 </tr>
               ))}
             </tbody>
-          </table>
-        </div>
+          </DataTable>
 
         {articles.length === 0 && (
           <EmptyState

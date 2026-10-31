@@ -3,7 +3,9 @@
 import { useState, useEffect } from "react";
 import { useInView } from "@/app/hooks/useInView";
 import Chronologie from "@/app/components/Chronologie";
+import CountUp from "@/app/components/CountUp";
 import { api } from "@/lib/api";
+import { formatKpiValue } from "@/lib/kpi";
 
 const visionMissionValeurs = [
   {
@@ -52,18 +54,19 @@ export default function APropos() {
   const [active, setActive] = useState<number | null>(null); // colonne survolée              // le cercle glisse-t-il ?
 
   const ease = "cubic-bezier(0.22, 1, 0.36, 1)";
+  const { ref: statsRef, inView: statsInView } = useInView();
 
   const [stats, setStats] = useState<{ value: string; label: string; color: string }[]>([
-    { value: "850", label: "Collaborateurs", color: "#FFA900" },
-    { value: "+100", label: "Collaborateurs", color: "#FFA900" },
-    { value: "10", label: "Collaborateurs", color: "#FFA900" },
-    { value: "10", label: "Collaborateurs", color: "#FFA900" },
+    { value: "+850", label: "Collaborateurs", color: "#FFA900" },
+    { value: "1.2M", label: "Interactions par mois", color: "#FFA900" },
+    { value: "+100k", label: "Contacts digitaux par mois", color: "#FFA900" },
+    { value: "25", label: "Ages moyens", color: "#FFA900" },
   ]);
 
   useEffect(() => {
     api.getActiveKpiStats().then((res) => {
       const mapped = res.stats.map((s) => ({
-        value: s.value,
+        value: formatKpiValue(s.value, s.unit),
         label: s.label,
         color: "#FFA900",
       }));
@@ -106,7 +109,6 @@ export default function APropos() {
               {/* Colonnes de texte */}
               <div className="relative z-10 grid grid-cols-1 gap-10 md:block md:absolute md:inset-0">
                 {visionMissionValeurs.map((item, i) => {
-                  const isActive = active === i;
                   return (
                     <div
                       key={item.title}
@@ -132,7 +134,7 @@ export default function APropos() {
                           }}
                         />
                         <p
-                          className="text-md text-[#096475] leading-relaxed font-normal break-words md:[font-size:clamp(0.6rem,1.45cqw,0.95rem)]"
+                          className="text-base text-[#096475] leading-relaxed font-normal break-words md:[font-size:clamp(0.6rem,1.45cqw,0.95rem)]"
                           style={{
                             transition: `color 900ms ${ease}`,
                           }}
@@ -150,7 +152,7 @@ export default function APropos() {
       </section>
 
       {/* Section Chiffres Clés */}
-      <section className="pb-20 md:pb-28 px-6 md:px-12 lg:px-16">
+      <section className="pb-16 md:pb-24 px-6 md:px-12 lg:px-16">
         <div className="max-w-6xl mx-auto">
           <Section className="mb-8">
             <h2 className="text-2xl md:text-3xl font-bold text-[#096475] tracking-tight">
@@ -159,12 +161,12 @@ export default function APropos() {
           </Section>
 
           <Section>
-            <div className="bg-[#E5F3F3] rounded-full px-8 py-10 md:px-16 md:py-12">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-6 text-center items-center">
+            <div className="bg-[#E5F3F3] rounded-[2.5rem] md:rounded-full px-6 py-10 md:px-16 md:py-12">
+              <div ref={statsRef} className="grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-8 md:gap-6 text-center items-center">
                 {stats.map((stat, idx) => (
                   <div key={idx} className="flex flex-col items-center justify-center">
-                    <span className="block text-4xl md:text-6xl font-extrabold text-[#FFA900] mb-3 tracking-tight">
-                      {stat.value}
+                    <span className="block text-4xl md:text-5xl lg:text-6xl font-extrabold tabular-nums text-[#FFA900] mb-3 tracking-tight">
+                      <CountUp value={stat.value} start={statsInView} />
                     </span>
                     <span className="text-xs md:text-sm font-semibold text-[#096475] tracking-wide">
                       {stat.label}

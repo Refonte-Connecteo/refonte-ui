@@ -5,6 +5,22 @@
   --brand-amber: #FFA900;
 }
 
+/* Palette de marque, utilisée par l'espace d'administration.
+   brand-600 est la première teinte lisible en texte sur fond blanc (AA). */
+@theme {
+  --color-brand-50: #e8f8f7;
+  --color-brand-100: #c8eeec;
+  --color-brand-200: #97dfdb;
+  --color-brand-300: #5ccdc8;
+  --color-brand-400: #26bcb6;
+  --color-brand-500: #00afa9;
+  --color-brand-600: #00857f;
+  --color-brand-700: #006b67;
+  --color-brand-800: #00524f;
+  --color-ink: #0b1d20;
+  --color-ink-soft: #132a2e;
+}
+
 body {
   font-family: var(--font-mada), sans-serif;
 }
@@ -37,6 +53,288 @@ body {
 
 .cons-fade {
   animation: cons-fade-in 0.6s ease-out backwards;
+}
+
+/* Finitions du site public : uniquement transform et opacity. */
+@keyframes menu-item-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes hero-progress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes halo-drift {
+  from {
+    transform: translate3d(-1.5rem, -1rem, 0);
+  }
+  to {
+    transform: translate3d(1.5rem, 1rem, 0);
+  }
+}
+
+@keyframes text-pan {
+  from {
+    background-position: 0% 50%;
+  }
+  to {
+    background-position: 200% 50%;
+  }
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes hero-settle {
+  from {
+    transform: scale(1.06);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+@keyframes spin-slow {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse-ring {
+  from {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(1.55);
+  }
+}
+
+.hero-settle {
+  animation: hero-settle 1.8s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+
+.spin-slow {
+  animation: spin-slow 80s linear infinite;
+}
+
+.pulse-ring::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 1px solid currentColor;
+  pointer-events: none;
+  animation: pulse-ring 2.4s ease-out infinite;
+}
+
+.scrollbar-hide {
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.menu-item-in {
+  animation: menu-item-in 0.35s ease-out backwards;
+}
+
+.hero-progress {
+  transform-origin: left;
+  animation: hero-progress 6s linear forwards;
+}
+
+.halo-drift {
+  animation: halo-drift 14s ease-in-out infinite alternate;
+}
+
+.text-pan {
+  background-image: linear-gradient(90deg, #ffa900, #00afa9, #ffa900);
+  background-size: 200% auto;
+  animation: text-pan 9s linear infinite;
+}
+
+/* Robot d'aide : il marche sur une petite distance puis fait demi-tour. */
+@keyframes robot-walk {
+  0%, 12% { transform: translateX(0); }
+  42%, 58% { transform: translateX(-3.5rem); }
+  88%, 100% { transform: translateX(0); }
+}
+
+@keyframes robot-flip {
+  0%, 12% { transform: scaleX(-1); }
+  13%, 57% { transform: scaleX(-1); }
+  58%, 100% { transform: scaleX(1); }
+}
+
+@keyframes robot-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+@keyframes robot-blink {
+  0%, 92%, 100% { transform: scaleY(1); }
+  96% { transform: scaleY(0.1); }
+}
+
+@keyframes robot-look {
+  0%, 40%, 100% { transform: translateX(0); }
+  50%, 70% { transform: translateX(3px); }
+}
+
+@keyframes robot-wave {
+  0%, 70%, 100% { transform: rotate(0deg); }
+  76%, 88% { transform: rotate(-22deg); }
+  82%, 94% { transform: rotate(14deg); }
+}
+
+@keyframes robot-step {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+@keyframes robot-antenna {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
+}
+
+@keyframes chat-dot {
+  0%, 60%, 100% { opacity: 0.35; transform: translateY(0); }
+  30% { opacity: 1; transform: translateY(-3px); }
+}
+
+.robot-walker {
+  animation: robot-walk 16s ease-in-out infinite;
+}
+
+.robot-flip {
+  animation: robot-flip 16s step-end infinite;
+}
+
+.robot-bob {
+  animation: robot-bob 1.6s ease-in-out infinite;
+}
+
+.robot-eye,
+.robot-wave,
+.robot-leg {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.robot-eye {
+  animation: robot-blink 4.5s linear infinite;
+}
+
+.robot-eyes {
+  animation: robot-look 9s ease-in-out infinite;
+}
+
+.robot-wave {
+  transform-origin: left bottom;
+  animation: robot-wave 7s ease-in-out infinite;
+}
+
+.robot-leg {
+  animation: robot-step 0.8s ease-in-out infinite;
+}
+
+.robot-leg-alt {
+  animation-delay: 0.4s;
+}
+
+.robot-antenna {
+  animation: robot-antenna 2.4s ease-in-out infinite;
+}
+
+/* Le robot s'arrête quand on s'approche de lui. */
+.robot-walker:hover,
+.robot-walker:focus-visible,
+.robot-walker:hover .robot-flip,
+.robot-walker:focus-visible .robot-flip {
+  animation-play-state: paused;
+}
+
+.robot-walker:hover .robot-leg,
+.robot-still .robot-leg {
+  animation: none;
+}
+
+.chat-dot {
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 9999px;
+  background: #096475;
+  animation: chat-dot 1s ease-in-out infinite;
+}
+
+/* Reflet au survol : le parent doit être en relative et overflow-hidden. */
+.btn-shine::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(110deg, transparent 35%, rgba(255, 255, 255, 0.35) 50%, transparent 65%);
+  transform: translateX(-120%);
+  transition: transform 0.7s ease;
+}
+
+.btn-shine:hover::after {
+  transform: translateX(120%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
+  }
+
+  .menu-item-in,
+  .hero-progress,
+  .halo-drift,
+  .text-pan,
+  .hero-settle,
+  .spin-slow,
+  .pulse-ring::before,
+  .robot-walker,
+  .robot-flip,
+  .robot-bob,
+  .robot-eye,
+  .robot-eyes,
+  .robot-wave,
+  .robot-leg,
+  .robot-antenna,
+  .chat-dot {
+    animation: none;
+  }
+
+  .hero-image {
+    scale: 1 !important;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -2,7 +2,19 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { ImageIcon, Pencil, Plus, Trash2 } from "lucide-react";
 import { api } from "@/lib/api";
+import {
+  Card,
+  Button,
+  PageHeader,
+  EmptyState,
+  LoadingScreen,
+  Alert,
+  DataTable,
+  Th,
+  RowAction,
+} from "@/app/admin/components/ui";
 
 interface EventImageItem {
   id: number;
@@ -54,65 +66,40 @@ export default function EventImageListPage() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <p className="text-gray-500">Chargement...</p>
-      </div>
-    );
+    return <LoadingScreen />;
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      <header className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <h1 className="text-xl font-bold text-gray-900">Images d&apos;événements</h1>
-          </div>
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => router.push("/admin/dashboard")}
-              className="text-sm text-gray-600 hover:text-gray-800 font-medium"
-            >
-              Tableau de bord
-            </button>
-            <button
-              onClick={() => router.push("/admin/event-image/new")}
-              className="inline-flex items-center gap-1.5 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors shadow-sm"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
-              Nouveau
-            </button>
-          </div>
-        </div>
-      </header>
+    <div className="space-y-6">
+      <PageHeader title="Images d'événements"
+        actions={
+          <Button onClick={() => router.push("/admin/event-image/new")}>
+            <Plus className="w-4 h-4" />
+            Nouveau
+          </Button>
+        }
+      />
 
-      <main className="max-w-6xl mx-auto px-6 py-8 space-y-6">
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg p-4">{error}</div>
-        )}
+        {error && <Alert>{error}</Alert>}
 
-        <div className="bg-white shadow-sm border border-gray-200 rounded-xl overflow-hidden">
-          <table className="w-full text-sm">
+        <Card className="overflow-hidden">
+          <DataTable>
             <thead>
-              <tr className="bg-gray-50 border-b border-gray-200">
-                <th className="text-left px-5 py-3.5 font-semibold text-gray-600 text-xs uppercase tracking-wider">Image</th>
-                <th className="text-left px-5 py-3.5 font-semibold text-gray-600 text-xs uppercase tracking-wider">Événement</th>
-                <th className="text-left px-5 py-3.5 font-semibold text-gray-600 text-xs uppercase tracking-wider">Légende</th>
-                <th className="text-left px-5 py-3.5 font-semibold text-gray-600 text-xs uppercase tracking-wider">Position</th>
-                <th className="text-right px-5 py-3.5 font-semibold text-gray-600 text-xs uppercase tracking-wider">Actions</th>
+              <tr>
+                <Th>Image</Th>
+                <Th>Événement</Th>
+                <Th>Légende</Th>
+                <Th>Position</Th>
+                <Th align="right">Actions</Th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {images.map((img) => (
-                <tr key={img.id} className="hover:bg-gray-50 transition-colors">
+                <tr key={img.id} className="hover:bg-brand-50/40 transition-colors">
                   <td className="px-5 py-3.5 text-gray-500 text-xs">
                     {img.image_url ? (
-                      <span className="inline-flex items-center gap-1 text-green-600">
-                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
+                      <span className="inline-flex items-center gap-1 text-emerald-600">
+                        <ImageIcon className="w-3.5 h-3.5" />
                         URL
                       </span>
                     ) : (
@@ -124,41 +111,19 @@ export default function EventImageListPage() {
                   <td className="px-5 py-3.5 text-gray-500">{img.position}</td>
                   <td className="px-5 py-3.5 text-right">
                     <div className="flex items-center justify-end gap-2">
-                      <button
-                        onClick={() => router.push(`/admin/event-image/${img.id}/edit`)}
-                        className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-700 text-xs font-medium px-2 py-1 rounded hover:bg-blue-50 transition-colors"
-                      >
-                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                        </svg>
-                        Modifier
-                      </button>
-                      <button
-                        onClick={() => handleDelete(img.id)}
-                        className="inline-flex items-center gap-1 text-red-600 hover:text-red-700 text-xs font-medium px-2 py-1 rounded hover:bg-red-50 transition-colors"
-                      >
-                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                        Supprimer
-                      </button>
+                      <RowAction onClick={() => router.push(`/admin/event-image/${img.id}/edit`)} icon={Pencil}>Modifier</RowAction>
+                      <RowAction onClick={() => handleDelete(img.id)} icon={Trash2} tone="danger">Supprimer</RowAction>
                     </div>
                   </td>
                 </tr>
               ))}
             </tbody>
-          </table>
+          </DataTable>
 
           {images.length === 0 && (
-            <div className="text-center py-12">
-              <svg className="w-12 h-12 text-gray-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-              <p className="text-gray-400 text-sm">Aucune image d&apos;événement</p>
-            </div>
+            <EmptyState title="Aucune image d'événement" icon={ImageIcon} />
           )}
-        </div>
-      </main>
-    </div>
+        </Card>
+      </div>
   );
 }

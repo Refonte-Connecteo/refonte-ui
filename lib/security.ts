@@ -27,7 +27,7 @@ export function resolveAssetUrl(
     const protocolMatch = /^([a-z][a-z0-9+.-]*):/i.exec(trimmed);
     if (protocolMatch) {
       const protocol = protocolMatch[1].toLowerCase();
-      if (!SAFE_HREF_PROTOCOLS.has(protocol)) return fallback;
+      if (!SAFE_HREF_PROTOCOLS.has(`${protocol}:`)) return fallback;
     }
     if (UNSAFE_URL_CHARS.test(trimmed)) return fallback;
     return trimmed;
@@ -54,7 +54,7 @@ export function sanitizeUrl(
   const protocolMatch = /^([a-z][a-z0-9+.-]*):/i.exec(trimmed);
   if (protocolMatch) {
     const protocol = protocolMatch[1].toLowerCase();
-    if (!SAFE_HREF_PROTOCOLS.has(protocol)) return fallback;
+    if (!SAFE_HREF_PROTOCOLS.has(`${protocol}:`)) return fallback;
   }
   if (UNSAFE_URL_CHARS.test(trimmed)) return fallback;
   // If it's a relative upload path, resolve to backend

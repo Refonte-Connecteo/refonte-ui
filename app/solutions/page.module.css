@@ -1,11 +1,11 @@
 @keyframes slideIn {
   from {
     opacity: 0;
-    transform: translateX(-30px) rotate(-1deg);
+    transform: translateX(-30px);
   }
   to {
     opacity: 1;
-    transform: translateX(0) rotate(-1deg);
+    transform: translateX(0);
   }
 }
 
@@ -38,5 +38,13 @@
 }
 
 .animate-fadeInUp {
-  animation: fadeInUp 0.4s ease-out forwards;
+  animation: fadeInUp 0.4s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-slideIn,
+  .animate-fadeIn,
+  .animate-fadeInUp {
+    animation: none;
+  }
 }

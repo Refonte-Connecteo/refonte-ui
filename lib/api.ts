@@ -282,7 +282,7 @@ class ApiClient {
     });
   }
 
-  updateCeoMessage(id: number, data: { title?: string; description?: string; image_url?: string }) {
+  updateCeoMessage(id: number, data: { title?: string; description?: string; image_url?: string | null }) {
     return this.request<{ message: string; data: { id: number; title: string; description: string; image_url: string | null; updated_at: string } }>(`/ceomessage/${id}`, {
       method: "PUT",
       body: JSON.stringify(data),
@@ -309,7 +309,7 @@ class ApiClient {
     });
   }
 
-  updateHeroSlide(id: number, data: { image_url?: string; title?: string; description?: string; cta_label?: string; cta_url?: string; position?: number; is_active?: boolean }) {
+  updateHeroSlide(id: number, data: { image_url?: string; title?: string | null; description?: string | null; cta_label?: string | null; cta_url?: string | null; position?: number; is_active?: boolean }) {
     return this.request<{ message: string; slide: { id: number; image_url: string; title: string | null; description: string | null; cta_label: string | null; cta_url: string | null; position: number; is_active: boolean } }>(`/hero-slide/${id}`, {
       method: "PUT",
       body: JSON.stringify(data),
@@ -336,7 +336,7 @@ class ApiClient {
     });
   }
 
-  updateKpiStat(id: number, data: { label?: string; value?: string; unit?: string; position?: number; is_active?: boolean }) {
+  updateKpiStat(id: number, data: { label?: string; value?: string; unit?: string | null; position?: number; is_active?: boolean }) {
     return this.request<{ message: string; stat: { id: number; label: string; value: string; unit: string | null; position: number; is_active: boolean } }>(`/kpistat/${id}`, {
       method: "PUT",
       body: JSON.stringify(data),
@@ -363,7 +363,7 @@ class ApiClient {
     });
   }
 
-  updateReference(id: number, data: { label?: string; image_url?: string; website_url?: string; position?: number; is_active?: boolean }) {
+  updateReference(id: number, data: { label?: string; image_url?: string; website_url?: string | null; position?: number; is_active?: boolean }) {
     return this.request<{ message: string; reference: { id: number; label: string; image_url: string; website_url: string | null; position: number; is_active: boolean } }>(`/reference/${id}`, {
       method: "PUT",
       body: JSON.stringify(data),
@@ -421,7 +421,7 @@ class ApiClient {
     });
   }
 
-  updateJobPosting(id: number, data: { title?: string; contract_type?: string; description?: string; external_url?: string; fiche_url?: string; is_active?: boolean }) {
+  updateJobPosting(id: number, data: { title?: string; contract_type?: string; description?: string | null; external_url?: string | null; fiche_url?: string | null; is_active?: boolean }) {
     return this.request<{ message: string; jobPosting: { id: number; title: string; contract_type: string; description: string | null; external_url: string | null; fiche_url: string | null; is_active: boolean; created_at: string } }>(`/job-posting/${id}`, {
       method: "PUT",
       body: JSON.stringify(data),
@@ -499,7 +499,7 @@ class ApiClient {
     });
   }
 
-  updateArticle(id: number, data: { title?: string; description?: string; type?: string; cover_url?: string; file_url?: string; is_lead_magnet?: boolean; is_published?: boolean; published_at?: string }) {
+  updateArticle(id: number, data: { title?: string; description?: string | null; type?: string; cover_url?: string | null; file_url?: string | null; is_lead_magnet?: boolean; is_published?: boolean; published_at?: string }) {
     return this.request<{ message: string; article: { id: number } }>(`/article/${id}`, {
       method: "PUT",
       body: JSON.stringify(data),
@@ -526,7 +526,7 @@ class ApiClient {
     });
   }
 
-  updateEvent(id: number, data: { title?: string; description?: string; event_date?: string; youtube_url?: string; is_published?: boolean }) {
+  updateEvent(id: number, data: { title?: string; description?: string | null; event_date?: string; youtube_url?: string | null; is_published?: boolean }) {
     return this.request<{ message: string; event: { id: number } }>(`/event/${id}`, {
       method: "PUT",
       body: JSON.stringify(data),
@@ -557,7 +557,7 @@ class ApiClient {
     });
   }
 
-  updateEventImage(id: number, data: { event_id?: number; image_url?: string; caption?: string; position?: number }) {
+  updateEventImage(id: number, data: { event_id?: number; image_url?: string; caption?: string | null; position?: number }) {
     return this.request<{ message: string; eventImage: { id: number } }>(`/event-image/${id}`, {
       method: "PUT",
       body: JSON.stringify(data),

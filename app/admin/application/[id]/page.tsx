@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { api } from "@/lib/api";
 import { sanitizeUrl } from "@/lib/security";
+import { Card, FormPage, LoadingScreen, Alert } from "@/app/admin/components/ui";
 
 interface ApplicationDetail {
   id: number;
@@ -45,35 +46,13 @@ export default function ApplicationDetailPage() {
   };
 
   if (fetching) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <p className="text-gray-500">Chargement...</p>
-      </div>
-    );
+    return <LoadingScreen />;
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      <header className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <h1 className="text-xl font-bold text-gray-900">Détail de la candidature</h1>
-          <button
-            onClick={() => router.push("/admin/application")}
-            className="inline-flex items-center gap-1 text-sm text-gray-600 hover:text-gray-800 font-medium"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-            Retour
-          </button>
-        </div>
-      </header>
-
-      <main className="max-w-lg mx-auto px-4 py-12">
-        <div className="bg-white shadow-sm border border-gray-200 rounded-xl p-6 space-y-5">
-          {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg p-3">{error}</div>
-          )}
+    <FormPage title="Détail de la candidature" backHref="/admin/application">
+        <Card className="p-6 space-y-5">
+          {error && <Alert>{error}</Alert>}
 
           {application && (
             <>
@@ -87,7 +66,7 @@ export default function ApplicationDetailPage() {
                 <dt className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">CV</dt>
                 <dd className="text-sm text-gray-900">
                   {application.cv_url ? (
-                    <a href={sanitizeUrl(application.cv_url)} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-700 underline">
+                    <a href={sanitizeUrl(application.cv_url)} target="_blank" rel="noopener noreferrer" className="text-brand-600 hover:text-brand-700 underline">
                       Voir le CV
                     </a>
                   ) : (
@@ -112,9 +91,8 @@ export default function ApplicationDetailPage() {
               />
             </>
           )}
-        </div>
-      </main>
-    </div>
+        </Card>
+      </FormPage>
   );
 }
 

@@ -1,40 +1,22 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { api } from "@/lib/api";
+import { resolveAssetUrl } from "@/lib/security";
+import Reveal from "../components/Reveal";
+import { ArticleCard, FeaturedArticleCard } from "../components/actus/ArticleCard";
+import type { NewsArticle } from "../components/actus/ArticleCard";
+import ArticleModal from "../components/actus/ArticleModal";
 
-/* ----------------------------------------------------------------------------
- * ⚠️ La capture était petite : les textes ci-dessous sont reconstitués au mieux.
- * Relisez-les et remplacez-les par les textes exacts.
- * ------------------------------------------------------------------------- */
+const INITIAL_ARTICLES = 7;
+const ARTICLES_STEP = 6;
+const ALL_TYPES = "Tous";
 
-type NewsItem = { href: string; label: string; text: string };
-
-const NEWS: NewsItem[] = [
-  {
-    href: "/actualites/ia-relation-client-africaine",
-    label: "Article · Mars 2026",
-    text: "L'IA au service de la relation client africaine : quand intelligence artificielle et esprit humain se combinent pour des parcours plus fluides.",
-  },
-  {
-    href: "/actualites/rapport-inclusion-jeunes",
-    label: "Rapport · Janvier 2026",
-    text: "Notre engagement pour l'inclusion, la formation et l'employabilité des jeunes.",
-  },
-  {
-    href: "/actualites/cx-trends-afrique-2025",
-    label: "Étude · Décembre 2025",
-    text: "CX Trends Afrique 2025 : les grandes tendances de l'expérience client sur le continent.",
-  },
-  {
-    // La maquette répète la même étude : à remplacer
-    href: "/actualites/cx-trends-afrique-2025-bis",
-    label: "Étude · Décembre 2025",
-    text: "CX Trends Afrique 2025 : les grandes tendances de l'expérience client sur le continent.",
-  },
-];
+const typeLabel = (type: string | null) => {
+  const value = (type || "Article").trim();
+  return value.charAt(0).toUpperCase() + value.slice(1);
+};
 
 type Photo = { src: string; alt: string };
 type EventItem = {
@@ -73,7 +55,7 @@ const EVENTS: EventItem[] = [
 
 // 👉 Vidéo : rediriger vers YouTube
 const YOUTUBE_URL = "https://www.youtube.com/watch?v=UKMOb0rkvxw";
-const VIDEO_BG = "/youtubeI.png";
+const VIDEO_BG = "/images/youtubeI.png";
 
 function Chevron({ dir }: { dir: "left" | "right" }) {
   return (
@@ -109,7 +91,7 @@ function CarouselButton({
       onClick={onClick}
       disabled={disabled}
       aria-label={label}
-      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-[#0b4f5c] transition-colors hover:bg-[#0b4f5c]/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#0b4f5c] disabled:pointer-events-none disabled:opacity-30"
+      className="hidden h-10 w-10 shrink-0 items-center justify-center rounded-full text-[#0b4f5c] transition-all duration-200 hover:bg-[#0b4f5c]/10 active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#0b4f5c] disabled:pointer-events-none disabled:opacity-30 sm:flex"
     >
       <Chevron dir={dir} />
     </button>
@@ -156,15 +138,18 @@ function PhotoCarousel({ photos, title }: { photos: Photo[]; title: string }) {
         {photos.map((p, i) => (
           <li
             key={i}
-            className="relative aspect-[4/3] shrink-0 basis-[72%] snap-start overflow-hidden rounded-2xl bg-[#d9d9d9] sm:basis-[calc((100%-2rem)/3)]"
+            className="group relative aspect-[4/3] shrink-0 basis-[78%] snap-start overflow-hidden rounded-2xl bg-[#d9d9d9] sm:basis-[calc((100%-2rem)/3)]"
           >
             {p.src && (
               <Image
                 src={p.src}
                 alt={p.alt}
                 fill
-                sizes="(min-width: 640px) 30vw, 72vw"
-                className="object-cover"
+                // Les photos de l'admin viennent de l'API ou d'une URL libre : next/image
+                // refuserait tout domaine non déclaré et ferait planter la page.
+                unoptimized={/^https?:/i.test(p.src)}
+                sizes="(min-width: 640px) 30vw, 78vw"
+                className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
               />
             )}
           </li>
@@ -181,9 +166,11 @@ function PhotoCarousel({ photos, title }: { photos: Photo[]; title: string }) {
 }
 
 export default function NewsPage() {
-  const [articles, setArticles] = useState<
-    { id: number; label: string; text: string; href: string }[]
-  >([]);
+  const [articles, setArticles] = useState<NewsArticle[]>([]);
+  const [articlesLoaded, setArticlesLoaded] = useState(false);
+  const [activeType, setActiveType] = useState(ALL_TYPES);
+  const [visibleCount, setVisibleCount] = useState(INITIAL_ARTICLES);
+  const [openArticle, setOpenArticle] = useState<NewsArticle | null>(null);
   const [events, setEvents] = useState<
     { id: number; date: string; title: string; description: string; photos: Photo[] }[]
   >([]);
@@ -192,15 +179,21 @@ export default function NewsPage() {
     api
       .getPublishedArticles()
       .then((res) => {
-        const mapped = res.articles.map((a) => ({
-          id: a.id,
-          label: `${a.type || "Article"} · ${a.published_at ? new Date(a.published_at).toLocaleDateString("fr-FR", { month: "long", year: "numeric" }) : ""}`.replace(/ · $/, ""),
-          text: a.description || a.title,
-          href: a.file_url || `/actualites/${a.id}`,
-        }));
-        setArticles(mapped);
+        setArticles(
+          res.articles.map((a) => ({
+            id: a.id,
+            title: a.title,
+            description: a.description || "",
+            type: typeLabel(a.type),
+            date: a.published_at
+              ? new Date(a.published_at).toLocaleDateString("fr-FR", { month: "long", year: "numeric" })
+              : "",
+            fileUrl: resolveAssetUrl(a.file_url, ""),
+          })),
+        );
       })
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => setArticlesLoaded(true));
 
     api
       .getPublishedEvents()
@@ -212,7 +205,7 @@ export default function NewsPage() {
               e.event_images && e.event_images.length > 0
                 ? e.event_images
                     .sort((x, y) => x.position - y.position)
-                    .map((img) => ({ src: img.image_url, alt: img.caption || e.title }))
+                    .map((img) => ({ src: resolveAssetUrl(img.image_url, ""), alt: img.caption || e.title }))
                 : placeholders();
             return {
               id: e.id,
@@ -227,18 +220,28 @@ export default function NewsPage() {
       .catch(() => {});
   }, []);
 
+  const articleTypes = useMemo(() => [...new Set(articles.map((a) => a.type))], [articles]);
+  const filteredArticles =
+    activeType === ALL_TYPES ? articles : articles.filter((a) => a.type === activeType);
+  const [featuredArticle, ...otherArticles] = filteredArticles.slice(0, visibleCount);
+
+  const selectType = (type: string) => {
+    setActiveType(type);
+    setVisibleCount(INITIAL_ARTICLES);
+  };
+
   return (
     <main className="font-sans text-[#0b4f5c]">
       {/* Titre */}
-      <header className="relative overflow-hidden bg-gradient-to-br from-[#00aeaa] to-[#0b6171] px-6 pt-12 pb-28 md:px-16 md:pt-16 md:pb-36">
-        <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/5 blur-3xl" />
-        <div className="absolute -bottom-32 -left-20 h-72 w-72 rounded-full bg-white/5 blur-3xl" />
-        <div className="relative mt-20 mx-auto max-w-6xl">
+      <header className="relative overflow-hidden bg-gradient-to-br from-[#00aeaa] to-[#0b6171] px-6 pt-32 pb-28 md:px-12 md:pt-36 md:pb-36 lg:px-16">
+        <div className="halo-drift absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/5 blur-3xl" />
+        <div className="halo-drift absolute -bottom-32 -left-20 h-72 w-72 rounded-full bg-white/5 blur-3xl [animation-direction:alternate-reverse]" />
+        <div className="relative mx-auto max-w-6xl">
 
-          <h1 className="mt-3 text-3xl font-bold tracking-tight text-white md:text-4xl lg:text-5xl">
+          <h1 className="cons-fade text-3xl font-bold tracking-tight text-white md:text-4xl lg:text-5xl">
             L&apos;actualité de Connecteo.
           </h1>
-          <p className="mt-4 max-w-2xl text-sm leading-relaxed text-white/80 md:text-base">
+          <p className="cons-fade mt-4 max-w-2xl text-sm leading-relaxed text-white/80 md:text-base" style={{ animationDelay: "120ms" }}>
             Découvrez nos dernières actualités, études et événements à la une.
           </p>
         </div>
@@ -250,40 +253,66 @@ export default function NewsPage() {
       </header>
 
       {/* Cartes d'actualité */}
-      <section className="relative -mt-[1px] bg-[#d8e7ea] px-6 py-12 md:px-16 md:py-16">
-        <ul className="relative mx-auto grid max-w-4xl gap-4 sm:grid-cols-2 md:gap-5">
-          {(articles.length > 0 ? articles : NEWS).map((n: any) => (
-            <li key={n.id || n.href}>
-              <Link
-                href={n.href}
-                className="group relative flex h-full aspect-[5/4] flex-col items-center justify-center overflow-hidden rounded-[1.75rem] bg-white px-5 py-6 text-center shadow-[0_30px_50px_-30px_rgba(11,79,92,0.25)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_40px_60px_-30px_rgba(11,79,92,0.3)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0b4f5c] md:px-6"
+      <section className="relative -mt-[1px] bg-[#d8e7ea] px-6 py-12 md:px-12 md:py-16 lg:px-16">
+        <div className="relative mx-auto max-w-6xl">
+          {articleTypes.length > 1 && (
+            <div className="mb-8 flex flex-wrap gap-2" role="group" aria-label="Filtrer les actualités">
+              {[ALL_TYPES, ...articleTypes].map((type) => (
+                <button
+                  key={type}
+                  type="button"
+                  onClick={() => selectType(type)}
+                  aria-pressed={activeType === type}
+                  className={`min-h-11 rounded-full px-5 text-sm font-semibold transition-all duration-200 active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0b4f5c] ${
+                    activeType === type
+                      ? "bg-[#0b6171] text-white shadow-md"
+                      : "bg-white text-[#0b4f5c] hover:bg-[#0b6171]/10"
+                  }`}
+                >
+                  {type}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {featuredArticle && (
+            <Reveal key={`${activeType}-${featuredArticle.id}`}>
+              <FeaturedArticleCard article={featuredArticle} onOpen={() => setOpenArticle(featuredArticle)} />
+            </Reveal>
+          )}
+
+          {otherArticles.length > 0 && (
+            <ul className="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {otherArticles.map((article, index) => (
+                <li key={article.id}>
+                  <Reveal className="h-full" delay={(index % 3) * 100}>
+                    <ArticleCard article={article} onOpen={() => setOpenArticle(article)} />
+                  </Reveal>
+                </li>
+              ))}
+            </ul>
+          )}
+
+          {filteredArticles.length > visibleCount && (
+            <div className="mt-8 text-center">
+              <button
+                type="button"
+                onClick={() => setVisibleCount((count) => count + ARTICLES_STEP)}
+                className="min-h-11 rounded-full bg-[#0b6171] px-6 text-sm font-semibold text-white transition-all duration-200 hover:bg-[#0b4f5c] active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0b4f5c]"
               >
-                <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#00aeaa]/80 to-[#0b6171]/80" />
-                <div className="flex max-w-[88%] flex-col items-center">
-                  <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#0b6171]/70">
-                    {n.label}
-                  </span>
-                  <span className="mt-3 text-sm font-semibold leading-relaxed text-[#0b4f5c] md:text-base">
-                    {n.text}
-                  </span>
-                  <span
-                    aria-hidden="true"
-                    className="mt-5 flex items-center gap-2 text-xs font-semibold text-[#00aeaa] transition-all duration-300 group-hover:translate-x-1"
-                  >
-                    Lire la suite
-                    <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                    </svg>
-                  </span>
-                </div>
-              </Link>
-            </li>
-          ))}
-        </ul>
+                Voir plus
+              </button>
+            </div>
+          )}
+
+          {articlesLoaded && articles.length === 0 && (
+            <p className="py-10 text-center text-sm text-[#0b4f5c]/70">Aucune actualité pour le moment.</p>
+          )}
+        </div>
       </section>
 
       {/* Évènements */}
-      <section className="bg-white px-6 py-14 md:px-16 md:py-20">
+      <section className="bg-white px-6 py-14 md:px-12 md:py-20 lg:px-16">
         <div className="mx-auto max-w-6xl">
           <div className="mb-10 md:mb-12">
             <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#0b6171]/60">
@@ -301,7 +330,8 @@ export default function NewsPage() {
             {(events.length > 0 ? events : EVENTS).map((ev: any, idx: number) => {
               const list = events.length > 0 ? events : EVENTS;
               return (
-              <article key={ev.id || ev.title} className="relative">
+              <Reveal key={ev.id || ev.title}>
+              <article className="relative">
                 {idx !== list.length - 1 && (
                   <div className="absolute -bottom-8 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#0b4f5c]/8 to-transparent" />
                 )}
@@ -318,6 +348,7 @@ export default function NewsPage() {
                 </div>
                 <PhotoCarousel photos={ev.photos} title={ev.title} />
               </article>
+              </Reveal>
             );
             })}
           </div>
@@ -352,7 +383,7 @@ export default function NewsPage() {
           target="_blank"
           rel="noopener noreferrer"
           aria-label="Voir la vidéo sur YouTube"
-          className="group mx-auto mt-10 flex h-18 w-18 items-center justify-center rounded-full border border-white/70 transition-all duration-300 hover:scale-105 hover:border-[#f5a30f] hover:bg-[#f5a30f]/15 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#f5a30f]"
+          className="pulse-ring group relative mx-auto mt-10 flex h-18 w-18 items-center justify-center rounded-full border border-white/70 transition-all duration-300 hover:scale-105 hover:border-[#f5a30f] hover:bg-[#f5a30f]/15 active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#f5a30f]"
         >
           <svg aria-hidden="true" viewBox="0 0 24 24" className="ml-1 h-7 w-7 transition-colors duration-300 group-hover:text-[#f5a30f]" fill="currentColor">
             <path d="M7 4.5v15l13-7.5z" />
@@ -362,6 +393,8 @@ export default function NewsPage() {
           Voir sur YouTube
         </p>
       </section>
+
+      {openArticle && <ArticleModal article={openArticle} onClose={() => setOpenArticle(null)} />}
     </main>
   );
 }

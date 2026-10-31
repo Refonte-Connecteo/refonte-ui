@@ -1,7 +1,8 @@
 "use client";
 
 import { api } from "@/lib/api";
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
+import Reveal from "../components/Reveal";
 
 const MAX_CV_SIZE_BYTES = 5 * 1024 * 1024; // 5 Mo
 const CV_EXTENSIONS = [".pdf", ".doc", ".docx"];
@@ -73,7 +74,7 @@ function Field({
         type={type}
         autoComplete={autoComplete}
         required={required}
-        className="h-10 w-full rounded-full bg-[#a9c1c6]/80 px-4 text-sm text-[#0b4f5c] outline-none transition-colors focus:bg-[#c8dadd] focus:ring-2 focus:ring-[#f5a30f]"
+        className="h-11 w-full rounded-full bg-[#a9c1c6]/80 px-4 text-sm text-[#0b4f5c] outline-none transition-all duration-200 focus:bg-[#c8dadd] focus:ring-2 focus:ring-[#f5a30f]"
       />
     </div>
   );
@@ -87,6 +88,7 @@ export default function CareersSection() {
   const [cvError, setCvError] = useState("");
   const [status, setStatus] = useState<Status>("idle");
   const [errorMessage, setErrorMessage] = useState("");
+  const applicationRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -118,9 +120,14 @@ export default function CareersSection() {
   const selectedJob = offres.find((job) => job.id === selectedJobId) ?? null;
 
   const handleSelectJob = (id: number) => {
-    setSelectedJobId((current) => (current === id ? null : id));
+    const isSelecting = selectedJobId !== id;
+    setSelectedJobId(isSelecting ? id : null);
     setStatus("idle");
     setErrorMessage("");
+    if (isSelecting) {
+      const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      applicationRef.current?.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" });
+    }
   };
 
   const handleCvChange = (file: File | null) => {
@@ -151,15 +158,16 @@ export default function CareersSection() {
     const form = e.currentTarget;
     const data = Object.fromEntries(new FormData(form)) as Record<string, string>;
 
+    if (!cvFile) {
+      setCvError("Merci de joindre votre CV.");
+      return;
+    }
+
     setStatus("sending");
     setErrorMessage("");
 
     try {
-      let cvUrl = "";
-      if (cvFile) {
-        const uploadResult = await api.uploadCvPublic(cvFile);
-        cvUrl = uploadResult.url;
-      }
+      const { url: cvUrl } = await api.uploadCvPublic(cvFile);
 
       const basePayload = {
         first_name: (data.nom || "").trim(),
@@ -195,15 +203,15 @@ export default function CareersSection() {
   }
 
   return (
-    <main className="min-h-screen overflow-x-hidden bg-[#0b6171] px-6 py-14 font-sans text-white md:px-16 md:py-20">
+    <main className="min-h-screen overflow-x-hidden bg-[#0b6171] px-6 pb-14 pt-32 font-sans text-white md:px-12 md:pb-20 md:pt-36 lg:px-16">
       <div className="mx-auto max-w-6xl">
         {/* Titre */}
-        <header className="text-center mt-20">
-          <h1 className="text-2xl font-bold sm:text-3xl md:text-4xl">
+        <header className="text-center">
+          <h1 className="cons-fade text-2xl font-bold sm:text-3xl md:text-4xl">
             Devenez acteur·rice de l&apos;expérience client africaine.
           </h1>
-          <h2 className="mt-8 text-sm font-bold">Postes à pourvoir</h2>
-          <p className="mt-2 text-sm text-white/70">
+          <h2 className="cons-fade mt-8 text-sm font-bold" style={{ animationDelay: "100ms" }}>Postes à pourvoir</h2>
+          <p className="cons-fade mt-2 text-sm text-white/70" style={{ animationDelay: "150ms" }}>
             {offres.length > 0
               ? `${offres.length} poste${offres.length > 1 ? "s" : ""} disponible${offres.length > 1 ? "s" : ""} — cliquez sur une offre pour postuler.`
               : jobsLoaded
@@ -215,10 +223,10 @@ export default function CareersSection() {
         {/* Offres d'emploi */}
         {offres.length > 0 && (
           <ul className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6">
-            {offres.map((job) => {
+            {offres.map((job, index) => {
               const isSelected = selectedJobId === job.id;
               return (
-                <li key={job.id}>
+                <li key={job.id} className="cons-fade" style={{ animationDelay: `${index * 70}ms` }}>
                   <button
                     type="button"
                     onClick={() => handleSelectJob(job.id)}
@@ -251,10 +259,11 @@ export default function CareersSection() {
 
         {/* Candidature */}
         <section
+          ref={applicationRef}
           aria-labelledby="candidature-title"
-          className="relative mt-20 grid items-center gap-10 lg:mt-28 lg:grid-cols-[1fr_1.1fr] lg:gap-6"
+          className="relative mt-16 grid scroll-mt-28 items-center gap-8 lg:mt-24 lg:grid-cols-[1fr_1.1fr] lg:gap-6"
         >
-          <Asterisk className="pointer-events-none absolute -right-16 bottom-0 h-64 w-64 text-[#00aeaa] opacity-40 lg:bottom-auto lg:left-[26%] lg:right-auto lg:top-1/2 lg:h-[28rem] lg:w-[28rem] lg:-translate-y-1/2 lg:opacity-100" />
+          <Asterisk className="spin-slow pointer-events-none absolute -right-16 bottom-0 h-64 w-64 text-[#00aeaa] opacity-40 lg:bottom-auto lg:left-[26%] lg:right-auto lg:top-1/2 lg:h-[28rem] lg:w-[28rem] lg:-translate-y-1/2 lg:opacity-100" />
 
           <div className="relative z-10 max-w-md">
             <h2 id="candidature-title" className="text-2xl font-bold sm:text-3xl">
@@ -304,7 +313,7 @@ export default function CareersSection() {
                 </label>
                 <label
                   htmlFor="cv"
-                  className="flex h-10 w-full cursor-pointer items-center gap-2 rounded-full bg-[#a9c1c6]/80 px-4 text-sm text-[#0b4f5c] transition-colors hover:bg-[#c8dadd] focus-within:ring-2 focus-within:ring-[#f5a30f]"
+                  className="flex h-11 w-full cursor-pointer items-center gap-2 rounded-full bg-[#a9c1c6]/80 px-4 text-sm text-[#0b4f5c] transition-colors hover:bg-[#c8dadd] focus-within:ring-2 focus-within:ring-[#f5a30f]"
                 >
                   <svg
                     aria-hidden="true"
@@ -327,7 +336,7 @@ export default function CareersSection() {
                     id="cv"
                     type="file"
                     accept={CV_EXTENSIONS.join(",")}
-                    className="hidden"
+                    className="sr-only"
                     onChange={(e) => handleCvChange(e.target.files?.[0] ?? null)}
                   />
                 </label>
@@ -359,7 +368,7 @@ export default function CareersSection() {
               <button
                 type="submit"
                 disabled={status === "sending"}
-                className="rounded-full bg-[#f5a30f] px-7 py-2.5 text-sm font-bold text-[#0b4f5c] transition-colors hover:bg-[#e09400] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white disabled:opacity-60"
+                className="btn-shine relative shrink-0 overflow-hidden rounded-full bg-[#f5a30f] px-7 py-3 text-sm font-bold text-[#0b4f5c] transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#e09400] hover:shadow-lg active:translate-y-0 active:scale-[0.98] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white disabled:opacity-60"
               >
                 {status === "sending" ? "Envoi…" : "Envoyer"}
               </button>

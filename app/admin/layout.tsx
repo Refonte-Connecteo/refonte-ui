@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Fragment } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard,
@@ -21,13 +21,13 @@ import {
   LogOut,
   Menu,
   X,
-  Sparkles,
+  ChevronRight,
   type LucideIcon,
 } from "lucide-react";
 import { api } from "@/lib/api";
 import { clearSession, redirectToLogin, type LogoutReason } from "@/lib/session";
 import { useIdleTimer } from "@/app/admin/hooks/useIdleTimer";
-import { SectionTitle } from "@/app/admin/components/ui";
+import Logo from "@/app/admin/components/Logo";
 
 const IDLE_TIMEOUT_MS = 5 * 60 * 1000;
 
@@ -76,6 +76,25 @@ const navGroups: { title: string; items: NavItem[] }[] = [
     items: [{ href: "/admin/profile", label: "Sécurité & profil", icon: Shield }],
   },
 ];
+
+const matchesRoute = (pathname: string | null, href: string) =>
+  pathname === href || !!pathname?.startsWith(`${href}/`);
+
+/** Fil d'Ariane déduit de la navigation : section > page > sous-page. */
+function getBreadcrumb(pathname: string | null): string[] {
+  for (const group of navGroups) {
+    for (const item of group.items) {
+      if (!matchesRoute(pathname, item.href)) continue;
+      const crumbs = [group.title, item.label];
+      if (pathname?.endsWith("/new")) crumbs.push("Nouveau");
+      else if (pathname?.endsWith("/edit")) crumbs.push("Modifier");
+      else if (pathname !== item.href) crumbs.push("Détail");
+      return crumbs;
+    }
+  }
+  if (pathname === "/admin/invite") return ["Pilotage", "Ajouter un administrateur"];
+  return ["Administration"];
+}
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -139,55 +158,66 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     return <>{children}</>;
   }
 
+  const breadcrumb = getBreadcrumb(pathname);
+  const initial = profile?.username.charAt(0).toUpperCase();
+  const roleLabel = isSuperAdmin ? "Super Admin" : "Admin";
+
   return (
-    <div className="min-h-screen flex bg-slate-50">
+    <div className="min-h-screen w-full flex bg-gray-50">
       {/* Mobile overlay */}
       {sidebarOpen && (
-        <div className="fixed inset-0 bg-black/30 z-20 lg:hidden" onClick={() => setSidebarOpen(false)} />
+        <div className="fixed inset-0 bg-ink/50 backdrop-blur-sm z-20 lg:hidden" onClick={() => setSidebarOpen(false)} />
       )}
 
       {/* Sidebar */}
-      <aside className={`fixed lg:sticky top-0 left-0 z-30 h-screen w-64 bg-white border-r border-gray-200 flex flex-col transition-transform lg:translate-x-0 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}>
+      <aside className={`fixed lg:sticky top-0 left-0 z-30 h-screen w-68 shrink-0 bg-ink text-gray-300 flex flex-col transition-transform lg:translate-x-0 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}>
         {/* Brand */}
-        <div className="p-5 bg-gradient-to-br from-blue-600 via-indigo-600 to-violet-600">
-          <div className="flex items-center gap-3">
-            <span className="w-10 h-10 rounded-xl bg-white/15 backdrop-blur flex items-center justify-center text-white shrink-0">
-              <Sparkles className="w-5 h-5" />
-            </span>
-            <div>
-              <h2 className="text-lg font-bold text-white leading-tight">Connecteo</h2>
-              <p className="text-xs text-blue-100 mt-0.5 flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                Administration
-              </p>
-            </div>
+        <div className="px-5 pt-6 pb-4 flex items-start justify-between gap-2">
+          <div>
+            <Logo className="h-10 w-auto" />
+            <p className="mt-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-brand-300">
+              Administration
+            </p>
           </div>
+          <button
+            onClick={() => setSidebarOpen(false)}
+            className="lg:hidden text-gray-400 hover:text-white p-1"
+            aria-label="Fermer le menu"
+          >
+            <X className="w-5 h-5" />
+          </button>
         </div>
 
         {/* Nav */}
-        <nav className="flex-1 px-3 py-4 overflow-y-auto">
+        <nav className="flex-1 px-3 pb-4 overflow-y-auto [scrollbar-width:thin] [scrollbar-color:rgba(255,255,255,0.15)_transparent]">
           {navGroups.map((group) => (
             <div key={group.title}>
-              <SectionTitle>{group.title}</SectionTitle>
+              <p className="px-3 pt-5 pb-1.5 text-[11px] font-semibold uppercase tracking-wider text-gray-500">
+                {group.title}
+              </p>
               <div className="space-y-0.5">
                 {group.items.map((item) => {
                   if (item.superAdminOnly && !isSuperAdmin) return null;
-                  const isActive = pathname?.startsWith(item.href);
+                  const isActive = matchesRoute(pathname, item.href);
                   const Icon = item.icon;
                   return (
                     <button
                       key={item.href}
                       onClick={() => { router.push(item.href); setSidebarOpen(false); }}
-                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                      aria-current={isActive ? "page" : undefined}
+                      className={`relative w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 ${
                         isActive
-                          ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-sm shadow-blue-200"
-                          : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                          ? "bg-brand-500/15 text-white"
+                          : "text-gray-400 hover:bg-white/5 hover:text-white"
                       }`}
                     >
-                      <Icon className={`w-4.5 h-4.5 shrink-0 ${isActive ? "text-white" : "text-gray-400"}`} />
+                      {isActive && (
+                        <span className="absolute left-0 top-2 bottom-2 w-1 rounded-r-full bg-brand-400" />
+                      )}
+                      <Icon className={`w-4.5 h-4.5 shrink-0 ${isActive ? "text-brand-300" : "text-gray-500"}`} />
                       {item.label}
-                      {item.superAdminOnly && !isActive && (
-                        <span className="ml-auto text-[9px] uppercase tracking-wide px-1.5 py-0.5 rounded bg-gray-100 text-gray-400 font-semibold">
+                      {item.superAdminOnly && (
+                        <span className="ml-auto text-[9px] uppercase tracking-wide px-1.5 py-0.5 rounded bg-white/10 text-gray-400 font-semibold">
                           admin
                         </span>
                       )}
@@ -201,51 +231,67 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
         {/* User footer */}
         {profile && (
-          <div className="p-4 border-t border-gray-200 bg-gray-50/60">
-            <div className="flex items-center gap-3 mb-3">
-              <div className={`w-9 h-9 rounded-full flex items-center justify-center text-white text-sm font-bold shrink-0 ${
-                isSuperAdmin
-                  ? "bg-gradient-to-br from-violet-500 to-fuchsia-500"
-                  : "bg-gradient-to-br from-blue-500 to-indigo-500"
-              }`}>
-                {profile.username.charAt(0).toUpperCase()}
+          <div className="p-3 border-t border-white/10">
+            <div className="flex items-center gap-3 px-2 py-1.5">
+              <div className="w-9 h-9 rounded-full bg-brand-600 text-white flex items-center justify-center text-sm font-bold shrink-0">
+                {initial}
               </div>
-              <div className="min-w-0">
-                <p className="font-medium text-gray-900 text-sm truncate">{profile.username}</p>
-                <p className="text-xs text-gray-500">
-                  {isSuperAdmin ? "Super Admin" : "Admin"}
-                </p>
+              <div className="min-w-0 flex-1">
+                <p className="font-medium text-white text-sm truncate">{profile.username}</p>
+                <p className="text-xs text-gray-500">{roleLabel}</p>
               </div>
+              <button
+                onClick={() => handleLogout()}
+                title="Déconnexion"
+                aria-label="Déconnexion"
+                className="p-2 rounded-lg text-gray-400 hover:text-rose-300 hover:bg-white/5 transition-colors"
+              >
+                <LogOut className="w-4 h-4" />
+              </button>
             </div>
-            <button
-              onClick={() => handleLogout()}
-              className="w-full inline-flex items-center gap-2 text-xs text-rose-600 hover:text-rose-700 font-medium px-2 py-1.5 rounded-lg hover:bg-rose-50 transition-colors"
-            >
-              <LogOut className="w-3.5 h-3.5" />
-              Déconnexion
-            </button>
           </div>
         )}
       </aside>
 
       {/* Main content */}
-      <div className="flex-1 flex flex-col min-h-screen">
-        {/* Mobile header */}
-        <header className="lg:hidden bg-white border-b border-gray-200 px-4 py-3 flex items-center gap-3 sticky top-0 z-10">
-          <button onClick={() => setSidebarOpen(true)} className="text-gray-600 hover:text-gray-900">
+      <div className="flex-1 min-w-0 flex flex-col min-h-screen">
+        <header className="sticky top-0 z-10 h-16 shrink-0 bg-white/85 backdrop-blur border-b border-gray-200/80 px-4 lg:px-8 flex items-center gap-3">
+          <button
+            onClick={() => setSidebarOpen(true)}
+            className="lg:hidden text-gray-600 hover:text-gray-900"
+            aria-label="Ouvrir le menu"
+          >
             <Menu className="w-6 h-6" />
           </button>
-          <h1 className="text-lg font-bold text-gray-900">Connecteo Admin</h1>
-          <button
-            onClick={() => setSidebarOpen(false)}
-            className={`ml-auto text-gray-500 ${sidebarOpen ? "" : "hidden"}`}
-            aria-label="Fermer"
-          >
-            <X className="w-5 h-5" />
-          </button>
+          <div className="lg:hidden">
+            <Logo className="h-7 w-auto" />
+          </div>
+          <nav aria-label="Fil d'Ariane" className="hidden lg:flex items-center gap-1.5 text-sm min-w-0">
+            {breadcrumb.map((crumb, index) => (
+              <Fragment key={crumb}>
+                {index > 0 && <ChevronRight className="w-3.5 h-3.5 text-gray-300 shrink-0" />}
+                <span className={`truncate ${index === breadcrumb.length - 1 ? "font-semibold text-gray-900" : "text-gray-500"}`}>
+                  {crumb}
+                </span>
+              </Fragment>
+            ))}
+          </nav>
+          {profile && (
+            <button
+              onClick={() => router.push("/admin/profile")}
+              className="ml-auto flex items-center gap-2.5 rounded-full p-1 sm:pr-3 hover:bg-gray-100 transition-colors"
+            >
+              <span className="w-8 h-8 rounded-full bg-brand-600 text-white flex items-center justify-center text-xs font-bold">
+                {initial}
+              </span>
+              <span className="hidden sm:block text-sm font-medium text-gray-700 max-w-40 truncate">
+                {profile.username}
+              </span>
+            </button>
+          )}
         </header>
 
-        <main className="flex-1 p-5 lg:p-8 max-w-[1200px] w-full mx-auto space-y-6">
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-[1400px] w-full mx-auto space-y-6">
           {children}
         </main>
       </div>

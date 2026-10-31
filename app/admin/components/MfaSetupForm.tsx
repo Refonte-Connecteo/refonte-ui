@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { api } from "@/lib/api";
+import { Alert, Button, Input, Label } from "@/app/admin/components/ui";
 import type { AuthSuccessResponse, MfaSetupResponse } from "@/app/admin/types";
 
 interface MfaSetupFormProps {
@@ -48,10 +49,10 @@ export default function MfaSetupForm({ setup, onSuccess, onBack }: MfaSetupFormP
 
   return (
     <div>
-      <div className="space-y-1 mb-6">
-        <h2 className="text-xl font-semibold text-gray-900">
+      <div className="space-y-1 mb-7">
+        <h1 className="text-2xl font-bold tracking-tight text-gray-900">
           Activer l&apos;authentification à deux facteurs
-        </h2>
+        </h1>
         <p className="text-sm text-gray-500">
           Scannez le QR Code avec Microsoft Authenticator, puis saisissez le code à 6 chiffres
           généré par l&apos;application pour activer votre compte.
@@ -59,38 +60,34 @@ export default function MfaSetupForm({ setup, onSuccess, onBack }: MfaSetupFormP
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg p-3">
-            {error}
-          </div>
-        )}
+        {error && <Alert>{error}</Alert>}
 
         <div className="flex flex-col items-center gap-3">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={setup.qrCodeDataUrl}
             alt="QR Code Microsoft Authenticator"
-            className="w-48 h-48 border border-gray-200 rounded-lg bg-white p-2"
+            className="w-48 h-48 border border-gray-200 rounded-2xl bg-white p-2"
           />
           <p className="text-xs text-gray-500">{setup.email}</p>
         </div>
 
         {secret && (
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <Label>
               Clé secrète (à conserver en secours)
-            </label>
-            <p className="font-mono text-sm bg-gray-50 border border-gray-200 rounded-lg px-3 py-2.5 break-all">
+            </Label>
+            <p className="font-mono text-sm bg-gray-50 border border-gray-200 rounded-xl px-3.5 py-2.5 break-all">
               {secret}
             </p>
           </div>
         )}
 
         <div>
-          <label htmlFor="mfa-code" className="block text-sm font-medium text-gray-700 mb-1">
+          <Label htmlFor="mfa-code">
             Code à 6 chiffres
-          </label>
-          <input
+          </Label>
+          <Input
             id="mfa-code"
             type="text"
             inputMode="numeric"
@@ -100,25 +97,21 @@ export default function MfaSetupForm({ setup, onSuccess, onBack }: MfaSetupFormP
             pattern="\d{6}"
             value={code}
             onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow"
+            className="text-center text-lg tracking-[0.4em] font-semibold tabular-nums"
             placeholder="000000"
           />
         </div>
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-blue-600 text-white rounded-lg py-2.5 text-sm font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-        >
+        <Button type="submit" disabled={loading} className="w-full">
           {loading ? "Vérification..." : "Activer mon compte"}
-        </button>
+        </Button>
       </form>
 
       {onBack && (
         <div className="mt-4 text-center">
           <button
             onClick={onBack}
-            className="text-sm text-gray-500 hover:text-gray-700"
+            className="text-sm font-medium text-gray-500 hover:text-brand-700"
           >
             ← Retour
           </button>

@@ -50,24 +50,24 @@ export default function ConsultingExpertises() {
   }, []);
 
   return (
-    <main className="min-h-screen overflow-x-hidden bg-[#ffab00] pt-25 py-14 font-sans text-[#0b6477]">
+    <main className="min-h-screen overflow-x-hidden bg-[#ffab00] pb-14 pt-32 font-sans text-[#0b6477] md:pb-20 md:pt-36">
       <header className="mx-auto max-w-2xl px-6 text-center">
         <h1 className="cons-fade text-4xl font-bold">Consulting</h1>
         <p className="cons-fade mt-5 text-sm leading-relaxed" style={{ animationDelay: "100ms" }}>
-          {TOTAL_OFFERS} offres réparties en {EXPERTISES.length} expertises.
+          {`${TOTAL_OFFERS} offres réparties en ${EXPERTISES.length} expertises.`}{" "}
           Chaque offre constitue un point d&apos;entrée autonome vers
           l&apos;accompagnement associé.
         </p>
       </header>
 
       {/* Flèches de navigation */}
-      <div className="mt-12 flex justify-end gap-3 pr-6 md:pr-[8vw]">
+      <div className="mt-8 flex justify-end gap-3 pr-6 md:mt-12 md:pr-[8vw]">
         <button
           type="button"
           onClick={() => go(active - 1)}
           disabled={active === 0}
           aria-label="Expertise précédente"
-          className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-[#0b6477] transition-opacity hover:bg-[#0b6477]/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0b6477] disabled:pointer-events-none disabled:opacity-30"
+          className="flex h-11 w-11 items-center justify-center rounded-full border-2 border-[#0b6477] transition-all duration-200 hover:bg-[#0b6477]/10 active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0b6477] disabled:pointer-events-none disabled:opacity-30"
         >
           <Arrow className="h-4 w-4 rotate-180" />
         </button>
@@ -76,15 +76,15 @@ export default function ConsultingExpertises() {
           onClick={() => go(active + 1)}
           disabled={active === last}
           aria-label="Expertise suivante"
-          className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-[#0b6477] transition-opacity hover:bg-[#0b6477]/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0b6477] disabled:pointer-events-none disabled:opacity-30"
+          className="flex h-11 w-11 items-center justify-center rounded-full border-2 border-[#0b6477] transition-all duration-200 hover:bg-[#0b6477]/10 active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0b6477] disabled:pointer-events-none disabled:opacity-30"
         >
           <Arrow className="h-4 w-4" />
         </button>
       </div>
 
-      {/* Carrousel : la carte active occupe 42% de l'écran, centrée */}
+      {/* Carrousel : la carte active est centrée et s'élargit sur les petits écrans */}
       <div
-        className="mt-6 [--card-w:42vw] [--gap:1.5rem] md:[--gap:2.5rem]"
+        className="mt-6 [--card-w:86vw] [--gap:1rem] md:[--card-w:74vw] md:[--gap:2.5rem] lg:[--card-w:60vw] xl:[--card-w:42vw]"
         onTouchStart={(e) => (touchStartX.current = e.touches[0].clientX)}
         onTouchEnd={(e) => {
           if (touchStartX.current === null) return;
@@ -94,7 +94,7 @@ export default function ConsultingExpertises() {
         }}
       >
         <ul
-          className="flex gap-[var(--gap)] pl-[29vw] transition-transform duration-500 ease-in-out"
+          className="flex items-start gap-[var(--gap)] pl-[calc((100vw-var(--card-w))/2)] transition-transform duration-500 ease-in-out"
           style={{
             transform: `translateX(calc(${-active} * (var(--card-w) + var(--gap))))`,
           }}
@@ -104,9 +104,9 @@ export default function ConsultingExpertises() {
             return (
               <li
                 key={e.label}
-                className={`cons-card relative flex w-[var(--card-w)] shrink-0 flex-col rounded-[2.5rem] p-12 transition-all duration-500 ${
+                className={`cons-card relative flex w-[var(--card-w)] shrink-0 flex-col rounded-[2rem] p-6 transition-all duration-500 md:rounded-[2.5rem] md:p-10 xl:p-12 ${
                   isActive
-                    ? "z-10 scale-105 bg-white shadow-[0_40px_80px_-32px_rgba(11,100,119,0.7)]"
+                    ? "z-10 bg-white shadow-[0_40px_80px_-32px_rgba(11,100,119,0.7)] md:scale-105"
                     : "scale-[0.97] bg-[#9b9b9b] brightness-95"
                 }`}
                 style={{ animationDelay: `${i * 100}ms` }}
@@ -121,7 +121,7 @@ export default function ConsultingExpertises() {
                 )}
 
                 <h2
-                  className={`max-w-[36rem] text-3xl font-bold leading-snug transition-colors duration-500 ${
+                  className={`max-w-[36rem] text-2xl font-bold leading-snug transition-colors duration-500 md:text-3xl ${
                     isActive ? "text-[#0b6477]" : "text-[#4f7f8a]"
                   }`}
                 >
@@ -130,14 +130,14 @@ export default function ConsultingExpertises() {
 
                 <ul
                   aria-hidden={!isActive}
-                  className="mt-10 grid gap-5 sm:grid-cols-2"
+                  className="mt-6 grid gap-4 md:mt-10 md:grid-cols-2 md:gap-5"
                 >
                   {e.offers.map((o) => (
                     <li key={o.slug}>
                       <Link
                         href={offerHref(e.slug, o.slug)}
                         tabIndex={isActive ? 0 : -1}
-                        className="group flex h-full flex-col gap-5 rounded-[1.75rem] bg-[#0b6477] p-8 text-sm leading-relaxed text-white transition-all duration-300 hover:-translate-y-1 hover:bg-[#0a5565] hover:shadow-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ffab00]"
+                        className="group flex h-full flex-col gap-5 rounded-[1.75rem] bg-[#0b6477] p-6 text-sm leading-relaxed text-white transition-all duration-300 hover:-translate-y-1 hover:bg-[#0a5565] hover:shadow-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ffab00]"
                       >
                         <span>
                           <span className="block text-base font-bold">

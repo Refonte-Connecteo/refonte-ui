@@ -25,7 +25,7 @@ export default function MotDuDG() {
   return (
     <section
       ref={ref}
-      className="relative w-full bg-white pt-8 md:pt-12 pb-20 md:pb-28"
+      className="relative w-full bg-white pt-10 md:pt-12 pb-16 md:pb-28"
     >
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-10 left-1/4 w-[500px] h-[500px] rounded-full opacity-[0.04] blur-3xl bg-[#FFA900]" />
@@ -33,7 +33,7 @@ export default function MotDuDG() {
       </div>
 
       <div className="relative z-10 mx-auto max-w-7xl px-6 md:px-10 lg:px-5">
-        <div className="flex flex-col md:flex-row md:items-center gap-12 md:gap-16 lg:gap-24">
+        <div className="flex flex-col md:flex-row md:items-center gap-14 md:gap-14 lg:gap-24">
           <div
             className="md:w-2/5 shrink-0 flex justify-center transition-all duration-1000 ease-out"
             style={{
@@ -41,22 +41,22 @@ export default function MotDuDG() {
               transform: inView ? "translateY(0)" : "translateY(40px)",
             }}
           >
-            <div className="relative">
+            <div className="group relative">
               <div className="relative w-64 h-64 md:w-72 md:h-72 lg:w-80 lg:h-80 overflow-hidden rounded-2xl shadow-2xl shadow-[#00AFA9]/15">
                 <img
                   src={ceo?.image_url ? resolveImageUrl(ceo.image_url) : "/images/pdg.jpg"}
                   alt={ceo?.title || "PDG"}
-                  className="absolute inset-0 w-full h-full object-cover object-center"
+                  className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-105"
                 />
               </div>
               <div
-                className="absolute -bottom-3 -right-3 w-full h-full rounded-2xl -z-10"
+                className="absolute -bottom-3 -right-3 w-full h-full rounded-2xl -z-10 transition-transform duration-500 ease-out group-hover:translate-x-1.5 group-hover:translate-y-1.5"
                 style={{
                   border: "2px solid rgba(255, 169, 0, 0.2)",
                 }}
               />
               <div
-                className="absolute -top-3 -left-3 w-full h-full rounded-2xl -z-20"
+                className="absolute -top-3 -left-3 w-full h-full rounded-2xl -z-20 transition-transform duration-500 ease-out group-hover:-translate-x-1.5 group-hover:-translate-y-1.5"
                 style={{
                   border: "1px solid rgba(0, 175, 169, 0.12)",
                 }}
@@ -82,7 +82,10 @@ export default function MotDuDG() {
             </div>
 
             <div className="mt-10 flex items-center gap-4">
-              <span className="block w-12 h-0.5 bg-gradient-to-r from-[#FFA900] to-[#00AFA9]" />
+              <span
+                className="block w-12 h-0.5 shrink-0 origin-left bg-gradient-to-r from-[#FFA900] to-[#00AFA9] transition-transform duration-1000 ease-out delay-500"
+                style={{ transform: inView ? "scaleX(1)" : "scaleX(0)" }}
+              />
               <div>
                 <p className="text-base font-semibold text-[#0B1D20]">
                   {ceo?.title || "Malik MECHICHE"}

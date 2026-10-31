@@ -2,7 +2,14 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Pencil, Trash2, ImageOff, CheckCircle2, MessageSquare } from "lucide-react";
+import {
+  CheckCircle2,
+  ImageOff,
+  MessageSquare,
+  Pencil,
+  Plus,
+  Trash2,
+} from "lucide-react";
 import { api } from "@/lib/api";
 import {
   Card,
@@ -10,6 +17,10 @@ import {
   PageHeader,
   EmptyState,
   LoadingScreen,
+  Alert,
+  DataTable,
+  Th,
+  RowAction,
 } from "@/app/admin/components/ui";
 
 interface CeoMessageItem {
@@ -66,11 +77,7 @@ export default function CeoMessageListPage() {
 
   return (
     <div className="space-y-6">
-      {error && (
-        <div className="bg-rose-50 border border-rose-200 text-rose-700 text-sm rounded-xl p-4">
-          {error}
-        </div>
-      )}
+      {error && <Alert>{error}</Alert>}
 
       <PageHeader
         title="Messages CEO"
@@ -84,20 +91,19 @@ export default function CeoMessageListPage() {
       />
 
       <Card className="overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+        <DataTable>
             <thead>
-              <tr className="bg-gray-50/80 border-b border-gray-200">
-                <th className="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Titre</th>
-                <th className="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Description</th>
-                <th className="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Image</th>
-                <th className="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Mis à jour</th>
-                <th className="text-right px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Actions</th>
+              <tr>
+                <Th>Titre</Th>
+                <Th>Description</Th>
+                <Th>Image</Th>
+                <Th>Mis à jour</Th>
+                <Th align="right">Actions</Th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {messages.map((msg) => (
-                <tr key={msg.id} className="hover:bg-gray-50 transition-colors">
+                <tr key={msg.id} className="hover:bg-brand-50/40 transition-colors">
                   <td className="px-5 py-3.5 text-gray-900 font-medium">{msg.title}</td>
                   <td className="px-5 py-3.5 text-gray-700 max-w-xs truncate">{msg.description}</td>
                   <td className="px-5 py-3.5">
@@ -120,27 +126,14 @@ export default function CeoMessageListPage() {
                   </td>
                   <td className="px-5 py-3.5 text-right">
                     <div className="flex items-center justify-end gap-1.5">
-                      <button
-                        onClick={() => router.push(`/admin/ceomessage/${msg.id}/edit`)}
-                        className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-700 text-xs font-medium px-2.5 py-1.5 rounded-lg hover:bg-blue-50 transition-colors"
-                      >
-                        <Pencil className="w-3.5 h-3.5" />
-                        Modifier
-                      </button>
-                      <button
-                        onClick={() => handleDelete(msg.id)}
-                        className="inline-flex items-center gap-1 text-rose-600 hover:text-rose-700 text-xs font-medium px-2.5 py-1.5 rounded-lg hover:bg-rose-50 transition-colors"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                        Supprimer
-                      </button>
+                      <RowAction onClick={() => router.push(`/admin/ceomessage/${msg.id}/edit`)} icon={Pencil}>Modifier</RowAction>
+                      <RowAction onClick={() => handleDelete(msg.id)} icon={Trash2} tone="danger">Supprimer</RowAction>
                     </div>
                   </td>
                 </tr>
               ))}
             </tbody>
-          </table>
-        </div>
+          </DataTable>
 
         {messages.length === 0 && (
           <EmptyState

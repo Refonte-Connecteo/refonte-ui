@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useCallback, useRef, useEffect } from "react";
-import { useInView } from "@/app/hooks/useInView";
 
 interface Milestone {
   year: number;
@@ -94,22 +93,6 @@ const milestones: Milestone[] = [
   },
 ];
 
-function Section({ children, className = "" }: { children: React.ReactNode; className?: string }) {
-  const { ref, inView } = useInView();
-  return (
-    <div
-      ref={ref}
-      className={`transition-all duration-1000 ease-out ${className}`}
-      style={{
-        opacity: inView ? 1 : 0,
-        transform: inView ? "translateY(0)" : "translateY(40px)",
-      }}
-    >
-      {children}
-    </div>
-  );
-}
-
 export default function Chronologie() {
   const [activeYear, setActiveYear] = useState(2018);
   const [isLeaving, setIsLeaving] = useState(false);
@@ -143,7 +126,7 @@ export default function Chronologie() {
   }, [activeYear]);
 
   return (
-    <section className="relative py-28 md:py-36 px-8 md:px-12 lg:px-16 overflow-hidden bg-[#096475]">
+    <section className="relative pt-28 pb-16 md:pt-36 md:pb-24 px-6 md:px-12 lg:px-16 overflow-hidden bg-[#096475]">
       <div
         className="absolute inset-0 transition-all duration-700 ease-out"
         style={{
@@ -152,7 +135,7 @@ export default function Chronologie() {
       />
 
       <div className="relative z-10">
-        <div className="px-6 md:px-14 mt-14">
+        <div className="md:px-14 mt-6 md:mt-10">
           <div className="mb-10 md:mb-14">
             <span className="inline-block bg-[#FFA900] text-[#096475] text-lg font-bold   px-6 py-2 rounded-3xl">
               A propos
@@ -209,9 +192,9 @@ export default function Chronologie() {
 
         <div
           ref={timelineRef}
-          className="flex items-center w-full overflow-x-auto scrollbar-hide snap-x snap-mandatory pt-6 md:pt-10"
+          className="flex items-center w-full overflow-x-auto scrollbar-hide snap-x snap-mandatory px-2 pb-2 pt-6 md:pt-10"
         >
-          <div className="flex items-center w-full gap-2 md:gap-3">
+          <div className="flex items-center w-full min-w-[38rem] md:min-w-0 gap-2 md:gap-3">
             {milestones.map((m) => {
               const isActive = m.year === activeYear;
               return (
@@ -223,7 +206,7 @@ export default function Chronologie() {
                   aria-label={`Aller à l'année ${m.year}`}
                 >
                   <div
-                    className="w-full rounded-full transition-all duration-500 ease-out"
+                    className="w-full rounded-full transition-all duration-500 ease-out group-hover:-translate-y-0.5"
                     style={{
                       height: isActive ? 24 : 18,
                       backgroundColor: isActive ? m.accent : `${m.accent}25`,

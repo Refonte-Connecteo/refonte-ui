@@ -5,6 +5,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { api } from "@/lib/api";
 import { setSession } from "@/lib/session";
 import MfaSetupForm from "@/app/admin/components/MfaSetupForm";
+import AuthShell from "@/app/admin/components/AuthShell";
+import { Alert, Button, Input, Label } from "@/app/admin/components/ui";
 import type { AuthSuccessResponse, MfaSetupResponse } from "@/app/admin/types";
 
 function SetPasswordContent() {
@@ -58,15 +60,7 @@ function SetPasswordContent() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 px-4">
-      <div className="w-full max-w-sm">
-        <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-gray-900">
-            Administration Connecteo
-          </h1>
-        </div>
-
-        <div className="bg-white shadow-lg border border-gray-200 rounded-xl p-6">
+    <AuthShell>
           {setup ? (
             <MfaSetupForm
               setup={setup}
@@ -74,102 +68,88 @@ function SetPasswordContent() {
             />
           ) : (
             <>
-              <div className="space-y-1 mb-6">
-                <h2 className="text-lg font-semibold text-gray-900">Activer votre compte</h2>
-                <p className="text-sm text-gray-500">
+              <div className="mb-7">
+                <h1 className="text-2xl font-bold tracking-tight text-gray-900">Activer votre compte</h1>
+                <p className="text-sm text-gray-500 mt-1">
                   Définissez votre mot de passe pour activer votre compte
                 </p>
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-4">
                 {!invitationToken && (
-                  <div className="bg-amber-50 border border-amber-200 text-amber-700 text-sm rounded-lg p-3">
+                  <Alert variant="warning">
                     Aucun lien d&apos;activation valide. Utilisez le lien transmis par votre
                     super administrateur, ou saisissez le token d&apos;invitation manuellement.
-                  </div>
+                  </Alert>
                 )}
 
-                {error && (
-                  <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg p-3">
-                    {error}
-                  </div>
-                )}
+                {error && <Alert>{error}</Alert>}
 
                 <div>
-                  <label htmlFor="set-email" className="block text-sm font-medium text-gray-700 mb-1">
+                  <Label htmlFor="set-email">
                     Email
-                  </label>
-                  <input
+                  </Label>
+                  <Input
                     id="set-email"
                     type="email"
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow"
                     placeholder="admin@connecteo.fr"
                   />
                 </div>
 
                 {!invitationToken && (
                   <div>
-                    <label htmlFor="set-token" className="block text-sm font-medium text-gray-700 mb-1">
+                    <Label htmlFor="set-token">
                       Token d&apos;activation
-                    </label>
-                    <input
+                    </Label>
+                    <Input
                       id="set-token"
                       type="text"
                       value={invitationToken}
                       onChange={(e) => setInvitationToken(e.target.value)}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow"
                       placeholder="Collez le token du lien reçu"
                     />
                   </div>
                 )}
 
                 <div>
-                  <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+                  <Label htmlFor="password">
                     Mot de passe
-                  </label>
-                  <input
+                  </Label>
+                  <Input
                     id="password"
                     type="password"
                     required
                     minLength={8}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow"
                     placeholder="Au moins 8 caractères"
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
+                  <Label htmlFor="confirmPassword">
                     Confirmer le mot de passe
-                  </label>
-                  <input
+                  </Label>
+                  <Input
                     id="confirmPassword"
                     type="password"
                     required
                     minLength={8}
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow"
                   />
                 </div>
 
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full bg-blue-600 text-white rounded-lg py-2.5 text-sm font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
+                <Button type="submit" disabled={loading} className="w-full">
                   {loading ? "En cours..." : "Activer mon compte"}
-                </button>
+                </Button>
               </form>
             </>
           )}
-        </div>
-      </div>
-    </div>
+    </AuthShell>
   );
 }
 

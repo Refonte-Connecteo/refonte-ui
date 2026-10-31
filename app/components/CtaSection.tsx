@@ -7,10 +7,10 @@ export default function CtaSection() {
   const { ref, inView } = useInView();
 
   return (
-    <section ref={ref} className="relative w-full bg-[#096475] py-24 md:py-32 lg:py-40 overflow-hidden">
+    <section ref={ref} className="relative w-full bg-[#096475] py-20 md:py-28 lg:py-36 overflow-hidden">
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/3 -left-32 w-[400px] h-[400px] rounded-full opacity-[0.06] blur-3xl bg-[#FFA900]" />
-        <div className="absolute bottom-1/3 -right-32 w-[400px] h-[400px] rounded-full opacity-[0.05] blur-3xl bg-[#00AFA9]" />
+        <div className="halo-drift absolute top-1/3 -left-32 w-[400px] h-[400px] rounded-full opacity-[0.06] blur-3xl bg-[#FFA900]" />
+        <div className="halo-drift absolute bottom-1/3 -right-32 w-[400px] h-[400px] rounded-full opacity-[0.05] blur-3xl bg-[#00AFA9] [animation-direction:alternate-reverse]" />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full opacity-[0.03] blur-3xl bg-gradient-to-br from-[#FFA900] to-[#00AFA9]" />
       </div>
 
@@ -25,19 +25,19 @@ export default function CtaSection() {
 
         <h2 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl leading-tight font-bold text-white tracking-tight">
           Construisons votre<br />
-          <span className="bg-gradient-to-r from-[#FFA900] to-[#00AFA9] bg-clip-text text-transparent">
+          <span className="text-pan bg-gradient-to-r from-[#FFA900] to-[#00AFA9] bg-clip-text text-transparent">
             prochaine expérience ensemble.
           </span>
         </h2>
 
-        <p className="text-base md:text-lg lg:text-xl text-white font-light max-w-2xl mx-auto leading-relaxed">
+        <p className="mt-5 md:mt-6 text-base md:text-lg lg:text-xl text-white font-light max-w-2xl mx-auto leading-relaxed">
           Parlons de vos enjeux. Notre équipe revient vers vous sous 48h.
         </p>
 
         <div className="mt-10 md:mt-12 flex items-center justify-center gap-6">
           <Link
             href="/contact"
-            className="group inline-flex items-center gap-3 rounded-full bg-gradient-to-r from-[#FFA900] to-[#FFA900] hover:from-[#00AFA9] hover:to-[#00AFA9] px-8 py-4 text-sm font-semibold uppercase tracking-wider text-gray-900 hover:text-white transition-all duration-500 hover:shadow-2xl hover:shadow-[#00AFA9]/30 hover:-translate-y-0.5 active:translate-y-0"
+            className="btn-shine group relative inline-flex items-center gap-3 overflow-hidden rounded-full bg-gradient-to-r from-[#FFA900] to-[#FFA900] hover:from-[#00AFA9] hover:to-[#00AFA9] px-6 py-3.5 md:px-8 md:py-4 text-sm font-semibold uppercase tracking-wider text-gray-900 hover:text-white transition-all duration-500 hover:shadow-2xl hover:shadow-[#00AFA9]/30 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
           >
             <span className="flex h-8 w-8 items-center justify-center rounded-full bg-black/10 transition-transform duration-300 group-hover:scale-110">
               <svg

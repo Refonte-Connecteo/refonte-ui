@@ -648,7 +648,7 @@ export function getOfferDetail(
       scopeText: offer.scopeText ?? DEFAULT_SCOPE_TEXT,
       modalities: offer.modalities ?? DEFAULT_MODALITIES,
       benefits: offer.benefits ?? DEFAULT_BENEFITS,
-      cta: { label: "Parler à un expert", href: "#contact" },
+      cta: { label: "Parler à un expert", href: "/contact" },
       related,
     };
   }
