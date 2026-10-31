@@ -17,27 +17,13 @@ const experienceClientSubItems = [
 
 export default function Header() {
   const pathname = usePathname();
-  const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [subOpen, setSubOpen] = useState(false);
   const [ecSubOpen, setEcSubOpen] = useState(false);
   const subRef = useRef<HTMLLIElement>(null);
   const ecSubRef = useRef<HTMLLIElement>(null);
 
-  const isHome = pathname === "/";
-  const forceScrolled = !isHome;
-  const isScrolled = forceScrolled || scrolled;
-
-  useEffect(() => {
-    if (forceScrolled) {
-      setScrolled(true);
-      return;
-    }
-    const onScroll = () => setScrolled(window.scrollY > 40);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, [forceScrolled]);
+  const isScrolled = true;
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -160,7 +146,7 @@ export default function Header() {
 
           {[
             { label: "Carrière", href: "/carriere2" },
-            { label: "Actus & Événement", href: "/actus-et-evenement" },
+            { label: "Actus & Evenement", href: "/actus" },
           ].map((item) => (
             <a
               key={item.label}
@@ -183,7 +169,7 @@ export default function Header() {
                 : "border border-white/30 text-white hover:bg-white hover:text-gray-900"
             }`}
           >
-            Contactez-nous Maintenant
+            Contactez-nous
           </a>
         </div>
 
@@ -281,7 +267,7 @@ export default function Header() {
           </div>
           {[
             { label: "Carrière", href: "/carriere2" },
-            { label: "Actus & Événement", href: "/actus-et-evenement" },
+            { label: "Actus & Evenement", href: "/actus" },
           ].map((item) => (
             <a
               key={item.label}

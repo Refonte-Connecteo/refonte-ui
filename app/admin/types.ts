@@ -203,6 +203,8 @@ export interface Catalogue {
   title: string;
   file_url: string;
   is_lead_magnet: boolean;
+  year: number | null;
+  is_impact_report: boolean;
   uploaded_at: string;
 }
 

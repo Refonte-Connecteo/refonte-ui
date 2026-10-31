@@ -101,7 +101,11 @@ export default function SecteursActivite() {
   );
 
   return (
-    <section ref={ref} className="relative w-full bg-[#0B1D20] py-24 md:py-32 overflow-hidden">
+    <section
+      ref={ref}
+      id="secteurs-activite"
+      className="relative w-full scroll-mt-24 bg-[#0B1D20] py-24 md:py-32 overflow-hidden"
+    >
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div
           className="absolute -top-40 -right-40 w-96 h-96 rounded-full opacity-[0.08] blur-3xl"

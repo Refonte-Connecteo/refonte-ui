@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent, useEffect } from "react";
+import { useState, type FormEvent, useEffect, useCallback } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { api } from "@/lib/api";
 import ImageUpload from "@/components/ImageUpload";
@@ -12,30 +12,34 @@ export default function CatalogueEditPage() {
 
   const [title, setTitle] = useState("");
   const [fileUrl, setFileUrl] = useState("");
+  const [year, setYear] = useState("");
   const [isLeadMagnet, setIsLeadMagnet] = useState(false);
+  const [isImpactReport, setIsImpactReport] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
 
-  useEffect(() => {
-    const token = localStorage.getItem("admin_token");
-    if (!token) { router.push("/admin/login"); return; }
-    fetchCatalogue();
-  }, []);
-
-  const fetchCatalogue = async () => {
+  const fetchCatalogue = useCallback(async () => {
     try {
       const result = await api.getCatalogue(id);
       setTitle(result.catalogue.title);
       setFileUrl(result.catalogue.file_url);
+      setYear(result.catalogue.year?.toString() ?? "");
       setIsLeadMagnet(result.catalogue.is_lead_magnet);
+      setIsImpactReport(result.catalogue.is_impact_report);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erreur");
     } finally {
       setFetching(false);
     }
-  };
+  }, [id]);
+
+  useEffect(() => {
+    const token = localStorage.getItem("admin_token");
+    if (!token) { router.push("/admin/login"); return; }
+    fetchCatalogue();
+  }, [fetchCatalogue, router]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -47,6 +51,8 @@ export default function CatalogueEditPage() {
         title,
         file_url: fileUrl,
         is_lead_magnet: isLeadMagnet,
+        year: year ? Number(year) : null,
+        is_impact_report: isImpactReport,
       });
       setSuccess(result.message);
     } catch (err) {
@@ -107,6 +113,14 @@ export default function CatalogueEditPage() {
               <ImageUpload value={fileUrl} onChange={setFileUrl} acceptDocuments />
             </div>
 
+            <div>
+              <label htmlFor="year" className="block text-sm font-medium text-gray-700 mb-1">Année</label>
+              <input id="year" type="number" min="1900" max="3000" value={year}
+                onChange={(e) => setYear(e.target.value)}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow"
+                placeholder="2025" />
+            </div>
+
             <div className="flex items-center gap-2">
               <input
                 id="is_lead_magnet"
@@ -116,6 +130,22 @@ export default function CatalogueEditPage() {
                 className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
               />
               <label htmlFor="is_lead_magnet" className="text-sm font-medium text-gray-700">Lead Magnet</label>
+            </div>
+
+            <div className="flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 p-3">
+              <input
+                id="is_impact_report"
+                type="checkbox"
+                checked={isImpactReport}
+                onChange={(e) => setIsImpactReport(e.target.checked)}
+                className="mt-0.5 h-4 w-4 rounded border-gray-300 text-amber-600 focus:ring-amber-500"
+              />
+              <label htmlFor="is_impact_report" className="text-sm font-medium text-amber-900">
+                Rapport d&apos;impact
+                <span className="block text-xs font-normal text-amber-700">
+                  Utilisé par la page /impact pour le téléchargement du rapport.
+                </span>
+              </label>
             </div>
 
             <button type="submit" disabled={loading}

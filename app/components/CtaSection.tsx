@@ -21,18 +21,16 @@ export default function CtaSection() {
           transform: inView ? "translateY(0)" : "translateY(50px)",
         }}
       >
-        <span className="inline-block text-sm font-semibold uppercase tracking-[0.15em] text-[#FFA900]/80 mb-6">
-          Travaillons Ensemble
-        </span>
+
 
         <h2 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl leading-tight font-bold text-white tracking-tight">
-          Construisons votre prochaine<br />
+          Construisons votre<br />
           <span className="bg-gradient-to-r from-[#FFA900] to-[#00AFA9] bg-clip-text text-transparent">
-            expérience ensemble.
+            prochaine expérience ensemble.
           </span>
         </h2>
 
-        <p className="mt-6 text-base md:text-lg lg:text-xl text-white/60 font-light max-w-2xl mx-auto leading-relaxed">
+        <p className="text-base md:text-lg lg:text-xl text-white font-light max-w-2xl mx-auto leading-relaxed">
           Parlons de vos enjeux. Notre équipe revient vers vous sous 48h.
         </p>
 

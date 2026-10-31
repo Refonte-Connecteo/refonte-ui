@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Eye, Trash2, Users } from "lucide-react";
 import { api } from "@/lib/api";
-import { sanitizeUrl } from "@/lib/security";
+import { resolveAssetUrl } from "@/lib/security";
 import {
   Card,
   PageHeader,
@@ -105,7 +105,7 @@ export default function ApplicationListPage() {
                   <td className="px-5 py-3.5 text-gray-700">{app.job_posting.title}</td>
                   <td className="px-5 py-3.5 text-xs">
                     {app.cv_url ? (
-                      <a href={sanitizeUrl(app.cv_url)} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-700 underline">
+                      <a href={resolveAssetUrl(app.cv_url)} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-700 underline">
                         Voir CV
                       </a>
                     ) : (

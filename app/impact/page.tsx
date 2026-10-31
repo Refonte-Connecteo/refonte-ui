@@ -1,12 +1,21 @@
 "use client";
 
 import Image from "next/image";
-import { useState, FormEvent } from "react";
+import { useEffect, useState, FormEvent } from "react";
 import { Download } from "lucide-react";
+import { api } from "@/lib/api";
+import { resolveAssetUrl } from "@/lib/security";
 
 interface ImpactPillar {
   title: string;
   description: string;
+}
+
+interface ImpactReport {
+  id: number;
+  title: string;
+  file_url: string;
+  year: number | null;
 }
 
 const PILLARS: ImpactPillar[] = [
@@ -36,16 +45,39 @@ export default function ImpactSustainabilitySection() {
   const [status, setStatus] = useState<"idle" | "loading" | "success">(
     "idle"
   );
+  const [report, setReport] = useState<ImpactReport | null>(null);
+  const [reportLoading, setReportLoading] = useState(true);
+
+  useEffect(() => {
+    let active = true;
+    api
+      .getImpactReport()
+      .then(({ catalogue }) => {
+        if (active) setReport(catalogue);
+      })
+      .catch(() => {
+        if (active) setReport(null);
+      })
+      .finally(() => {
+        if (active) setReportLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!email) return;
+    if (!email || !report) return;
     setStatus("loading");
     setTimeout(() => {
       setStatus("success");
       const link = document.createElement("a");
-      link.href = "/images/c5.jpg";
-      link.download = "rapport-impact-2025.jpg";
+      const fileUrl = resolveAssetUrl(report.file_url, "");
+      if (!fileUrl) return;
+      const extension = report.file_url.split(".").pop()?.split(/[?#]/)[0];
+      link.href = fileUrl;
+      link.download = `rapport-impact-${report.year ?? new Date().getFullYear()}${extension ? `.${extension}` : ""}`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -97,7 +129,7 @@ export default function ImpactSustainabilitySection() {
       <div className="w-full bg-[#B7C0A5] px-6 py-16">
         <div className="mx-auto flex max-w-xl flex-col items-center text-center">
           <h2 className="text-xl font-bold text-neutral-900 md:text-2xl">
-            Téléchargez notre rapport d&apos;impact 2025
+            Téléchargez notre rapport d&apos;impact{report?.year ? ` ${report.year}` : ""}
           </h2>
           <p className="mt-2 text-sm text-neutral-800">
             Bilan complet de nos actions et de notre empreinte.
@@ -117,12 +149,23 @@ export default function ImpactSustainabilitySection() {
             />
             <button
               type="submit"
-              disabled={status === "loading"}
+              disabled={status === "loading" || reportLoading || !report}
               className="inline-flex items-center gap-2 rounded-full bg-teal-600 px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-teal-700 disabled:opacity-60"
             >
               <Download size={16} />
-              {status === "success" ? "Envoyé !" : "Téléchargez"}
+              {status === "success"
+                ? "Envoyé !"
+                : reportLoading
+                  ? "Chargement..."
+                  : report
+                    ? "Téléchargez"
+                    : "Rapport indisponible"}
             </button>
+            {!reportLoading && !report && (
+              <p className="text-xs text-neutral-800">
+                Aucun rapport d&apos;impact n&apos;est publié pour le moment.
+              </p>
+            )}
           </form>
         </div>
       </div>

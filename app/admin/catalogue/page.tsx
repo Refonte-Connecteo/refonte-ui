@@ -9,6 +9,8 @@ interface CatalogueItem {
   title: string;
   file_url: string;
   is_lead_magnet: boolean;
+  year: number | null;
+  is_impact_report: boolean;
   uploaded_at: string;
 }
 
@@ -92,11 +94,16 @@ export default function CatalogueListPage() {
           <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg p-4">{error}</div>
         )}
 
+        <div className="bg-amber-50 border border-amber-200 text-amber-800 text-sm rounded-lg p-4">
+          Le catalogue coché <strong>Rapport d&apos;impact</strong> alimente la section de téléchargement de la page <code>/impact</code>.
+        </div>
+
         <div className="bg-white shadow-sm border border-gray-200 rounded-xl overflow-hidden">
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-gray-50 border-b border-gray-200">
                 <th className="text-left px-5 py-3.5 font-semibold text-gray-600 text-xs uppercase tracking-wider">Titre</th>
+                <th className="text-left px-5 py-3.5 font-semibold text-gray-600 text-xs uppercase tracking-wider">Année</th>
                 <th className="text-left px-5 py-3.5 font-semibold text-gray-600 text-xs uppercase tracking-wider">Fiche</th>
                 <th className="text-left px-5 py-3.5 font-semibold text-gray-600 text-xs uppercase tracking-wider">Lead Magnet</th>
                 <th className="text-left px-5 py-3.5 font-semibold text-gray-600 text-xs uppercase tracking-wider">Date</th>
@@ -106,7 +113,19 @@ export default function CatalogueListPage() {
             <tbody className="divide-y divide-gray-100">
               {catalogues.map((cat) => (
                 <tr key={cat.id} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-5 py-3.5 text-gray-900 font-medium">{cat.title}</td>
+                  <td className="px-5 py-3.5 text-gray-900 font-medium">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span>{cat.title}</span>
+                      {cat.is_impact_report && (
+                        <span className="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-700">
+                          Rapport d&apos;impact
+                        </span>
+                      )}
+                    </div>
+                  </td>
+                  <td className="px-5 py-3.5 text-gray-500 text-xs">
+                    {cat.year ?? <span className="text-gray-300">—</span>}
+                  </td>
                   <td className="px-5 py-3.5 text-gray-500 text-xs">
                     {cat.file_url ? (
                       <span className="inline-flex items-center gap-1 text-green-600">

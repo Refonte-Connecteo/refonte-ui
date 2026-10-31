@@ -1,19 +1,17 @@
 import Link from "next/link";
 
 const navLinks = [
-  { label: "Notre ADN", href: "/notre-adn/a-propos" },
-  { label: "Expérience Client", href: "/experience-client" },
-  { label: "Carrière", href: "/carriere2" },
-  { label: "Actus & Événement", href: "/actus-et-evenement" },
-  { label: "Impact", href: "/impact" },
+  { label: "Accueil", href: "/" },
+  { label: "À propos", href: "/notre-adn/a-propos" },
+  { label: "Impact & Sustainability", href: "/impact" },
+  { label: "AXIAN Group", href: "https://www.axian.com" },
 ];
 
 const serviceLinks = [
-  { label: "Expérience Client", href: "/experience-client" },
-  { label: "Carrière", href: "/carriere2" },
-  { label: "Actus & Événements", href: "/actus-et-evenement" },
-  { label: "Impact & RSE", href: "/impact" },
-  { label: "Contact", href: "/contact" },
+  { label: "Outsourcing", href: "/outs" },
+  { label: "Consulting", href: "/cons" },
+  { label: "Catalogues d'offres", href: "/experience-client#catalogue-offres" },
+  { label: "Secteurs d'activité", href: "/experience-client#secteurs-activite" },
 ];
 
 export default function Footer() {
@@ -41,12 +39,23 @@ export default function Footer() {
             <ul className="space-y-3">
               {navLinks.map((link) => (
                 <li key={link.label}>
-                  <Link
-                    href={link.href}
-                    className="text-sm text-white/50 transition-colors duration-200 hover:text-[#00AFA9]"
-                  >
-                    {link.label}
-                  </Link>
+                  {link.href.startsWith("http") ? (
+                    <a
+                      href={link.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm text-white/50 transition-colors duration-200 hover:text-[#00AFA9]"
+                    >
+                      {link.label}
+                    </a>
+                  ) : (
+                    <Link
+                      href={link.href}
+                      className="text-sm text-white/50 transition-colors duration-200 hover:text-[#00AFA9]"
+                    >
+                      {link.label}
+                    </Link>
+                  )}
                 </li>
               ))}
             </ul>

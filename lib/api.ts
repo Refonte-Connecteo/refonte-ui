@@ -376,22 +376,26 @@ class ApiClient {
 
   // --- Catalogue ---
   getAllCatalogues() {
-    return this.request<{ catalogues: { id: number; title: string; file_url: string; is_lead_magnet: boolean; uploaded_at: string }[] }>("/catalogue");
+    return this.request<{ catalogues: { id: number; title: string; file_url: string; is_lead_magnet: boolean; year: number | null; is_impact_report: boolean; uploaded_at: string }[] }>("/catalogue");
+  }
+
+  getImpactReport() {
+    return this.request<{ catalogue: { id: number; title: string; file_url: string; is_lead_magnet: boolean; year: number | null; is_impact_report: boolean; uploaded_at: string } | null }>("/catalogue/impact");
   }
 
   getCatalogue(id: number) {
-    return this.request<{ catalogue: { id: number; title: string; file_url: string; is_lead_magnet: boolean; uploaded_at: string } }>(`/catalogue/${id}`);
+    return this.request<{ catalogue: { id: number; title: string; file_url: string; is_lead_magnet: boolean; year: number | null; is_impact_report: boolean; uploaded_at: string } }>(`/catalogue/${id}`);
   }
 
-  createCatalogue(data: { title: string; file_url: string; is_lead_magnet?: boolean }) {
-    return this.request<{ message: string; catalogue: { id: number; title: string; file_url: string; is_lead_magnet: boolean; uploaded_at: string } }>("/catalogue", {
+  createCatalogue(data: { title: string; file_url: string; is_lead_magnet?: boolean; year?: number | null; is_impact_report?: boolean }) {
+    return this.request<{ message: string; catalogue: { id: number; title: string; file_url: string; is_lead_magnet: boolean; year: number | null; is_impact_report: boolean; uploaded_at: string } }>("/catalogue", {
       method: "POST",
       body: JSON.stringify(data),
     });
   }
 
-  updateCatalogue(id: number, data: { title?: string; file_url?: string; is_lead_magnet?: boolean }) {
-    return this.request<{ message: string; catalogue: { id: number; title: string; file_url: string; is_lead_magnet: boolean; uploaded_at: string } }>(`/catalogue/${id}`, {
+  updateCatalogue(id: number, data: { title?: string; file_url?: string; is_lead_magnet?: boolean; year?: number | null; is_impact_report?: boolean }) {
+    return this.request<{ message: string; catalogue: { id: number; title: string; file_url: string; is_lead_magnet: boolean; year: number | null; is_impact_report: boolean; uploaded_at: string } }>(`/catalogue/${id}`, {
       method: "PUT",
       body: JSON.stringify(data),
     });

@@ -28,7 +28,6 @@ export default function HeroSection() {
     }).catch(() => {});
   }, []);
   const [scrollY, setScrollY] = useState(0);
-  const slide = slides[current] ?? slides[0];
 
   const next = useCallback(() => {
     setCurrent((prev) => (prev + 1) % (slides.length || 1));
@@ -101,84 +100,72 @@ export default function HeroSection() {
       </div>
 
       <div className="relative z-10 mx-auto flex h-full max-w-7xl flex-col items-start justify-center px-6 md:px-12 lg:px-20">
-        {slides.map((s, index) => (
-          <div
-            key={index}
-            className={`w-full max-w-2xl transition-all duration-1000 ease-out ${
-              index === current
-                ? "opacity-100 translate-y-0 relative"
-                : "opacity-0 translate-y-10 absolute pointer-events-none"
-            }`}
-          >
-            <h1 className="text-5xl md:text-7xl leading-tight font-bold text-white mb-5 tracking-tight">
-              {s.title}
-            </h1>
+        <div className="grid w-full">
+          {slides.map((s, index) => (
+            <div
+              key={index}
+              className={`col-start-1 row-start-1 w-full transition-all duration-1000 ease-out ${
+                index === current
+                  ? "opacity-100 translate-y-0"
+                  : "opacity-0 translate-y-10 pointer-events-none"
+              }`}
+            >
+              <div className="max-w-2xl">
+                <h1 className="text-4xl sm:text-5xl md:text-7xl leading-tight font-bold text-white mb-4 sm:mb-5 tracking-tight">
+                  {s.title}
+                </h1>
 
-            <p className="text-base md:text-lg leading-relaxed text-white/70 max-w-lg font-light">
-              {s.description}
-            </p>
-
-            <div className="mt-10 flex flex-wrap items-center gap-4">
-              <a
-                href="https://my.matterport.com/show/?m=42v2xCu5D9F"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group inline-flex items-center gap-3 rounded-full px-7 py-3 text-sm font-semibold uppercase tracking-wider transition-all duration-500 hover:shadow-2xl hover:-translate-y-0.5 active:translate-y-0"
-                style={{ backgroundColor: "#00AFA9", color: "#fff" }}
-              >
-                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/20 transition-transform duration-300 group-hover:scale-110">
-                  <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
-                  </svg>
-                </span>
-                Visitez notre local
-              </a>
-
-              <a
-                href="/experience-client"
-                className="group inline-flex items-center gap-3 rounded-full px-7 py-3 text-sm font-semibold uppercase tracking-wider transition-all duration-500 hover:shadow-2xl hover:-translate-y-0.5 active:translate-y-0"
-                style={{ backgroundColor: "#FFA900", color: "#0B1D20" }}
-              >
-                Découvrir
-                <svg className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-                </svg>
-              </a>
+                <p className="text-sm sm:text-base md:text-lg leading-relaxed text-white/70 max-w-lg font-light">
+                  {s.description}
+                </p>
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
 
-      <div className="absolute bottom-10 left-1/2 z-20 flex -translate-x-1/2 items-center gap-3">
-        {slides.map((_, index) => (
-          <button
-            key={index}
-            onClick={() => goTo(index)}
-            className="group relative flex items-center"
-            aria-label={`Aller à la slide ${index + 1}`}
+        <div className="mt-8 flex w-full flex-wrap items-center justify-between gap-4 sm:mt-10">
+          <a
+            href="https://my.matterport.com/show/?m=42v2xCu5D9F"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group inline-flex shrink-0 items-center gap-2.5 rounded-full px-5 py-2.5 text-xs font-semibold uppercase tracking-wider transition-all duration-500 hover:shadow-2xl hover:-translate-y-0.5 active:translate-y-0 sm:gap-3 sm:px-7 sm:py-3 sm:text-sm"
+            style={{ backgroundColor: "#FFA900", color: "#0B1D20" }}
           >
-            <span
-              className="block rounded-full transition-all duration-500"
-              style={{
-                width: index === current ? "2rem" : "0.4rem",
-                height: "0.4rem",
-                backgroundColor:
-                  index === current
-                    ? "#00AFA9"
-                    : "rgba(255,255,255,0.2)",
-              }}
-            />
-          </button>
-        ))}
-      </div>
+            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white/20 transition-transform duration-300 group-hover:scale-110 sm:h-7 sm:w-7">
+              <svg className="h-3 w-3 sm:h-3.5 sm:w-3.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+              </svg>
+            </span>
+            Visitez notre local     
+          </a>
 
-      <div className="absolute bottom-10 right-8 z-20 hidden md:block">
-        <span className="text-[11px] font-mono tracking-widest text-white/20">
-          {String(current + 1).padStart(2, "0")}
-          <span className="mx-1">/</span>
-          {String(slides.length).padStart(2, "0")}
-        </span>
+          <div className="ml-auto flex items-center gap-2">
+            {slides.map((_, dotIndex) => (
+              <button
+                key={dotIndex}
+                onClick={() => goTo(dotIndex)}
+                className="group relative flex items-center justify-center p-1"
+                aria-label={`Aller à la slide ${dotIndex + 1}`}
+                aria-current={dotIndex === current}
+              >
+                <span
+                  className={`block rounded-full transition-all duration-500 ${
+                    dotIndex === current
+                      ? "h-3 w-7 sm:h-3.5 sm:w-9"
+                      : "h-2.5 w-4 group-hover:scale-110 sm:h-3 sm:w-5"
+                  }`}
+                  style={{
+                    backgroundColor:
+                      dotIndex === current
+                        ? "#00AFA9"
+                        : "rgba(255,255,255,0.25)",
+                  }}
+                />
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
     </section>
   );

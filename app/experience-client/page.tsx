@@ -75,11 +75,11 @@ export default function ExperienceClient() {
         </div>
       </div>
  
-      {/* Section Solutions — Toggle + Offres */}
+      {/* Section Solutions — Toggle + Offres
       <div className="relative bg-white">
         <div className="relative mx-auto max-w-5xl px-8 md:px-12 lg:px-16 py-14 md:py-20">
           {/* Header éditorial */}
-          <div className="text-center mb-8 md:mb-10">
+          {/* <div className="text-center mb-8 md:mb-10">
             <span className="inline-block text-[11px] font-medium uppercase tracking-[0.25em] mb-3" style={{ color: "#0B1D2040" }}>
               {activeTab === "outsourcing" ? "Externalisation" : "Stratégie & conseil"}
             </span>
@@ -95,10 +95,10 @@ export default function ExperienceClient() {
                 ? "Externalisation de la relation client multicanale. Plateaux dédiés, équipes formées, pilotage qualité."
                 : "Accompagnement stratégique et opérationnel pour structurer, outiller et monter en compétence vos équipes."}
             </p>
-          </div>
+          </div> */}
 
           {/* Toggle */}
-          <div className="flex justify-center mb-10 md:mb-14">
+          {/* <div className="flex justify-center mb-10 md:mb-14">
             <div
               className="inline-flex items-center gap-1 p-1.5 rounded-full"
               style={{ backgroundColor: "#0B1D2008" }}
@@ -128,10 +128,10 @@ export default function ExperienceClient() {
                 Consulting
               </button>
             </div>
-          </div>
+          </div> */} 
 
           {/* Cartes d'offres — Apple-style minimaliste */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {offers.map((offer, index) => {
               const accent = activeTab === "outsourcing" ? "#00AFA9" : "#FFA900";
               const subtitles = activeTab === "outsourcing"
@@ -170,10 +170,16 @@ export default function ExperienceClient() {
             })}
           </div>
         </div>
-      </div>
+      </div> */}
  
       {/* CTA téléchargement */}
-      <div className="w-full bg-teal-800 px-8 md:px-12 lg:px-16 py-16">
+      <div className="min-h-screen flex items-center justify-center bg-[#0B1D20]">
+          <SecteursActivite />
+      </div>
+      <div
+        id="catalogue-offres"
+        className="w-full scroll-mt-24 bg-teal-800 px-8 md:px-12 lg:px-16 py-16"
+      >
         <div className="mx-auto flex max-w-xl flex-col items-center text-center">
           <h2 className="text-xl font-bold text-white md:text-2xl">
             Téléchargez notre catalogue d&apos;offres
@@ -207,9 +213,7 @@ export default function ExperienceClient() {
         </div>
       </div>
 
-      <div className="min-h-screen flex items-center justify-center bg-[#0B1D20]">
-          <SecteursActivite />
-      </div>
+
     </section>
 
   );
