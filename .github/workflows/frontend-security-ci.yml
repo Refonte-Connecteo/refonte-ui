@@ -81,7 +81,7 @@ jobs:
                 dangerouslySetInnerHTML injecte du HTML brut dans le DOM :
                 risque de XSS si le contenu n'est pas assaini (DOMPurify).
               severity: ERROR
-              languages: [js, ts, jsx, tsx]
+              languages: [js, ts]
               patterns:
                 - pattern-either:
                     - pattern: React.createElement($E, { dangerouslySetInnerHTML: $H }, ...)
@@ -103,7 +103,7 @@ jobs:
             - id: js-eval
               message: "eval() exécute du code arbitraire : interdit côté client."
               severity: ERROR
-              languages: [js, ts, jsx, tsx]
+              languages: [js, ts]
               pattern: eval(...)
               metadata:
                 cwe: "CWE-95: Code Injection"
@@ -111,7 +111,7 @@ jobs:
             - id: js-new-function
               message: "new Function() est équivalent à eval() : exécution dynamique de code."
               severity: ERROR
-              languages: [js, ts, jsx, tsx]
+              languages: [js, ts]
               pattern: new Function(...)
               metadata:
                 cwe: "CWE-95: Code Injection"
@@ -119,7 +119,7 @@ jobs:
             - id: dom-innerhtml-assignment
               message: "Assignation directe à .innerHTML : risque de XSS basé sur le DOM."
               severity: WARNING
-              languages: [js, ts, jsx, tsx]
+              languages: [js, ts]
               patterns:
                 - pattern-either:
                     - pattern: $EL.innerHTML = $X
@@ -131,7 +131,7 @@ jobs:
             - id: dom-document-write
               message: "document.write() permet l'injection HTML/JS dans le document."
               severity: WARNING
-              languages: [js, ts, jsx, tsx]
+              languages: [js, ts]
               pattern: document.write(...)
               metadata:
                 cwe: "CWE-79: Cross-site Scripting"
