@@ -81,11 +81,12 @@ jobs:
                 dangerouslySetInnerHTML injecte du HTML brut dans le DOM :
                 risque de XSS si le contenu n'est pas assaini (DOMPurify).
               severity: ERROR
-              languages: [js, ts]
-              patterns:
-                - pattern-either:
-                    - pattern: React.createElement($E, { dangerouslySetInnerHTML: $H }, ...)
-                    - pattern: <$E ... dangerouslySetInnerHTML={$H} />
+              languages: [generic]
+              pattern-regex: 'dangerouslySetInnerHTML'
+              paths:
+                include:
+                  - "*.jsx"
+                  - "*.tsx"
               metadata:
                 cwe: "CWE-79: Cross-site Scripting"
 
@@ -143,7 +144,8 @@ jobs:
       # -----------------------------------------------------------------------
       - name: Scan SAST Semgrep (react, javascript, owasp-top-ten)
         run: |
-          docker run --rm -v "$PWD:/src" -w /src \
+          code=0
+          docker run --rm --user "$(id -u):$(id -g)" -e HOME=/tmp -v "$PWD:/src" -w /src \
             semgrep/semgrep:latest \
             semgrep scan \
               --config p/react \
@@ -151,16 +153,14 @@ jobs:
               --config p/owasp-top-ten \
               --config .semgrep/dom-xss.yml \
               --exclude node_modules --exclude .next \
-              --json > semgrep-report.json
-          docker run --rm -v "$PWD:/src" -w /src \
-            semgrep/semgrep:latest \
-            semgrep scan \
-              --config p/react \
-              --config p/javascript \
-              --config p/owasp-top-ten \
-              --config .semgrep/dom-xss.yml \
-              --exclude node_modules --exclude .next \
-              --sarif > semgrep.sarif
+              --json-output=semgrep-report.json \
+              --sarif-output=semgrep.sarif \
+              --metrics=off 2> semgrep-errors.log || code=$?
+          if [ "$code" -ne 0 ]; then
+            # Annotation GitHub : la cause reste visible sans ouvrir le journal.
+            echo "::error::Semgrep code $code : $(tail -c 700 semgrep-errors.log | tr '\n' ' ')"
+            exit "$code"
+          fi
 
       - name: Publication SARIF dans GitHub Code Scanning
         uses: github/codeql-action/upload-sarif@v3
