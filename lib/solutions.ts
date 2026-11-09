@@ -656,6 +656,39 @@ export function getOfferDetail(
   return null;
 }
 
+export type OfferSummary = {
+  pole: "Outsourcing" | "Consulting";
+  expertise: string;
+  offer: Offer;
+  /** Fiche détaillée de l'offre. */
+  href: string;
+  /** Expertise ouverte sur la page Outsourcing ou Consulting. */
+  expertiseHref: string;
+};
+
+/** Retrouve une offre par son titre exact (utilisé par les fenêtres « Explorer cette solution »). */
+export function findOfferByTitle(title: string): OfferSummary | null {
+  const groups = [
+    { pole: "Outsourcing" as const, page: "/outs", expertises: OUTSOURCING_EXPERTISES },
+    { pole: "Consulting" as const, page: "/cons", expertises: CONSULTING_EXPERTISES },
+  ];
+  for (const { pole, page, expertises } of groups) {
+    for (const expertise of expertises) {
+      const offer = expertise.offers.find((o) => o.title === title);
+      if (offer) {
+        return {
+          pole,
+          expertise: expertise.label,
+          offer,
+          href: offerHref(expertise.slug, offer.slug),
+          expertiseHref: `${page}#${expertise.slug}`,
+        };
+      }
+    }
+  }
+  return null;
+}
+
 export function getAllOfferParams(): { expertise: string; offer: string }[] {
   const params: { expertise: string; offer: string }[] = [];
   for (const expertise of [...OUTSOURCING_EXPERTISES, ...CONSULTING_EXPERTISES]) {

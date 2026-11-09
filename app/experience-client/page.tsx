@@ -31,7 +31,7 @@ export default function ExperienceClient() {
   return (
      <section className="w-full">
       {/* Hero */}
-      <div className="relative flex h-[340px] w-full items-center overflow-hidden pt-20 md:h-[440px] md:pt-24">
+      {/* <div className="relative flex h-[340px] w-full items-center overflow-hidden pt-20 md:h-[440px] md:pt-24">
         <Image
           src="/images/c3.jpg"
           alt="Équipe CONNECTEO"
@@ -52,13 +52,13 @@ export default function ExperienceClient() {
             Des offres au service de <br className="hidden md:block" />votre croissance.
           </h1>
         </div>
-      </div>
+      </div> */}
  
       {/* CTA téléchargement */}
-      <div className="flex items-center justify-center bg-[#0B1D20] xl:min-h-screen">
+      <div className="flex items-center justify-center bg-[#0b6171] xl:min-h-screen">
           <SecteursActivite />
       </div>
-      <div
+      {/* <div
         id="catalogue-offres"
         className="w-full scroll-mt-24 bg-teal-800 px-6 md:px-12 lg:px-16 py-14 md:py-20"
       >
@@ -93,7 +93,7 @@ export default function ExperienceClient() {
             </button>
           </form>
         </Reveal>
-      </div>
+      </div> */}
 
 
     </section>

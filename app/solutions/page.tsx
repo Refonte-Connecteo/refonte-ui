@@ -209,13 +209,13 @@ export default function CxSolutions() {
             bonnes solutions.
           </p>
 
-          <a
-            href="#frise"
+          <Link
+            href="/solutions/enjeux"
             className="btn-shine group relative mt-8 inline-flex items-center gap-3 overflow-hidden rounded-full bg-[#f5a30f] px-6 py-3.5 text-base font-semibold text-slate-900 transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#e09400] hover:shadow-lg hover:shadow-[#f5a30f]/40 active:translate-y-0 active:scale-[0.98] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0b6f82] md:mt-10 md:px-8 md:py-4 md:text-lg"
           >
             Explorer la frise interactive
             <span aria-hidden="true" className="transition-transform duration-300 group-hover:translate-x-1">→</span>
-          </a>
+          </Link>
         </Reveal>
       </section>
 
