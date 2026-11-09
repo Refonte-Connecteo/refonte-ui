@@ -343,3 +343,51 @@ body {
     animation: none;
   }
 }
+
+/* ── Section « Suivez-nous » ─────────────────────────────── */
+@keyframes suivez-pop {
+  0% { opacity: 0; transform: translateY(18px) scale(0.6); }
+  70% { opacity: 1; transform: translateY(-4px) scale(1.06); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes suivez-shine {
+  0%, 60% { background-position: 200% 0; }
+  100% { background-position: -100% 0; }
+}
+@keyframes suivez-drift {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(30px, -20px) scale(1.15); }
+}
+.suivez-nous .suivez-tile {
+  opacity: 0;
+}
+.suivez-nous.is-visible .suivez-tile {
+  animation: suivez-pop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+.suivez-hashtag {
+  color: #ffa900;
+  background: linear-gradient(110deg, #ffa900 40%, #ffe2a3 50%, #ffa900 60%) 200% 0 / 250% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.suivez-nous.is-visible .suivez-hashtag {
+  animation: suivez-shine 4s ease-in-out 0.8s infinite;
+}
+.suivez-halo {
+  animation: suivez-drift 12s ease-in-out infinite;
+}
+.suivez-halo-alt {
+  animation-duration: 15s;
+  animation-direction: reverse;
+}
+@media (prefers-reduced-motion: reduce) {
+  .suivez-nous .suivez-tile {
+    opacity: 1;
+  }
+  .suivez-nous.is-visible .suivez-tile,
+  .suivez-nous.is-visible .suivez-hashtag,
+  .suivez-halo {
+    animation: none;
+  }
+}

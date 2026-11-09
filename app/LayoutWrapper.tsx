@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
+import SuivezNous from "./components/SuivezNous";
 import PageViewTracker from "./components/PageViewTracker";
 import ChatWidget from "./components/chatbot/ChatWidget";
 
@@ -22,6 +23,7 @@ export default function LayoutWrapper({
     <>
       <Header />
       <main className="flex-1">{children}</main>
+      <SuivezNous />
       <Footer />
       <PageViewTracker />
       <ChatWidget />
