@@ -315,9 +315,6 @@ export default function NewsPage() {
       <section className="bg-white px-6 py-14 md:px-12 md:py-20 lg:px-16">
         <div className="mx-auto max-w-6xl">
           <div className="mb-10 md:mb-12">
-            <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#0b6171]/60">
-              Événements
-            </span>
             <h2 className="mt-3 text-xl font-bold md:text-2xl lg:text-3xl">
               Événements — retour en images
             </h2>
@@ -367,9 +364,6 @@ export default function NewsPage() {
         <div className="absolute inset-0 -z-10 bg-gradient-to-br from-[#0b6171]/80 via-[#0b4f5c]/70 to-[#0b6171]/80" />
 
         <div className="mx-auto max-w-3xl">
-          <span className="text-xs font-semibold uppercase tracking-[0.25em] text-white/60">
-            Vidéo
-          </span>
           <h2 className="mt-3 text-xl font-bold md:text-2xl lg:text-3xl">
             Découvrez Connecteo en vidéo
           </h2>

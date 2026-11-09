@@ -34,7 +34,7 @@ const CARD_CLASS =
 export function FeaturedArticleCard({ article, onOpen }: { article: NewsArticle; onOpen: () => void }) {
   return (
     <button type="button" onClick={onOpen} className={`${CARD_CLASS} bg-white p-6 md:p-10`}>
-      <span aria-hidden="true" className="absolute inset-y-0 left-0 w-1.5 bg-gradient-to-b from-[#00aeaa] to-[#FFA900]" />
+      <span aria-hidden="true" className="absolute inset-y-0 left-0 w-1.5 " />
       <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#0b6171]/60">À la une</p>
       <ArticleMeta article={article} />
       <h2 className="mt-4 max-w-3xl text-2xl font-bold leading-tight text-[#0b4f5c] md:text-3xl">{article.title}</h2>
@@ -47,7 +47,7 @@ export function FeaturedArticleCard({ article, onOpen }: { article: NewsArticle;
 export function ArticleCard({ article, onOpen }: { article: NewsArticle; onOpen: () => void }) {
   return (
     <button type="button" onClick={onOpen} className={`${CARD_CLASS} h-full min-h-56 bg-white p-6`}>
-      <span aria-hidden="true" className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#00aeaa]/80 to-[#0b6171]/80" />
+      <span aria-hidden="true" className="absolute inset-x-0 top-0 h-1 " />
       <ArticleMeta article={article} />
       <h3 className="mt-4 line-clamp-3 text-lg font-bold leading-snug text-[#0b4f5c]">{article.title}</h3>
       <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-slate-600">{article.description}</p>
