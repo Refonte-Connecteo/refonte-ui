@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import type { Dispatch, MouseEvent as ReactMouseEvent, SetStateAction } from "react";
 import { usePathname } from "next/navigation";
 
 const subMenuItems = [
@@ -9,13 +10,8 @@ const subMenuItems = [
   { label: "AXIAN Group", href: "https://www.axian.com" },
 ];
 
-const experienceClientSubItems = [
-  { label: "Nos Solutions CX", href: "/solutions" },
-  { label: "Outsourcing", href: "/outs" },
-  { label: "Consulting", href: "/cons" },
-];
-
 const mainLinks = [
+  { label: "Secteurs", href: "/experience-client#secteurs-activite" },
   { label: "Carrière", href: "/carriere2" },
   { label: "Actus & Evenement", href: "/actus" },
 ];
@@ -28,7 +24,8 @@ const underline = (active: boolean) =>
   }`;
 
 const dropdownPanel = (open: boolean) =>
-  `absolute left-0 top-full mt-2 origin-top-right rounded-xl border border-white/10 bg-[#0B1D20]/95 backdrop-blur-3xl p-2 shadow-2xl transition-all duration-200 ${
+  // Le pseudo-élément comble l'espace sous le bouton : le survol reste continu.
+  `absolute left-0 top-full mt-2 before:absolute before:inset-x-0 before:-top-2 before:h-2 origin-top-right rounded-xl border border-white/10 bg-[#0B1D20]/95 backdrop-blur-3xl p-2 shadow-2xl transition-all duration-200 ${
     open ? "visible translate-y-0 opacity-100" : "invisible -translate-y-2 opacity-0"
   }`;
 
@@ -89,14 +86,14 @@ function MobileGroup({
           open ? "visible grid-rows-[1fr]" : "invisible grid-rows-[0fr]"
         }`}
       >
-        <div className="overflow-hidden">
+        <div className="min-h-0 overflow-hidden">
           <div className="ml-4 space-y-1 border-l border-white/10 pl-3">
             {items.map((item) => (
               <a
                 key={item.label}
                 href={item.href}
                 className="block rounded-lg px-3 py-2.5 text-sm text-white/60 transition-colors hover:text-white"
-                onClick={onNavigate}
+                onClick={() => { onNavigate(); }}
               >
                 {item.label}
               </a>
@@ -112,31 +109,60 @@ export default function Header() {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
   const [subOpen, setSubOpen] = useState(false);
-  const [ecSubOpen, setEcSubOpen] = useState(false);
   const [compact, setCompact] = useState(false);
+  const headerRef = useRef<HTMLElement>(null);
   const subRef = useRef<HTMLLIElement>(null);
-  const ecSubRef = useRef<HTMLLIElement>(null);
 
   const isActive = (href: string) => pathname === href || !!pathname?.startsWith(`${href}/`);
   const isGroupActive = (items: typeof subMenuItems) => items.some((item) => isActive(item.href));
 
   useEffect(() => {
+    const closeAll = () => {
+      setMenuOpen(false);
+      setSubOpen(false);
+    };
     const handleClickOutside = (e: MouseEvent) => {
-      if (subRef.current && !subRef.current.contains(e.target as Node)) {
-        setSubOpen(false);
+      const target = e.target as Node;
+      // Le menu burger gère ses propres sous-menus : sans ce test, l'appui les
+      // replie avant que le lien ou le bouton ne reçoive le clic.
+      if (headerRef.current?.contains(target) && !subRef.current?.contains(target)) {
+        return;
       }
-      if (ecSubRef.current && !ecSubRef.current.contains(e.target as Node)) {
-        setEcSubOpen(false);
+      if (!headerRef.current?.contains(target)) {
+        closeAll();
+        return;
       }
+      if (!subRef.current?.contains(target)) setSubOpen(false);
+    };
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") closeAll();
     };
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleEscape);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEscape);
+    };
   }, []);
+
+  // Le survol ouvre déjà le menu : un clic de souris ou un appui tactile ne doit
+  // pas le refermer aussitôt. Au clavier (detail 0), Entrée reste une bascule.
+  const handleDesktopToggle = (
+    e: ReactMouseEvent<HTMLButtonElement>,
+    setOpen: Dispatch<SetStateAction<boolean>>,
+  ) => {
+    setOpen((open) => (e.detail === 0 ? !open : true));
+  };
+
+  const handleDesktopHover = (
+    setOpen: Dispatch<SetStateAction<boolean>>,
+  ) => {
+    setOpen(true);
+  };
 
   useEffect(() => {
     setMenuOpen(false);
     setSubOpen(false);
-    setEcSubOpen(false);
   }, [pathname]);
 
   useEffect(() => {
@@ -151,6 +177,7 @@ export default function Header() {
 
   return (
     <header
+      ref={headerRef}
       className={`fixed left-0 right-0 z-50 transition-all duration-500 top-3 mx-4 sm:mx-6 md:top-4 md:mx-8 lg:mx-auto lg:left-6 lg:right-6 xl:left-0 xl:right-0 xl:max-w-7xl xl:mx-auto rounded-[1.5rem] md:rounded-[2rem] backdrop-blur-2xl border border-white/20 ${
         compact ? "bg-[#0B1D20]/90 shadow-2xl shadow-black/20" : "bg-[#0B1D20]/70 shadow-xl shadow-black/5"
       }`}
@@ -171,35 +198,29 @@ export default function Header() {
         </a>
 
         <nav className="hidden lg:flex items-center gap-8">
-          <li ref={subRef} className="list-none relative">
+          <li ref={subRef} className="list-none relative" onMouseLeave={() => setSubOpen(false)}>
             <button
-              onClick={() => setSubOpen(!subOpen)}
-              onMouseEnter={() => setSubOpen(true)}
+              onClick={(e) => handleDesktopToggle(e, setSubOpen)}
+              onMouseEnter={() => handleDesktopHover(setSubOpen)}
+              aria-expanded={subOpen}
               className={`flex items-center gap-1.5 ${underline(isGroupActive(subMenuItems))}`}
             >
               Notre ADN
               <Chevron open={subOpen} />
             </button>
 
-            <div className={`w-56 ${dropdownPanel(subOpen)}`} onMouseLeave={() => setSubOpen(false)}>
+            <div className={`w-56 ${dropdownPanel(subOpen)}`}>
               <DropdownLinks items={subMenuItems} open={subOpen} />
             </div>
           </li>
 
-          <li ref={ecSubRef} className="list-none relative">
-            <button
-              onClick={() => setEcSubOpen(!ecSubOpen)}
-              onMouseEnter={() => setEcSubOpen(true)}
-              className={`flex items-center gap-1.5 ${underline(isGroupActive(experienceClientSubItems))}`}
-            >
-              Experience Client
-              <Chevron open={ecSubOpen} />
-            </button>
-
-            <div className={`w-64 ${dropdownPanel(ecSubOpen)}`} onMouseLeave={() => setEcSubOpen(false)}>
-              <DropdownLinks items={experienceClientSubItems} open={ecSubOpen} />
-            </div>
-          </li>
+          <a
+            href="/solutions"
+            aria-current={isActive("/solutions") ? "page" : undefined}
+            className={underline(isActive("/solutions"))}
+          >
+            Nos Solution CX
+          </a>
 
           {mainLinks.map((item) => (
             <a
@@ -265,13 +286,16 @@ export default function Header() {
             className={menuOpen ? "menu-item-in" : ""}
             style={{ animationDelay: `${STAGGER_MS}ms` }}
           >
-            <MobileGroup
-              label="Experience Client"
-              items={experienceClientSubItems}
-              open={ecSubOpen}
-              onToggle={() => setEcSubOpen(!ecSubOpen)}
-              onNavigate={() => { setMenuOpen(false); setEcSubOpen(false); }}
-            />
+            <a
+              href="/solutions"
+              aria-current={isActive("/solutions") ? "page" : undefined}
+              className={`block rounded-lg px-3 py-2.5 text-sm font-medium transition-colors hover:text-white ${
+                isActive("/solutions") ? "text-[#FFA900]" : "text-white/80"
+              }`}
+              onClick={() => setMenuOpen(false)}
+            >
+              Nos Solution CX
+            </a>
           </div>
           {mainLinks.map((item, index) => (
             <a
@@ -289,14 +313,14 @@ export default function Header() {
           ))}
           <div
             className={`pt-3 mt-2 border-t border-white/10 ${menuOpen ? "menu-item-in" : ""}`}
-            style={{ animationDelay: `${4 * STAGGER_MS}ms` }}
+            style={{ animationDelay: `${(mainLinks.length + 2) * STAGGER_MS}ms` }}
           >
             <a
               href="/contact"
               className="inline-block rounded-full bg-[#FFA900] px-6 py-2.5 text-sm font-semibold text-gray-900 transition-all hover:bg-[#00AFA9] hover:text-white active:scale-[0.97]"
               onClick={() => setMenuOpen(false)}
             >
-              Contactez-nous Maintenant
+              Contactez-nous
             </a>
           </div>
         </nav>
