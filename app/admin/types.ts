@@ -166,9 +166,19 @@ export interface CeoMessage {
 }
 
 // --- HeroSlide ---
+/** Pages qui affichent un carrousel hero administrable. */
+export type HeroPage = "home" | "impact";
+
+export const HERO_PAGE_LABELS: Record<HeroPage, string> = {
+  home: "Accueil",
+  impact: "Impact & Sustainability",
+};
+
 export interface HeroSlide {
   id: number;
+  page: HeroPage;
   image_url: string;
+  mobile_image_url: string | null;
   title: string | null;
   description: string | null;
   cta_label: string | null;
@@ -291,6 +301,7 @@ export interface ContactMessage {
   company: string | null;
   country: string | null;
   message: string;
+  attachment_url: string | null;
   is_read: boolean;
   submitted_at: string;
 }

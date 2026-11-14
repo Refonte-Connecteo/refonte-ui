@@ -5,6 +5,8 @@ import type {
   ChangePasswordResponse,
   DisableMfaResponse,
   ForceChangePasswordResponse,
+  HeroPage,
+  HeroSlide,
   InviteResponse,
   ListAdminsResponse,
   LoginResponse,
@@ -22,6 +24,8 @@ import {
 } from "@/lib/session";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
+
+type HeroSlideInput = Partial<Omit<HeroSlide, "id">>;
 
 export class SessionExpiredError extends Error {
   constructor(message = "Session expirée") {
@@ -294,23 +298,23 @@ class ApiClient {
   }
 
   // --- HeroSlide ---
-  getAllHeroSlides() {
-    return this.request<{ slides: { id: number; image_url: string; title: string | null; description: string | null; cta_label: string | null; cta_url: string | null; position: number; is_active: boolean }[] }>("/hero-slide");
+  getAllHeroSlides(page?: HeroPage) {
+    return this.request<{ slides: HeroSlide[] }>(`/hero-slide${page ? `?page=${page}` : ""}`);
   }
 
   getHeroSlide(id: number) {
-    return this.request<{ slide: { id: number; image_url: string; title: string | null; description: string | null; cta_label: string | null; cta_url: string | null; position: number; is_active: boolean } }>(`/hero-slide/${id}`);
+    return this.request<{ slide: HeroSlide }>(`/hero-slide/${id}`);
   }
 
-  createHeroSlide(data: { image_url: string; title?: string; description?: string; cta_label?: string; cta_url?: string; position?: number; is_active?: boolean }) {
-    return this.request<{ message: string; slide: { id: number; image_url: string; title: string | null; description: string | null; cta_label: string | null; cta_url: string | null; position: number; is_active: boolean } }>("/hero-slide", {
+  createHeroSlide(data: HeroSlideInput & { image_url: string }) {
+    return this.request<{ message: string; slide: HeroSlide }>("/hero-slide", {
       method: "POST",
       body: JSON.stringify(data),
     });
   }
 
-  updateHeroSlide(id: number, data: { image_url?: string; title?: string | null; description?: string | null; cta_label?: string | null; cta_url?: string | null; position?: number; is_active?: boolean }) {
-    return this.request<{ message: string; slide: { id: number; image_url: string; title: string | null; description: string | null; cta_label: string | null; cta_url: string | null; position: number; is_active: boolean } }>(`/hero-slide/${id}`, {
+  updateHeroSlide(id: number, data: HeroSlideInput) {
+    return this.request<{ message: string; slide: HeroSlide }>(`/hero-slide/${id}`, {
       method: "PUT",
       body: JSON.stringify(data),
     });
@@ -570,11 +574,11 @@ class ApiClient {
 
   // --- ContactMessage ---
   getAllContactMessages() {
-    return this.request<{ contactMessages: { id: number; first_name: string; last_name: string; email: string; phone: string | null; company: string | null; country: string | null; message: string; is_read: boolean; submitted_at: string }[] }>("/contact-message");
+    return this.request<{ contactMessages: { id: number; first_name: string; last_name: string; email: string; phone: string | null; company: string | null; country: string | null; message: string; attachment_url: string | null; is_read: boolean; submitted_at: string }[] }>("/contact-message");
   }
 
   getContactMessage(id: number) {
-    return this.request<{ contactMessage: { id: number; first_name: string; last_name: string; email: string; phone: string | null; company: string | null; country: string | null; message: string; is_read: boolean; submitted_at: string } }>(`/contact-message/${id}`);
+    return this.request<{ contactMessage: { id: number; first_name: string; last_name: string; email: string; phone: string | null; company: string | null; country: string | null; message: string; attachment_url: string | null; is_read: boolean; submitted_at: string } }>(`/contact-message/${id}`);
   }
 
   markContactMessageAsRead(id: number) {
@@ -592,8 +596,8 @@ class ApiClient {
     return this.request<{ message: { id: number; title: string; description: string; image_url: string | null; updated_at: string } }>("/ceomessage/latest");
   }
 
-  getActiveHeroSlides() {
-    return this.request<{ slides: { id: number; image_url: string; title: string | null; description: string | null; cta_label: string | null; cta_url: string | null; position: number; is_active: boolean }[] }>("/hero-slide?onlyActive=true");
+  getActiveHeroSlides(page: HeroPage) {
+    return this.request<{ slides: HeroSlide[] }>(`/hero-slide?onlyActive=true&page=${page}`);
   }
 
   getActiveKpiStats() {
@@ -616,7 +620,7 @@ class ApiClient {
     return this.request<{ events: { id: number; title: string; description: string | null; event_date: string; youtube_url: string | null; is_published: boolean; event_images: { id: number; image_url: string; caption: string | null; position: number }[] }[] }>("/event?onlyPublished=true");
   }
 
-  createContactMessage(data: { first_name: string; last_name: string; email: string; phone?: string; company?: string; country?: string; message: string }) {
+  createContactMessage(data: { first_name: string; last_name: string; email: string; phone?: string; company?: string; country?: string; message: string; attachment_url?: string }) {
     return this.request<{ message: string; contactMessage: { id: number } }>("/contact-message", {
       method: "POST",
       body: JSON.stringify(data),
@@ -645,6 +649,16 @@ class ApiClient {
     const formData = new FormData();
     formData.append("file", file);
     return this.request<{ url: string; filename: string }>("/upload/cv", {
+      method: "POST",
+      body: formData,
+    });
+  }
+
+  // Pièce jointe facultative du formulaire de contact (PDF, DOC, DOCX, 5 Mo) — sans authentification
+  uploadContactAttachment(file: File) {
+    const formData = new FormData();
+    formData.append("file", file);
+    return this.request<{ url: string; filename: string }>("/upload/contact", {
       method: "POST",
       body: formData,
     });

@@ -6,6 +6,7 @@ import { Download } from "lucide-react";
 import { api } from "@/lib/api";
 import { resolveAssetUrl } from "@/lib/security";
 import Reveal from "../components/Reveal";
+import HeroSection from "../components/HeroSection";
 
 interface ImpactPillar {
   title: string;
@@ -87,30 +88,38 @@ export default function ImpactSustainabilitySection() {
 
   return (
     <section className="w-full">
-      {/* Hero */}
-      <div className="relative flex h-[440px] w-full items-center justify-center overflow-hidden pt-20 md:h-[540px] md:pt-24">
-        <Image
-          src="/images/c5.jpg"
-          alt="Sentier en forêt"
-          fill
-          priority
-          className="hero-settle object-cover"
-        />
-        <div className="absolute inset-0 bg-black/30" />
+      {/* Hero : images gérées dans l'admin (Slides Hero > Impact & Sustainability) */}
+      <HeroSection
+        page="impact"
+        heading="Impact & Sustainability : un impact positif, durable"
+        defaultCta={{ label: "Télécharger le rapport", href: "#rapport" }}
+        fallback={
+          <div className="relative flex h-[440px] w-full items-center justify-center overflow-hidden pt-20 md:h-[540px] md:pt-24">
+            <Image
+              src="/images/c5.jpg"
+              alt="Sentier en forêt"
+              fill
+              priority
+              sizes="100vw"
+              className="hero-settle object-cover"
+            />
+            <div className="absolute inset-0 bg-black/30" />
 
-        <div className="relative z-10 flex max-w-2xl flex-col items-center px-6 text-center">
-          <span className="cons-fade mb-5 rounded-full bg-amber-400 px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-neutral-900">
-            Impact &amp; Sustainability
-          </span>
-          <h1 className="cons-fade text-3xl font-bold text-white md:text-5xl" style={{ animationDelay: "120ms" }}>
-            Un impact positif, durable.
-          </h1>
-          <p className="cons-fade mt-4 text-sm text-white/90 md:text-base" style={{ animationDelay: "240ms" }}>
-            Parce qu&apos;une entreprise responsable est une entreprise qui
-            dure. Voici nos engagements.
-          </p>
-        </div>
-      </div>
+            <div className="relative z-10 flex max-w-2xl flex-col items-center px-6 text-center">
+              <span className="cons-fade mb-5 rounded-full bg-amber-400 px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-neutral-900">
+                Impact &amp; Sustainability
+              </span>
+              <h1 className="cons-fade text-3xl font-bold text-white md:text-5xl" style={{ animationDelay: "120ms" }}>
+                Un impact positif, durable.
+              </h1>
+              <p className="cons-fade mt-4 text-sm text-white/90 md:text-base" style={{ animationDelay: "240ms" }}>
+                Parce qu&apos;une entreprise responsable est une entreprise qui
+                dure. Voici nos engagements.
+              </p>
+            </div>
+          </div>
+        }
+      />
 
       {/* Piliers */}
       <div className="mx-auto grid max-w-6xl grid-cols-1 gap-8 px-6 py-14 sm:grid-cols-2 md:gap-10 md:px-10 md:py-20 lg:grid-cols-4 lg:px-6">
@@ -129,7 +138,7 @@ export default function ImpactSustainabilitySection() {
       </div>
 
       {/* CTA téléchargement */}
-      <div className="w-full bg-[#B7C0A5] px-6 py-14 md:py-20">
+      <div id="rapport" className="w-full scroll-mt-28 bg-[#B7C0A5] px-6 py-14 md:py-20">
         <Reveal className="mx-auto flex max-w-xl flex-col items-center text-center">
           <h2 className="text-xl font-bold text-neutral-900 md:text-2xl">
             Téléchargez notre rapport d&apos;impact{report?.year ? ` ${report.year}` : ""}
@@ -145,6 +154,9 @@ export default function ImpactSustainabilitySection() {
             <input
               type="email"
               required
+              aria-label="Votre adresse email"
+              autoComplete="email"
+              maxLength={255}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="vous@entreprise.com"

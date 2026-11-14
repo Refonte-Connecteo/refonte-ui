@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Check, Eye, Mail, Trash2 } from "lucide-react";
+import { Check, Eye, Mail, Paperclip, Trash2 } from "lucide-react";
 import { api } from "@/lib/api";
 import {
   Card,
@@ -24,6 +24,7 @@ interface ContactMessageItem {
   company: string | null;
   country: string | null;
   message: string;
+  attachment_url: string | null;
   is_read: boolean;
   submitted_at: string;
 }
@@ -105,7 +106,12 @@ export default function ContactMessageListPage() {
               {messages.map((msg) => (
                 <tr key={msg.id} className="hover:bg-brand-50/40 transition-colors">
                   <td className="px-5 py-3.5 text-gray-900 font-medium">
-                    {msg.last_name} {msg.first_name}
+                    <span className="inline-flex items-center gap-1.5">
+                      {msg.last_name} {msg.first_name}
+                      {msg.attachment_url && (
+                        <Paperclip className="h-3.5 w-3.5 text-brand-600" aria-label="Pièce jointe" />
+                      )}
+                    </span>
                   </td>
                   <td className="px-5 py-3.5 text-gray-700">{msg.email}</td>
                   <td className="px-5 py-3.5 text-gray-500">{msg.company || "—"}</td>

@@ -3,6 +3,7 @@
 import { useState, useRef } from "react";
 import { CheckCircle2, Loader2, Upload } from "lucide-react";
 import { api } from "@/lib/api";
+import { resolveAssetUrl } from "@/lib/security";
 import { Input } from "@/app/admin/components/ui";
 
 const MAX_IMAGE_SIZE_BYTES = 10 * 1024 * 1024; // 10 Mo
@@ -107,7 +108,7 @@ export default function ImageUpload({
       {value && (
         <div className="relative w-full h-36 rounded-xl overflow-hidden border border-gray-200 bg-gray-50">
           <img
-            src={value.startsWith("http") ? value : `${process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") || "http://localhost:3000"}${value}`}
+            src={resolveAssetUrl(value, "")}
             alt="Aperçu"
             className="w-full h-full object-contain"
             onError={(e) => {

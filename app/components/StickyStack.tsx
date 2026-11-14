@@ -92,6 +92,7 @@ export default function StickyStack({
                   src="/images/c12.png"
                   alt=""
                   fill
+                  sizes="40vw"
                   className="object-cover object-left opacity-30"
                 />
               </div>

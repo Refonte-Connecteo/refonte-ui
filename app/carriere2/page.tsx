@@ -3,9 +3,7 @@
 import { api } from "@/lib/api";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import Reveal from "../components/Reveal";
-
-const MAX_CV_SIZE_BYTES = 5 * 1024 * 1024; // 5 Mo
-const CV_EXTENSIONS = [".pdf", ".doc", ".docx"];
+import { checkDocument, DOCUMENT_EXTENSIONS } from "@/lib/documentFile";
 
 type Job = {
   id: number;
@@ -55,24 +53,28 @@ function Field({
   label,
   type = "text",
   autoComplete,
+  maxLength,
   required,
 }: {
   id: string;
   label: string;
   type?: string;
   autoComplete?: string;
+  maxLength?: number;
   required?: boolean;
 }) {
   return (
     <div>
       <label htmlFor={id} className="mb-1.5 ml-3 block text-xs text-white">
         {label}
+        {required && <span aria-hidden="true" className="ml-0.5 text-[#f5a30f]">*</span>}
       </label>
       <input
         id={id}
         name={id}
         type={type}
         autoComplete={autoComplete}
+        maxLength={maxLength}
         required={required}
         className="h-11 w-full rounded-full bg-[#a9c1c6]/80 px-4 text-sm text-[#0b4f5c] outline-none transition-all duration-200 focus:bg-[#c8dadd] focus:ring-2 focus:ring-[#f5a30f]"
       />
@@ -137,15 +139,9 @@ export default function CareersSection() {
       return;
     }
 
-    const ext = file.name.toLowerCase().match(/\.[a-z0-9]+$/)?.[0] ?? "";
-    if (!CV_EXTENSIONS.includes(ext)) {
-      setCvError("Format de CV non supporté (PDF, DOC ou DOCX uniquement).");
-      setCvFile(null);
-      return;
-    }
-
-    if (file.size > MAX_CV_SIZE_BYTES) {
-      setCvError("Le CV ne doit pas dépasser 5 Mo.");
+    const problem = checkDocument(file, "Le CV");
+    if (problem) {
+      setCvError(problem);
       setCvFile(null);
       return;
     }
@@ -170,8 +166,8 @@ export default function CareersSection() {
       const { url: cvUrl } = await api.uploadCvPublic(cvFile);
 
       const basePayload = {
-        first_name: (data.nom || "").trim(),
-        last_name: (data.prenoms || "").trim(),
+        first_name: (data.prenoms || "").trim(),
+        last_name: (data.nom || "").trim(),
         email: (data.email || "").trim(),
         phone: (data.telephone || "").trim() || undefined,
         cv_url: cvUrl,
@@ -206,8 +202,31 @@ export default function CareersSection() {
     <main className="min-h-screen overflow-x-hidden bg-[#0b6171] px-6 pb-14 pt-32 font-sans text-white md:px-12 md:pb-20 md:pt-36 lg:px-16">
       <div className="mx-auto max-w-6xl">
         {/* Titre */}
-        <header className="text-center">
-          <h1 className="cons-fade text-2xl font-bold sm:text-3xl md:text-4xl">
+        <header className="relative text-center">
+          {/* Grand écran : deux portraits de part et d'autre du titre */}
+          {/* {[
+            { src: PORTRAITS.fond5, side: "left-0 -rotate-6", delay: "0s" },
+            { src: PORTRAITS.fond4, side: "right-0 rotate-6", delay: "-3.5s" },
+          ].map(({ src, side, delay }) => (
+            <div key={src} aria-hidden="true" className={`cons-fade absolute -top-6 hidden w-36 xl:block ${side}`}>
+              <div className="portrait-float" style={{ animationDelay: delay }}>
+                <div className="relative aspect-[3/4] overflow-hidden rounded-[1.5rem] shadow-2xl shadow-black/30 ring-4 ring-white/15">
+                  <Image src={src} alt="" fill sizes="144px" className="object-cover" />
+                </div>
+              </div>
+            </div>
+          ))} */}
+
+          {/* Mobile et tablette : rangée d'avatars au-dessus du titre */}
+          {/* <div aria-hidden="true" className="cons-fade mb-6 flex justify-center -space-x-3 xl:hidden">
+            {[PORTRAITS.fond5, PORTRAITS.fond3, PORTRAITS.fond8, PORTRAITS.fond1, PORTRAITS.fond4].map((src) => (
+              <span key={src} className="relative h-12 w-12 overflow-hidden rounded-full ring-[3px] ring-[#0b6171] sm:h-14 sm:w-14">
+                <Image src={src} alt="" fill sizes="56px" className="object-cover object-top" />
+              </span>
+            ))}
+          </div> */}
+
+          <h1 className="cons-fade mx-auto max-w-3xl text-2xl font-bold sm:text-3xl md:text-4xl">
             Devenez acteur·rice de l&apos;expérience client africaine.
           </h1>
           <h2 className="cons-fade mt-8 text-sm font-bold" style={{ animationDelay: "100ms" }}>Postes à pourvoir</h2>
@@ -293,6 +312,10 @@ export default function CareersSection() {
                 Revenir à une candidature spontanée
               </button>
             )}
+            {/* <PortraitStack
+              images={[PORTRAITS.fond6, PORTRAITS.fond2, PORTRAITS.fond7]}
+              className="mt-10 hidden w-full max-w-sm lg:block"
+            /> */}
           </div>
 
           <form
@@ -300,16 +323,15 @@ export default function CareersSection() {
             className="relative z-10 rounded-[2rem] border border-white/20 bg-[#0b4f5c]/70 p-6 shadow-xl backdrop-blur-xs md:p-8"
           >
             <div className="grid gap-x-9 gap-y-5 sm:grid-cols-2">
-              <Field id="nom" label="Nom" autoComplete="family-name" required />
-              <Field id="prenoms" label="Prénoms" autoComplete="given-name" required />
-              <Field id="email" label="E-mail" type="email" autoComplete="email" required />
-              <Field id="telephone" label="Téléphone" type="tel" autoComplete="tel" />
-              <Field id="societe" label="Société" autoComplete="organization" />
-              <Field id="pays" label="Pays" autoComplete="country-name" />
+              <Field id="nom" label="Nom" autoComplete="family-name" maxLength={100} required />
+              <Field id="prenoms" label="Prénoms" autoComplete="given-name" maxLength={100} required />
+              <Field id="email" label="E-mail" type="email" autoComplete="email" maxLength={255} required />
+              <Field id="telephone" label="Téléphone" type="tel" autoComplete="tel" maxLength={30} />
 
               <div className="sm:col-span-2">
                 <label htmlFor="cv" className="mb-1.5 ml-3 block text-xs text-white">
                   CV (PDF, DOC ou DOCX — 5 Mo max)
+                  <span aria-hidden="true" className="ml-0.5 text-[#f5a30f]">*</span>
                 </label>
                 <label
                   htmlFor="cv"
@@ -335,7 +357,7 @@ export default function CareersSection() {
                   <input
                     id="cv"
                     type="file"
-                    accept={CV_EXTENSIONS.join(",")}
+                    accept={DOCUMENT_EXTENSIONS.join(",")}
                     className="sr-only"
                     onChange={(e) => handleCvChange(e.target.files?.[0] ?? null)}
                   />
@@ -353,6 +375,7 @@ export default function CareersSection() {
                   id="message"
                   name="message"
                   rows={5}
+                  maxLength={5000}
                   className="w-full resize-none rounded-3xl bg-[#a9c1c6]/80 px-4 py-3 text-sm text-[#0b4f5c] outline-none transition-colors focus:bg-[#c8dadd] focus:ring-2 focus:ring-[#f5a30f]"
                 />
               </div>
@@ -360,6 +383,11 @@ export default function CareersSection() {
 
             <div className="mt-6 flex flex-col-reverse items-stretch gap-4 sm:flex-row sm:items-center sm:justify-between">
               <p role="status" aria-live="polite" className="text-sm">
+                {status === "idle" && (
+                  <span className="text-xs text-white/70">
+                    <span aria-hidden="true" className="text-[#f5a30f]">*</span> Champs obligatoires
+                  </span>
+                )}
                 {status === "sent" &&
                   "Merci ! Votre candidature a été envoyée avec succès."}
                 {status === "error" &&

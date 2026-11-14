@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { api } from "@/lib/api";
+import { Paperclip } from "lucide-react";
+import { sanitizeUrl } from "@/lib/security";
 import { Card, FormPage, LoadingScreen, Alert } from "@/app/admin/components/ui";
 
 interface ContactMessageData {
@@ -14,6 +16,7 @@ interface ContactMessageData {
   company: string | null;
   country: string | null;
   message: string;
+  attachment_url: string | null;
   is_read: boolean;
   submitted_at: string;
 }
@@ -85,6 +88,25 @@ export default function ContactMessageDetailPage() {
             <div>
               <dt className="text-xs font-medium text-gray-500 uppercase tracking-wider">Message</dt>
               <dd className="mt-1 text-sm text-gray-900 whitespace-pre-wrap">{messageData.message}</dd>
+            </div>
+
+            <div>
+              <dt className="text-xs font-medium text-gray-500 uppercase tracking-wider">Pièce jointe</dt>
+              <dd className="mt-1 text-sm text-gray-900">
+                {messageData.attachment_url ? (
+                  <a
+                    href={sanitizeUrl(messageData.attachment_url)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 font-medium text-brand-600 hover:text-brand-700"
+                  >
+                    <Paperclip className="h-4 w-4" />
+                    Télécharger la pièce jointe
+                  </a>
+                ) : (
+                  "—"
+                )}
+              </dd>
             </div>
 
             <div>

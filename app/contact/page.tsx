@@ -2,17 +2,66 @@
 
 import { api } from "@/lib/api";
 import { CONTACT_EMAIL } from "@/lib/contact";
-import { useState, type FormEvent } from "react";
+import { checkDocument, DOCUMENT_EXTENSIONS } from "@/lib/documentFile";
+import { useRef, useState, type FormEvent } from "react";
 
 const LABEL_CLASS = "block text-xs font-semibold tracking-wide text-[#0B1D20]/60 uppercase";
 const FIELD_CLASS =
   "border border-gray-400 w-full px-4 py-3.5 rounded-xl bg-[#f2f1ed] text-[#0B1D20] placeholder-[#0B1D20]/25 text-sm transition-all duration-300 outline-none ring-1 ring-transparent hover:border-gray-500 focus:border-[#00AFA9] focus:ring-2 focus:ring-[#00AFA9]/30 focus:bg-white focus:shadow-lg focus:shadow-[#00AFA9]/10";
 
+const EMPTY_FORM = { nom: "", prenom: "", email: "", telephone: "", societe: "", pays: "", message: "" };
+
+type TextKey = Exclude<keyof typeof EMPTY_FORM, "message">;
+
+/** Champs texte, par paires (deux colonnes sur grand écran). Longueurs maximales identiques à l'API. */
+const FIELDS: {
+  key: TextKey;
+  label: string;
+  required?: boolean;
+  type?: string;
+  autoComplete: string;
+  maxLength: number;
+  placeholder: string;
+}[] = [
+  { key: "nom", label: "Nom", required: true, autoComplete: "family-name", maxLength: 100, placeholder: "Votre nom" },
+  { key: "prenom", label: "Prénom(s)", required: true, autoComplete: "given-name", maxLength: 100, placeholder: "Votre prénom" },
+  { key: "email", label: "Email", required: true, type: "email", autoComplete: "email", maxLength: 255, placeholder: "votre@email.com" },
+  { key: "telephone", label: "Téléphone", type: "tel", autoComplete: "tel", maxLength: 30, placeholder: "+ …" },
+  { key: "societe", label: "Société", autoComplete: "organization", maxLength: 200, placeholder: "Votre société" },
+  { key: "pays", label: "Pays", autoComplete: "country-name", maxLength: 100, placeholder: "Madagascar" },
+];
+
+/** Astérisque visuel : les lecteurs d'écran s'appuient sur l'attribut `required` du champ. */
+const Required = () => (
+  <span aria-hidden="true" className="ml-0.5 text-[#c2410c]">
+    *
+  </span>
+);
+
 export default function Contact() {
-  const [formData, setFormData] = useState({ nom: "", email: "", telephone: "", societe: "", pays: "", message: "" });
+  const [formData, setFormData] = useState(EMPTY_FORM);
+  const [attachment, setAttachment] = useState<File | null>(null);
+  const [attachmentError, setAttachmentError] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
+
+  const clearAttachment = () => {
+    setAttachment(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const handleAttachmentChange = (file: File | null) => {
+    setAttachmentError("");
+    const problem = file && checkDocument(file, "La pièce jointe");
+    if (!file || problem) {
+      if (problem) setAttachmentError(problem);
+      clearAttachment();
+      return;
+    }
+    setAttachment(file);
+  };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -20,21 +69,20 @@ export default function Contact() {
     setSuccess("");
     setLoading(true);
     try {
-      const nameParts = formData.nom.trim().split(/\s+/);
-      const firstName = nameParts[0] || "";
-      // Beaucoup de personnes n'ont qu'un seul nom : l'API exige les deux champs.
-      const lastName = nameParts.slice(1).join(" ") || "-";
+      const attachmentUrl = attachment ? (await api.uploadContactAttachment(attachment)).url : undefined;
       await api.createContactMessage({
-        first_name: firstName,
-        last_name: lastName,
-        email: formData.email,
+        first_name: formData.prenom.trim(),
+        last_name: formData.nom.trim(),
+        email: formData.email.trim(),
         phone: formData.telephone || undefined,
         company: formData.societe || undefined,
         country: formData.pays || undefined,
         message: formData.message,
+        attachment_url: attachmentUrl,
       });
       setSuccess("Votre message a été envoyé avec succès !");
-      setFormData({ nom: "", email: "", telephone: "", societe: "", pays: "", message: "" });
+      setFormData(EMPTY_FORM);
+      clearAttachment();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erreur lors de l'envoi");
     } finally {
@@ -98,98 +146,93 @@ export default function Contact() {
             className="cons-fade w-full max-w-lg space-y-5"
             style={{ animationDelay: "150ms" }}
           >
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <label htmlFor="contact-nom" className={LABEL_CLASS}>
-                  Nom &amp; prénom
-                </label>
-                <input
-                  id="contact-nom"
-                  required
-                  type="text"
-                  autoComplete="name"
-                  className={FIELD_CLASS}
-                  placeholder="Votre nom"
-                  value={formData.nom}
-                  onChange={(e) => setFormData({ ...formData, nom: e.target.value })}
-                />
-              </div>
-              <div className="space-y-1.5">
-                <label htmlFor="contact-email" className={LABEL_CLASS}>
-                  Email
-                </label>
-                <input
-                  id="contact-email"
-                  required
-                  type="email"
-                  autoComplete="email"
-                  className={FIELD_CLASS}
-                  placeholder="votre@email.com"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-1 lg:grid-cols-3 gap-4">
-              <div className="space-y-1.5">
-                <label htmlFor="contact-telephone" className={LABEL_CLASS}>
-                  Téléphone
-                </label>
-                <input
-                  id="contact-telephone"
-                  type="tel"
-                  autoComplete="tel"
-                  className={FIELD_CLASS}
-                  placeholder=""
-                  value={formData.telephone}
-                  onChange={(e) => setFormData({ ...formData, telephone: e.target.value })}
-                />
-              </div>
-              <div className="space-y-1.5">
-                <label htmlFor="contact-societe" className={LABEL_CLASS}>
-                  Société
-                </label>
-                <input
-                  id="contact-societe"
-                  type="text"
-                  autoComplete="organization"
-                  className={FIELD_CLASS}
-                  placeholder="Votre société"
-                  value={formData.societe}
-                  onChange={(e) => setFormData({ ...formData, societe: e.target.value })}
-                />
-              </div>
-              <div className="space-y-1.5">
-                <label htmlFor="contact-pays" className={LABEL_CLASS}>
-                  Pays
-                </label>
-                <input
-                  id="contact-pays"
-                  type="text"
-                  autoComplete="country-name"
-                  className={FIELD_CLASS}
-                  placeholder="Madagascar"
-                  value={formData.pays}
-                  onChange={(e) => setFormData({ ...formData, pays: e.target.value })}
-                />
-              </div>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2">
+              {FIELDS.map((f) => (
+                <div key={f.key} className="space-y-1.5">
+                  <label htmlFor={`contact-${f.key}`} className={LABEL_CLASS}>
+                    {f.label}
+                    {f.required && <Required />}
+                  </label>
+                  <input
+                    id={`contact-${f.key}`}
+                    required={f.required}
+                    type={f.type ?? "text"}
+                    autoComplete={f.autoComplete}
+                    maxLength={f.maxLength}
+                    className={FIELD_CLASS}
+                    placeholder={f.placeholder}
+                    value={formData[f.key]}
+                    onChange={(e) => setFormData({ ...formData, [f.key]: e.target.value })}
+                  />
+                </div>
+              ))}
             </div>
 
             <div className="space-y-1.5">
               <label htmlFor="contact-message" className={LABEL_CLASS}>
                 Message
+                <Required />
               </label>
               <textarea
                 id="contact-message"
                 required
                 rows={4}
+                maxLength={5000}
                 className={`${FIELD_CLASS} resize-none`}
-                placeholder="En quoi puis-je vous aider&nbsp;?"
+                placeholder="Décrivez votre besoin ou votre projet de collaboration"
                 value={formData.message}
                 onChange={(e) => setFormData({ ...formData, message: e.target.value })}
               />
             </div>
+
+            <div className="space-y-1.5">
+              <label htmlFor="contact-attachment" className={LABEL_CLASS}>
+                Pièce jointe <span className="font-normal normal-case tracking-normal">(facultatif)</span>
+              </label>
+              <div className="flex items-center gap-2">
+                <label
+                  className={`${FIELD_CLASS} flex min-w-0 cursor-pointer items-center gap-2 focus-within:border-[#00AFA9] focus-within:bg-white focus-within:ring-2 focus-within:ring-[#00AFA9]/30`}
+                >
+                  <svg aria-hidden="true" className="h-4 w-4 shrink-0 text-[#096475]" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                  </svg>
+                  <span className={`truncate ${attachment ? "" : "text-[#0B1D20]/40"}`}>
+                    {attachment ? attachment.name : "Joindre un document"}
+                  </span>
+                  <input
+                    id="contact-attachment"
+                    ref={fileInputRef}
+                    type="file"
+                    accept={DOCUMENT_EXTENSIONS.join(",")}
+                    aria-describedby="contact-attachment-hint"
+                    className="sr-only"
+                    onChange={(e) => handleAttachmentChange(e.target.files?.[0] ?? null)}
+                  />
+                </label>
+                {attachment && (
+                  <button
+                    type="button"
+                    onClick={clearAttachment}
+                    className="shrink-0 rounded-full px-3 py-2 text-xs font-semibold text-[#096475] transition-colors hover:bg-[#096475]/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#00AFA9]"
+                  >
+                    Retirer
+                  </button>
+                )}
+              </div>
+              <p id="contact-attachment-hint" className="text-xs text-[#0B1D20]/60">
+                Pour une demande de collaboration : cahier des charges, présentation… PDF, DOC ou DOCX, 5&nbsp;Mo maximum.
+              </p>
+              {attachmentError && (
+                <p role="alert" className="text-xs text-red-700">
+                  {attachmentError}
+                </p>
+              )}
+            </div>
+
+            <p className="text-xs text-[#0B1D20]/60">
+              <span aria-hidden="true" className="text-[#c2410c]">*</span> Champs obligatoires. Vos informations
+              servent uniquement à traiter votre demande.
+            </p>
 
             {success && (
               <div role="status" className="menu-item-in rounded-xl bg-green-50 border border-green-200 px-4 py-3 text-sm text-green-700">
