@@ -1,28 +1,31 @@
-/** Le petit robot de Connecteo : uniquement du SVG, animé en CSS (globals.css). */
-export default function Robot({ className = "" }: { className?: string }) {
+/**
+ * Le petit robot de Connecteo : uniquement du SVG, animé en CSS (globals.css).
+ * `limbColor` : couleur de l'antenne, des bras et des jambes, à éclaircir sur un fond #096475.
+ */
+export default function Robot({ className = "", limbColor = "#096475" }: { className?: string; limbColor?: string }) {
   return (
     <svg viewBox="0 0 72 80" className={className} aria-hidden="true">
       <ellipse className="robot-shadow" cx="36" cy="76" rx="17" ry="3" fill="#0B1D20" opacity="0.18" />
 
       <g className="robot-bob">
         {/* Antenne */}
-        <path d="M36 15V7" stroke="#096475" strokeWidth="3" strokeLinecap="round" />
+        <path d="M36 15V7" stroke={limbColor} strokeWidth="3" strokeLinecap="round" />
         <circle className="robot-antenna" cx="36" cy="6" r="4" fill="#FFA900" />
 
         {/* Bras gauche et bras qui salue */}
-        <path d="M17 50c-5 1-7 5-7 9" fill="none" stroke="#096475" strokeWidth="5" strokeLinecap="round" />
+        <path d="M17 50c-5 1-7 5-7 9" fill="none" stroke={limbColor} strokeWidth="5" strokeLinecap="round" />
         <path
           className="robot-wave"
           d="M55 50c5-1 8-5 9-10"
           fill="none"
-          stroke="#096475"
+          stroke={limbColor}
           strokeWidth="5"
           strokeLinecap="round"
         />
 
         {/* Jambes */}
-        <path className="robot-leg" d="M28 66v6" stroke="#096475" strokeWidth="6" strokeLinecap="round" />
-        <path className="robot-leg robot-leg-alt" d="M44 66v6" stroke="#096475" strokeWidth="6" strokeLinecap="round" />
+        <path className="robot-leg" d="M28 66v6" stroke={limbColor} strokeWidth="6" strokeLinecap="round" />
+        <path className="robot-leg robot-leg-alt" d="M44 66v6" stroke={limbColor} strokeWidth="6" strokeLinecap="round" />
 
         {/* Corps */}
         <rect x="17" y="42" width="38" height="26" rx="12" fill="#00AFA9" />

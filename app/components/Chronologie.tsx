@@ -1,6 +1,13 @@
 "use client";
 
 import { useState, useCallback, useRef, useEffect } from "react";
+import { ArrowLeft, ArrowRight, RotateCcw } from "lucide-react";
+import Robot from "./chatbot/Robot";
+import { BOT_NAME } from "@/lib/chatbot";
+
+const SECTION_TITLE = "Notre histoire";
+/** Durée de l'effet « Téo écrit… » entre deux années. */
+const TYPING_MS = 450;
 
 interface Milestone {
   year: number;
@@ -109,10 +116,14 @@ export default function Chronologie() {
       setTimeout(() => {
         setActiveYear(year);
         setIsLeaving(false);
-      }, 250);
+      }, TYPING_MS);
     },
     [activeYear, isLeaving]
   );
+
+  const isLast = activeIndex === milestones.length - 1;
+  const goNext = () => handleYearSelect(milestones[isLast ? 0 : activeIndex + 1].year);
+  const goPrevious = () => activeIndex > 0 && handleYearSelect(milestones[activeIndex - 1].year);
 
   useEffect(() => {
     if (activeBtnRef.current && timelineRef.current) {
@@ -142,52 +153,85 @@ export default function Chronologie() {
             </span>
           </div>
 
-          <div
-            className="mb-8 md:mb-12 max-w-4xl"
-          style={{
-            opacity: isLeaving ? 0 : 1,
-            transform: isLeaving ? "translateY(16px)" : "translateY(0)",
-            transition: isLeaving
-              ? "all 220ms ease-in"
-              : "all 450ms cubic-bezier(0.2, 0, 0, 1)",
-          }}
-        >
-          <div className="space-y-3">
-            <span
-              className="inline-block text-sm font-semibold uppercase tracking-[0.15em] transition-colors duration-500"
-              style={{ color: activeMilestone.accent }}
-            >
-              {activeMilestone.subtitle}
-            </span>
-            <h3 className="text-2xl md:text-3xl font-bold text-white">
-              {activeMilestone.title}
-            </h3>
-          </div>
+          <h2 className="mb-6 text-2xl font-bold text-white md:mb-8 md:text-3xl">
+            {SECTION_TITLE}, <span className="text-[#FFA900]">racontée par {BOT_NAME}</span>
+          </h2>
 
-          <p className="text-white/65 leading-relaxed text-base md:text-lg mt-4">
-            {activeMilestone.description}
-          </p>
+          {/* Téo présente chaque année dans une bulle */}
+          <div className="mb-8 flex max-w-4xl flex-col items-start gap-3 md:mb-12 md:flex-row md:items-end md:gap-5">
+            <Robot limbColor="#7FD6D3" className="robot-still h-20 w-18 shrink-0 md:h-32 md:w-28" />
 
-          {activeMilestone.stat && (
-            <div className="flex items-center gap-3 pt-4 mt-4">
-              <div
-                className="h-10 w-px transition-colors duration-500"
-                style={{ backgroundColor: `${activeMilestone.accent}50` }}
+            <div className="relative w-full rounded-3xl rounded-tl-md bg-white p-5 text-[#0B1D20] shadow-[0_24px_60px_-30px_rgba(0,0,0,0.6)] md:rounded-tl-3xl md:rounded-bl-md md:p-7">
+              {/* Pointe de la bulle, vers Téo */}
+              <span
+                aria-hidden="true"
+                className="absolute -top-2 left-7 h-4 w-4 rotate-45 bg-white md:-left-2 md:bottom-7 md:top-auto"
               />
-              <div>
-                <span
-                  className="text-2xl md:text-3xl font-bold transition-colors duration-500"
-                  style={{ color: activeMilestone.accent }}
+
+              <div aria-live="polite" className="relative min-h-[7.5rem]">
+                {isLeaving ? (
+                  <p className="flex h-[7.5rem] items-center gap-1.5" aria-label={`${BOT_NAME} écrit`}>
+                    <span className="chat-dot" />
+                    <span className="chat-dot" style={{ animationDelay: "150ms" }} />
+                    <span className="chat-dot" style={{ animationDelay: "300ms" }} />
+                  </p>
+                ) : (
+                  <div className="menu-item-in">
+                    <p
+                      className="text-3xl font-bold tracking-tight md:text-4xl"
+                      style={{ color: activeMilestone.accent === "#FFA900" ? "#C27C00" : "#00807B" }}
+                    >
+                      {activeMilestone.year}
+                    </p>
+                    {activeMilestone.title && activeMilestone.title !== SECTION_TITLE && (
+                      <h3 className="mt-1 text-lg font-bold md:text-xl">{activeMilestone.title}</h3>
+                    )}
+                    <p className="mt-2 text-base leading-relaxed text-[#0B1D20]/75 md:text-lg">
+                      {activeMilestone.description}
+                    </p>
+                    {activeMilestone.stat && (
+                      <p className="mt-3 text-sm font-semibold uppercase tracking-wider text-[#096475]">
+                        <span className="mr-2 text-2xl font-bold normal-case tracking-normal">{activeMilestone.stat}</span>
+                        {activeMilestone.statLabel}
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              <div className="mt-5 flex items-center justify-between gap-3 border-t border-[#0B1D20]/10 pt-4">
+                <button
+                  type="button"
+                  onClick={goPrevious}
+                  disabled={activeIndex === 0}
+                  className="inline-flex min-h-11 items-center gap-1.5 rounded-full px-3 text-sm font-semibold text-[#096475] transition-colors hover:bg-[#096475]/10 disabled:pointer-events-none disabled:opacity-30 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#FFA900]"
                 >
-                  {activeMilestone.stat}
+                  <ArrowLeft aria-hidden="true" className="h-4 w-4" />
+                  Précédent
+                </button>
+                <span className="text-xs font-medium text-[#0B1D20]/45">
+                  {activeIndex + 1} / {milestones.length}
                 </span>
-                <span className="text-white/50 text-sm ml-2 font-medium uppercase tracking-wider">
-                  {activeMilestone.statLabel}
-                </span>
+                <button
+                  type="button"
+                  onClick={goNext}
+                  className="btn-shine relative inline-flex min-h-11 items-center gap-1.5 overflow-hidden rounded-full bg-[#FFA900] px-4 text-sm font-semibold text-[#0B1D20] transition-all hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#096475]"
+                >
+                  {isLast ? (
+                    <>
+                      <RotateCcw aria-hidden="true" className="h-4 w-4" />
+                      Recommencer
+                    </>
+                  ) : (
+                    <>
+                      Suivant
+                      <ArrowRight aria-hidden="true" className="h-4 w-4" />
+                    </>
+                  )}
+                </button>
               </div>
             </div>
-          )}
-        </div>
+          </div>
         </div>
 
         <div
@@ -204,6 +248,7 @@ export default function Chronologie() {
                   onClick={() => handleYearSelect(m.year)}
                   className="flex flex-col items-center gap-2 group cursor-pointer snap-center flex-1 min-w-0"
                   aria-label={`Aller à l'année ${m.year}`}
+                  aria-current={isActive ? "step" : undefined}
                 >
                   <div
                     className="w-full rounded-full transition-all duration-500 ease-out group-hover:-translate-y-0.5"

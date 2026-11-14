@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { api } from "@/lib/api";
+import { PORTRAITS } from "@/app/components/PortraitStack";
 import { resolveAssetUrl } from "@/lib/security";
 import Reveal from "../components/Reveal";
 import { ArticleCard, FeaturedArticleCard } from "../components/actus/ArticleCard";
@@ -233,27 +234,60 @@ export default function NewsPage() {
   return (
     <main className="font-sans text-[#0b4f5c]">
       {/* Titre */}
-      <header className="relative overflow-hidden bg-gradient-to-br from-[#00aeaa] to-[#0b6171] px-6 pt-32 pb-28 md:px-12 md:pt-36 md:pb-36 lg:px-16">
+      <header className="relative overflow-hidden bg-gradient-to-br from-[#06515e] to-[#023038] px-6 pt-20 pb-20 md:px-12 md:pt-36 md:pb-36 lg:px-16">
         <div className="halo-drift absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/5 blur-3xl" />
         <div className="halo-drift absolute -bottom-32 -left-20 h-72 w-72 rounded-full bg-white/5 blur-3xl [animation-direction:alternate-reverse]" />
-        <div className="relative mx-auto max-w-6xl">
+        {/* Motif de points, discret, pour donner de la matière au dégradé */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 opacity-[0.12] [background-image:radial-gradient(white_1px,transparent_1.5px)] [background-size:22px_22px] [mask-image:linear-gradient(to_left,black,transparent_70%)]"
+        />
+        {/*
+          Photos en fond, collées à droite. Elles prennent la hauteur de la bannière sans jamais dépasser
+          leur taille réelle (≈ 560 × 760 px) : elles restent nettes. Fondu vers la gauche pour le texte.
+        */}
+        <div
+          aria-hidden="true"
+          className="hero-settle pointer-events-none absolute bottom-0 right-0 top-[5.5rem] flex md:top-24 [mask-image:linear-gradient(to_right,transparent,black_45%)] md:[mask-image:linear-gradient(to_right,transparent,black_30%)]"
+        >
+          <div className="relative hidden h-full aspect-[558/763] lg:block">
+            <Image src={PORTRAITS.fond8} alt="" fill priority sizes="300px" className="object-cover" />
+          </div>
+          <div className="relative hidden h-full aspect-[558/763] lg:block">
+            <Image src={PORTRAITS.fond5} alt="" fill priority sizes="300px" className="object-cover" />
+          </div>
+          <div className="relative h-full aspect-[577/674]">
+            <Image src={PORTRAITS.fond7} alt="" fill priority sizes="(min-width: 768px) 340px, 260px" className="object-cover object-top" />
+          </div>
+          
+          {/* Fondu en haut : les photos se fondent dans le dégradé sous le menu */}
+          <div className="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-[#04404b] to-transparent" />
+        </div>
+        {/* Voile à gauche : garde le titre lisible sur mobile, où la photo passe sous le texte */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#023038] via-[#023038]/70 to-transparent md:via-[#023038]/30"
+        />
 
-          <h1 className="cons-fade text-3xl font-bold tracking-tight text-white md:text-4xl lg:text-5xl">
-            L&apos;actualité de Connecteo.
-          </h1>
-          <p className="cons-fade mt-4 max-w-2xl text-sm leading-relaxed text-white/80 md:text-base" style={{ animationDelay: "120ms" }}>
-            Découvrez nos dernières actualités, études et événements à la une.
-          </p>
+        <div className="relative mx-auto max-w-6xl">
+          <div className="max-w-[60%] md:max-w-xl">
+            <h1 className="cons-fade mt-4 text-3xl font-bold tracking-tight text-white md:text-4xl lg:text-5xl" style={{ animationDelay: "60ms" }}>
+              L&apos;actualité de Connecteo.
+            </h1>
+            <p className="cons-fade mt-4 text-sm leading-relaxed text-white/80 md:text-base" style={{ animationDelay: "120ms" }}>
+              Découvrez nos dernières actualités, études et événements à la une.
+            </p>
+          </div>
         </div>
         <div className="absolute -bottom-[1px] left-0 right-0">
           <svg viewBox="0 0 1440 120" className="h-[70px] w-full md:h-[90px]" preserveAspectRatio="none">
-            <path d="M0,0 C360,90 1080,90 1440,0 L1440,120 L0,120 Z" fill="#d8e7ea" />
+            <path d="M0,0 C360,90 1080,90 1440,0 L1440,120 L0,120 Z" fill="#fafafa" />
           </svg>
         </div>
       </header>
 
       {/* Cartes d'actualité */}
-      <section className="relative -mt-[1px] bg-[#d8e7ea] px-6 py-12 md:px-12 md:py-16 lg:px-16">
+      <section className="relative -mt-[1px] bg-[#fafafa] px-6 py-12 md:px-12 md:py-16 lg:px-16">
         <div className="relative mx-auto max-w-6xl">
           {articleTypes.length > 1 && (
             <div className="mb-8 flex flex-wrap gap-2" role="group" aria-label="Filtrer les actualités">
@@ -353,7 +387,7 @@ export default function NewsPage() {
       </section>
 
       {/* Vidéo */}
-      <section className="relative isolate overflow-hidden bg-[#0b6171] px-6 py-16 text-center text-white md:py-24">
+      {/* <section className="relative isolate overflow-hidden bg-[#0b6171] px-6 py-16 text-center text-white md:py-24">
         <Image
           src={VIDEO_BG}
           alt=""
@@ -386,7 +420,7 @@ export default function NewsPage() {
         <p className="mx-auto mt-5 text-xs uppercase tracking-[0.3em] text-white/50">
           Voir sur YouTube
         </p>
-      </section>
+      </section> */}
 
       {openArticle && <ArticleModal article={openArticle} onClose={() => setOpenArticle(null)} />}
     </main>

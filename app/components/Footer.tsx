@@ -17,7 +17,7 @@ const serviceLinks = [
 
 export default function Footer() {
   return (
-    <footer className="w-full bg-[#0D1117] border-t border-white/5">
+    <footer className="w-full bg-[#0D1117]">
       <div className="mx-auto max-w-7xl px-6 md:px-10 lg:px-6 pt-14 md:pt-16 pb-28">
         <div className="grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-4 lg:gap-12">
           <div>

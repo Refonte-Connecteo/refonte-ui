@@ -1,7 +1,6 @@
 "use client";
 
-import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import Image from "next/image";
 import { SOCIAL_LINKS } from "@/lib/contact";
 import { useInView } from "../hooks/useInView";
 
@@ -34,13 +33,13 @@ export default function SuivezNous() {
       className={`suivez-nous grid w-full md:grid-cols-2 ${inView ? "is-visible" : ""}`}
     >
       {/* Gauche : l'invitation */}
-      <div className="relative overflow-hidden bg-[#0b6171] px-6 py-14 md:px-12 md:py-20 lg:px-16">
-        <div
+      <div className="relative overflow-hidden bg-[#0D1117] px-6 py-14 md:px-12 md:py-20 lg:px-16">
+        {/* <div
           aria-hidden="true"
           className="suivez-halo pointer-events-none absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-[#00AFA9] opacity-20 blur-3xl"
-        />
+        /> */}
         <div className={`relative max-w-md md:ml-auto ${slideIn(true)}`}>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#FFA900]">Restons connectés</p>
+          {/* <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#FFA900]">Restons connectés</p> */}
           <h2 id="suivez-nous-title" className="mt-4 text-3xl font-bold leading-tight tracking-tight text-white md:text-4xl">
             Suivez la vie de Connecteo
           </h2>
@@ -48,21 +47,32 @@ export default function SuivezNous() {
             Nos actualités, nos événements, nos offres d&apos;emploi et nos conseils pour une relation client
             réussie : ne manquez rien.
           </p>
-          <Link
+          {/* <Link
             href="/actus"
             className="group mt-7 inline-flex min-h-11 items-center gap-2 rounded-full border border-white/30 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FFA900]"
           >
             Voir nos actualités
             <ArrowRight aria-hidden="true" className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-          </Link>
+          </Link> */}
         </div>
       </div>
 
       {/* Droite : les réseaux */}
-      <div className="relative overflow-hidden bg-[#0b4f5c] px-6 py-14 md:px-12 md:py-20 lg:px-16">
+      <div className="relative overflow-hidden bg-[#0D1117] px-6 pt-14 md:px-12 md:pt-20 lg:px-16 xl:pb-20">
+        {/* Très grand écran (1280 px et plus) : fond9 en fond, le texte reste lisible grâce au dégradé à gauche */}
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 hidden xl:block">
+          <Image
+            src="/images/fond/fond2.jpg"
+            alt=""
+            fill
+            sizes="50vw"
+            className={`object-cover object-left transition-transform duration-[1.5s] ease-out ${inView ? "scale-100" : "scale-105"}`}
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#0D1117] from-25% via-[#0b4f5c]/60 via-50% to-transparent to-75%" />
+        </div>
         <div
           aria-hidden="true"
-          className="suivez-halo suivez-halo-alt pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-[#FFA900] opacity-15 blur-3xl"
+          className="suivez-halo suivez-halo-alt pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-[#FFA900] opacity-15 blur-3xl xl:hidden"
         />
         <div className={`relative max-w-md ${slideIn(false)}`} style={{ transitionDelay: "150ms" }}>
           <p className="text-4xl font-bold tracking-tight text-white md:text-5xl">
@@ -97,6 +107,12 @@ export default function SuivezNous() {
               </li>
             ))}
           </ul>
+        </div>
+
+        {/* Mobile et tablette : fond9 en bandeau, à sa taille réelle pour rester net */}
+        <div aria-hidden="true" className="relative -mx-6 mt-10 aspect-[630/191] md:-mx-12 lg:-mx-16 xl:hidden">
+          {/* <Image src="/images/fond/fond2.jpg" alt="" fill sizes="(min-width: 768px) 50vw, 100vw" className="object-cover" /> */}
+          <div className="absolute inset-x-0 top-0 h-1/3 bg-gradient-to-b from-[#0b4f5c] to-transparent" />
         </div>
       </div>
     </section>

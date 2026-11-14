@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, ExternalLink, RotateCcw, X } from "lucide-react";
 import { BOT_NAME, CHAT_NODES, START_NODE } from "@/lib/chatbot";
@@ -8,9 +9,36 @@ import type { ChatChoice } from "@/lib/chatbot";
 import Robot from "./Robot";
 
 const TYPING_MS = 550;
-const HINT_DELAY_MS = 4000;
-const HINT_DURATION_MS = 7000;
-const HINT_STORAGE_KEY = "connecteo_chat_hint_seen";
+// Petites bulles de Téo : la première après 4 s, puis une toutes les 30 s, 3 au maximum par page.
+const HINT_FIRST_DELAY_MS = 4000;
+const HINT_GAP_MS = 30000;
+const HINT_DURATION_MS = 6000;
+const HINT_MAX_PER_PAGE = 3;
+const HINT_DISMISSED_KEY = "connecteo_chat_hint_dismissed";
+
+const HINTS = [`Bonjour, je suis ${BOT_NAME} 👋`, "Besoin d'aide ?", "Une question ? Je vous oriente."];
+
+/** Message propre à la page, glissé en deuxième position. */
+const PAGE_HINTS: { prefix: string; text: string }[] = [
+  { prefix: "/carriere", text: "Envie de nous rejoindre ? Je vous guide." },
+  { prefix: "/contact", text: "Un projet ? Je peux vous orienter." },
+  { prefix: "/actus", text: "Une actu vous intéresse ? Demandez-moi." },
+  { prefix: "/notre-adn/a-propos", text: "Je vous raconte notre histoire, en haut de page !" },
+  { prefix: "/impact", text: "Curieux de nos engagements ? Je suis là." },
+];
+
+function hintsFor(pathname: string): string[] {
+  const page = PAGE_HINTS.find((h) => pathname.startsWith(h.prefix));
+  return page ? [HINTS[0], page.text, HINTS[1]] : HINTS;
+}
+
+function readDismissed(): boolean {
+  try {
+    return sessionStorage.getItem(HINT_DISMISSED_KEY) !== null;
+  } catch {
+    return false;
+  }
+}
 
 type Bubble = { from: "bot" | "user"; text: string };
 type Step = { nodeId: string; bubbleCount: number };
@@ -26,7 +54,9 @@ const ICON_BUTTON_CLASS =
 
 export default function ChatWidget() {
   const [open, setOpen] = useState(false);
-  const [showHint, setShowHint] = useState(false);
+  const pathname = usePathname();
+  const [hint, setHint] = useState<string | null>(null);
+  const [hintsDismissed, setHintsDismissed] = useState(false);
   const [typing, setTyping] = useState(false);
   const [bubbles, setBubbles] = useState<Bubble[]>(() => botBubbles(START_NODE));
   const [steps, setSteps] = useState<Step[]>([]);
@@ -42,30 +72,31 @@ export default function ChatWidget() {
     window.setTimeout(() => launcherRef.current?.focus(), 0);
   };
 
+  // Bulles périodiques : jamais pendant la discussion, et plus du tout une fois masquées (pour la visite).
   useEffect(() => {
-    const readSeen = () => {
-      try {
-        return sessionStorage.getItem(HINT_STORAGE_KEY) !== null;
-      } catch {
-        return false;
-      }
-    };
-    if (readSeen()) return;
-
-    const showTimer = window.setTimeout(() => {
-      setShowHint(true);
-      try {
-        sessionStorage.setItem(HINT_STORAGE_KEY, "1");
-      } catch {
-        // Sans stockage, la bulle reviendra simplement à la prochaine page.
-      }
-    }, HINT_DELAY_MS);
-    const hideTimer = window.setTimeout(() => setShowHint(false), HINT_DELAY_MS + HINT_DURATION_MS);
+    if (open || hintsDismissed || readDismissed()) return;
+    const messages = hintsFor(pathname);
+    const timers: number[] = [];
+    for (let i = 0; i < Math.min(HINT_MAX_PER_PAGE, messages.length); i++) {
+      const showAt = HINT_FIRST_DELAY_MS + i * (HINT_DURATION_MS + HINT_GAP_MS);
+      timers.push(window.setTimeout(() => setHint(messages[i]), showAt));
+      timers.push(window.setTimeout(() => setHint(null), showAt + HINT_DURATION_MS));
+    }
     return () => {
-      window.clearTimeout(showTimer);
-      window.clearTimeout(hideTimer);
+      timers.forEach((t) => window.clearTimeout(t));
+      setHint(null);
     };
-  }, []);
+  }, [open, hintsDismissed, pathname]);
+
+  const dismissHints = () => {
+    setHint(null);
+    setHintsDismissed(true);
+    try {
+      sessionStorage.setItem(HINT_DISMISSED_KEY, "1");
+    } catch {
+      // Sans stockage, les bulles s'arrêtent seulement jusqu'au prochain chargement.
+    }
+  };
 
   useEffect(() => () => window.clearTimeout(typingTimer.current), []);
 
@@ -158,19 +189,32 @@ export default function ChatWidget() {
           open ? "pointer-events-none invisible" : ""
         }`}
       >
-        {showHint && (
-          <button
-            type="button"
-            onClick={() => { setShowHint(false); setOpen(true); }}
-            className="menu-item-in absolute bottom-full right-2 mb-2 whitespace-nowrap rounded-2xl rounded-br-sm bg-white px-4 py-2 text-sm font-semibold text-[#096475] shadow-lg ring-1 ring-black/5"
+        {hint && (
+          <div
+            key={hint}
+            className="menu-item-in absolute bottom-full right-2 mb-2 flex items-center rounded-2xl rounded-br-sm bg-white text-sm font-semibold text-[#096475] shadow-lg ring-1 ring-black/5"
           >
-            Besoin d&apos;aide ?
-          </button>
+            <button
+              type="button"
+              onClick={() => { setHint(null); setOpen(true); }}
+              className="whitespace-nowrap rounded-l-2xl py-2 pl-4 pr-1 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#FFA900]"
+            >
+              {hint}
+            </button>
+            <button
+              type="button"
+              onClick={dismissHints}
+              aria-label={`Ne plus afficher les messages de ${BOT_NAME}`}
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-[#096475]/50 transition-colors hover:text-[#096475] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#FFA900]"
+            >
+              <X aria-hidden="true" className="h-3.5 w-3.5" />
+            </button>
+          </div>
         )}
         <button
           ref={launcherRef}
           type="button"
-          onClick={() => { setShowHint(false); setOpen(true); }}
+          onClick={() => { setHint(null); setOpen(true); }}
           aria-label={`Ouvrir l'aide avec ${BOT_NAME}, le robot de Connecteo`}
           aria-haspopup="dialog"
           aria-expanded={open}
