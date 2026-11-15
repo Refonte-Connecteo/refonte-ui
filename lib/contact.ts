@@ -9,3 +9,6 @@ export const SOCIAL_LINKS = [
   { name: "LinkedIn", href: "https://www.linkedin.com/company/connecteo" },
   { name: "YouTube", href: "https://www.youtube.com/@connecteomadagascar9177" },
 ] as const;
+
+/** Délégué à la protection des données (politique de confidentialité et cookies). */
+export const DPO_EMAIL = "dpo@connecteo.mg";

@@ -3,24 +3,12 @@
 import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import { api } from "@/lib/api";
-
-const VID_KEY = "connecteo_vid";
-
-function getVisitorId(): string {
-  try {
-    const existing = localStorage.getItem(VID_KEY);
-    if (existing) return existing;
-    const fresh = crypto.randomUUID();
-    localStorage.setItem(VID_KEY, fresh);
-    return fresh;
-  } catch {
-    return "unknown";
-  }
-}
+import { getVisitorId, isAnalyticsOptedOut } from "@/lib/analyticsConsent";
 
 /**
  * Beacon analytics du site public — sans cookie ni donnée personnelle.
  * Envoie une vue par page ; ne perturbe jamais la navigation.
+ * Rien n'est envoyé si le visiteur a refusé la mesure (page /cookies).
  */
 export default function PageViewTracker() {
   const pathname = usePathname();
@@ -30,6 +18,7 @@ export default function PageViewTracker() {
     if (!pathname) return;
     if (lastSent.current === pathname) return;
     lastSent.current = pathname;
+    if (isAnalyticsOptedOut()) return;
 
     const referrer = document.referrer;
     const isExternal = referrer && !referrer.startsWith(window.location.origin);

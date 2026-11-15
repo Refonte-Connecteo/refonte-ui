@@ -132,17 +132,17 @@ export default function Footer() {
             &copy; {new Date().getFullYear()} CONNECTEO. Tous droits réservés.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
-            <a href="#" className="text-xs text-white/30 transition-colors hover:text-white/60">
+            <Link href="/mentions-legales" className="text-xs text-white/30 transition-colors hover:text-white/60">
               Mentions légales
-            </a>
+            </Link>
             <span className="hidden text-white/10 sm:inline">·</span>
-            <a href="#" className="text-xs text-white/30 transition-colors hover:text-white/60">
+            <Link href="/politique-de-confidentialite" className="text-xs text-white/30 transition-colors hover:text-white/60">
               Politique de confidentialité
-            </a>
+            </Link>
             <span className="hidden text-white/10 sm:inline">·</span>
-            <a href="#" className="text-xs text-white/30 transition-colors hover:text-white/60">
+            <Link href="/cookies" className="text-xs text-white/30 transition-colors hover:text-white/60">
               Cookies
-            </a>
+            </Link>
           </div>
         </div>
       </div>
