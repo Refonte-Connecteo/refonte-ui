@@ -61,6 +61,9 @@ export default function ChatWidget() {
   const [bubbles, setBubbles] = useState<Bubble[]>(() => botBubbles(START_NODE));
   const [steps, setSteps] = useState<Step[]>([]);
   const [nodeId, setNodeId] = useState(START_NODE);
+  /** Page sur laquelle une zone [data-hide-teo] est à l'écran (le Téo de la page parle déjà). */
+  const [hiddenOn, setHiddenOn] = useState<string | null>(null);
+  const hidden = !open && hiddenOn === pathname;
 
   const launcherRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -71,6 +74,26 @@ export default function ChatWidget() {
     setOpen(false);
     window.setTimeout(() => launcherRef.current?.focus(), 0);
   };
+
+  // Le Téo flottant s'efface tant qu'une section marquée data-hide-teo occupe l'écran (ex. « Notre histoire »).
+  useEffect(() => {
+    const zones = document.querySelectorAll("[data-hide-teo]");
+    if (zones.length === 0) return;
+    const visible = new Set<Element>();
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) visible.add(entry.target);
+          else visible.delete(entry.target);
+        }
+        setHiddenOn(visible.size > 0 ? pathname : null);
+      },
+      // Visible = la section couvre encore le bas de l'écran, là où se tient le Téo flottant.
+      { rootMargin: "0px 0px -15% 0px", threshold: 0 },
+    );
+    zones.forEach((zone) => observer.observe(zone));
+    return () => observer.disconnect();
+  }, [pathname]);
 
   // Bulles périodiques : jamais pendant la discussion, et plus du tout une fois masquées (pour la visite).
   useEffect(() => {
@@ -185,11 +208,12 @@ export default function ChatWidget() {
     <>
       {/* Robot qui se balade en bas à droite */}
       <div
-        className={`fixed bottom-3 right-3 z-40 sm:bottom-5 sm:right-5 ${
+        inert={hidden}
+        className={`fixed bottom-3 right-3 z-40 transition-all duration-500 sm:bottom-5 sm:right-5 ${
           open ? "pointer-events-none invisible" : ""
-        }`}
+        } ${hidden ? "pointer-events-none translate-y-6 opacity-0" : ""}`}
       >
-        {hint && (
+        {hint && !hidden && (
           <div
             key={hint}
             className="menu-item-in absolute bottom-full right-2 mb-2 flex items-center rounded-2xl rounded-br-sm bg-white text-sm font-semibold text-[#096475] shadow-lg ring-1 ring-black/5"

@@ -282,6 +282,44 @@ body {
   animation: none;
 }
 
+/* Téo qui raconte l'histoire (page À propos) : il parle pendant que le texte s'écrit. */
+@keyframes robot-talk {
+  0%, 100% { transform: scaleY(1); }
+  50% { transform: scaleY(2.4); }
+}
+
+@keyframes story-caret {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.robot-mouth {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.robot-talking .robot-mouth {
+  animation: robot-talk 0.28s ease-in-out infinite;
+}
+
+.robot-talking .robot-antenna {
+  animation-duration: 0.5s;
+}
+
+.robot-talking .robot-leg {
+  animation: none;
+}
+
+.story-caret {
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  margin-left: 2px;
+  vertical-align: -0.15em;
+  background: currentColor;
+  animation: story-caret 0.8s step-end infinite;
+}
+
 .chat-dot {
   width: 0.4rem;
   height: 0.4rem;
@@ -328,6 +366,8 @@ body {
   .robot-wave,
   .robot-leg,
   .robot-antenna,
+  .robot-talking .robot-mouth,
+  .story-caret,
   .chat-dot {
     animation: none;
   }

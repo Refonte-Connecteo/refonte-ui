@@ -2,12 +2,22 @@
 
 import { useState, useCallback, useRef, useEffect } from "react";
 import { ArrowLeft, ArrowRight, RotateCcw } from "lucide-react";
+import { Lora } from "next/font/google";
 import Robot from "./chatbot/Robot";
 import { BOT_NAME } from "@/lib/chatbot";
 
+/** Police « de livre » pour la citation de Téo. */
+const bookFont = Lora({ subsets: ["latin"], style: ["normal", "italic"] });
+
 const SECTION_TITLE = "Notre histoire";
-/** Durée de l'effet « Téo écrit… » entre deux années. */
-const TYPING_MS = 450;
+
+/** Flèches Précédent / Suivant : simples icônes, grande zone cliquable. */
+const ARROW_CLASS =
+  "flex h-14 w-14 shrink-0 items-center justify-center rounded-full text-white/80 transition-all hover:scale-110 hover:text-[#FFA900] disabled:pointer-events-none disabled:opacity-25 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#FFA900]";
+/** Durée de l'effet « Téo écrit… » entre deux années (le temps que le petit Téo marche jusqu'à l'année). */
+const TYPING_MS = 700;
+/** Vitesse d'écriture du texte, en millisecondes par caractère. */
+const CHAR_MS = 22;
 
 interface Milestone {
   year: number;
@@ -100,23 +110,70 @@ const milestones: Milestone[] = [
   },
 ];
 
+const prefersReducedMotion = () =>
+  typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/** Texte écrit lettre par lettre ; le texte complet est lu d'un coup par les lecteurs d'écran. */
+function TypedText({ text, onDone }: { text: string; onDone: () => void }) {
+  const [count, setCount] = useState(0);
+  const doneRef = useRef(onDone);
+  useEffect(() => {
+    doneRef.current = onDone;
+  });
+
+  useEffect(() => {
+    let typed = 0;
+    const timer = window.setInterval(() => {
+      typed = prefersReducedMotion() ? text.length : typed + 1;
+      setCount(Math.min(typed, text.length));
+      if (typed >= text.length) {
+        window.clearInterval(timer);
+        doneRef.current();
+      }
+    }, CHAR_MS);
+    return () => window.clearInterval(timer);
+  }, [text]);
+
+  return (
+    <>
+      <span className="sr-only">{text}</span>
+      <span aria-hidden="true">
+        {text.slice(0, count)}
+        {count < text.length && <span className="story-caret" />}
+      </span>
+    </>
+  );
+}
+
 export default function Chronologie() {
-  const [activeYear, setActiveYear] = useState(2018);
+  const [activeYear, setActiveYear] = useState(milestones[0].year);
+  /** Année vers laquelle le petit Téo marche (avant que le texte ne change). */
+  const [targetYear, setTargetYear] = useState(milestones[0].year);
   const [isLeaving, setIsLeaving] = useState(false);
+  const [typedYear, setTypedYear] = useState<number | null>(null);
+  const [walking, setWalking] = useState(false);
+  const [facingLeft, setFacingLeft] = useState(false);
   const timelineRef = useRef<HTMLDivElement>(null);
   const activeBtnRef = useRef<HTMLButtonElement>(null);
 
   const activeMilestone = milestones.find((m) => m.year === activeYear)!;
   const activeIndex = milestones.findIndex((m) => m.year === activeYear);
+  const targetIndex = milestones.findIndex((m) => m.year === targetYear);
+  const talking = isLeaving || typedYear !== activeYear;
 
   const handleYearSelect = useCallback(
     (year: number) => {
       if (year === activeYear || isLeaving) return;
+      const from = milestones.findIndex((m) => m.year === activeYear);
+      const to = milestones.findIndex((m) => m.year === year);
+      setFacingLeft(to < from);
+      setWalking(!prefersReducedMotion());
+      setTargetYear(year);
       setIsLeaving(true);
-      setTimeout(() => {
+      window.setTimeout(() => {
         setActiveYear(year);
         setIsLeaving(false);
-      }, TYPING_MS);
+      }, prefersReducedMotion() ? 0 : TYPING_MS);
     },
     [activeYear, isLeaving]
   );
@@ -132,178 +189,140 @@ export default function Chronologie() {
       const containerRect = container.getBoundingClientRect();
       const btnRect = btn.getBoundingClientRect();
       const scrollLeft = btn.offsetLeft - containerRect.width / 2 + btnRect.width / 2;
-      container.scrollTo({ left: scrollLeft, behavior: "smooth" });
+      container.scrollTo({ left: scrollLeft, behavior: prefersReducedMotion() ? "auto" : "smooth" });
     }
-  }, [activeYear]);
+  }, [targetYear]);
+
+  const count = milestones.length;
+  const nodeCenter = (i: number) => `${((i + 0.5) / count) * 100}%`;
 
   return (
-    <section className="relative pt-28 pb-16 md:pt-36 md:pb-24 px-6 md:px-12 lg:px-16 overflow-hidden bg-[#096475]">
-      <div
-        className="absolute inset-0 transition-all duration-700 ease-out"
-        style={{
-          background: `radial-gradient(ellipse 80% 50% at 50% 0%, ${activeMilestone.accent}15, transparent 70%)`,
-        }}
-      />
+    <section
+      // Le Téo flottant (en bas à droite) se cache pendant que celui-ci raconte l'histoire.
+      data-hide-teo
+      className="relative overflow-hidden bg-[#096475] px-6 pb-16 pt-28 md:px-12 md:pb-20 md:pt-32 lg:px-16"
+    >
+      <div className="relative z-10 mx-auto max-w-6xl">
+        <div className="mb-8 mt-4 md:mb-10">
+          <span className="inline-block rounded-3xl bg-[#FFA900] px-6 py-2 text-lg font-bold text-[#096475]">
+            A propos
+          </span>
+        </div>
 
-      <div className="relative z-10">
-        <div className="md:px-14 mt-6 md:mt-10">
-          <div className="mb-10 md:mb-14">
-            <span className="inline-block bg-[#FFA900] text-[#096475] text-lg font-bold   px-6 py-2 rounded-3xl">
-              A propos
-            </span>
+        <h2 className="mb-8 text-2xl font-bold text-white md:mb-12 md:text-3xl">{SECTION_TITLE}</h2>
+
+        {/* L'année puis la citation de Téo, alignées à gauche avec le titre et la frise.
+            Grand écran : flèches de part et d'autre, dans les marges. Sinon : flèches sous le texte. */}
+        <div className="relative">
+          <button
+            type="button"
+            onClick={goPrevious}
+            disabled={activeIndex === 0}
+            aria-label="Année précédente"
+            className={`${ARROW_CLASS} xl:absolute xl:-left-20 xl:top-1/2 xl:-translate-y-1/2 max-xl:hidden`}
+          >
+            <ArrowLeft aria-hidden="true" className="h-10 w-10" strokeWidth={1.5} />
+          </button>
+
+          <p className="text-5xl font-bold tracking-tight text-white md:text-7xl">{targetYear}</p>
+
+          <blockquote aria-live="polite" className="mt-4 min-h-[8rem] md:mt-6 md:min-h-[7.5rem]">
+            {isLeaving ? (
+              <p className="flex h-12 items-center gap-1.5" aria-label={`${BOT_NAME} écrit`}>
+                <span className="chat-dot !bg-white" />
+                <span className="chat-dot !bg-white" style={{ animationDelay: "150ms" }} />
+                <span className="chat-dot !bg-white" style={{ animationDelay: "300ms" }} />
+              </p>
+            ) : (
+              <p className={`${bookFont.className} menu-item-in relative max-w-4xl text-2xl italic leading-snug text-white md:text-4xl md:leading-snug`}>
+                {/* Guillemet « suspendu » dans la marge : le texte reste aligné avec le titre */}
+                <span aria-hidden="true" className="absolute left-0 -translate-x-full pr-1 text-[#FFA900]">&ldquo;</span>
+                <TypedText key={activeYear} text={activeMilestone.description} onDone={() => setTypedYear(activeYear)} />
+              </p>
+            )}
+          </blockquote>
+
+          <button
+            type="button"
+            onClick={goNext}
+            aria-label={isLast ? "Recommencer l'histoire" : "Année suivante"}
+            className={`${ARROW_CLASS} xl:absolute xl:-right-20 xl:top-1/2 xl:-translate-y-1/2 max-xl:hidden`}
+          >
+            {isLast ? (
+              <RotateCcw aria-hidden="true" className="h-9 w-9" strokeWidth={1.5} />
+            ) : (
+              <ArrowRight aria-hidden="true" className="h-10 w-10" strokeWidth={1.5} />
+            )}
+          </button>
+
+          {/* Écrans plus étroits : les deux flèches sous le texte */}
+          <div className="-ml-4 mt-6 flex items-center gap-2 xl:hidden">
+            <button type="button" onClick={goPrevious} disabled={activeIndex === 0} aria-label="Année précédente" className={ARROW_CLASS}>
+              <ArrowLeft aria-hidden="true" className="h-10 w-10" strokeWidth={1.5} />
+            </button>
+            <button type="button" onClick={goNext} aria-label={isLast ? "Recommencer l'histoire" : "Année suivante"} className={ARROW_CLASS}>
+              {isLast ? (
+                <RotateCcw aria-hidden="true" className="h-9 w-9" strokeWidth={1.5} />
+              ) : (
+                <ArrowRight aria-hidden="true" className="h-10 w-10" strokeWidth={1.5} />
+              )}
+            </button>
           </div>
+        </div>
 
-          <h2 className="mb-6 text-2xl font-bold text-white md:mb-8 md:text-3xl">
-            {SECTION_TITLE}, <span className="text-[#FFA900]">racontée par {BOT_NAME}</span>
-          </h2>
+        {/* Frise : le petit Téo marche jusqu'à l'année choisie */}
+        <div ref={timelineRef} className="scrollbar-hide -mx-2 mt-12 overflow-x-auto px-2 pb-2 md:mt-16">
+          <div className="relative min-w-[38rem] pt-16 md:min-w-0">
+            <div
+              aria-hidden="true"
+              className="absolute top-0 z-10 -ml-6 w-12 transition-[left] duration-700 ease-in-out"
+              style={{ left: nodeCenter(targetIndex) }}
+              onTransitionEnd={(e) => e.target === e.currentTarget && e.propertyName === "left" && setWalking(false)}
+            >
+              <span className="block transition-transform duration-300" style={{ transform: facingLeft ? "scaleX(-1)" : undefined }}>
+                <Robot
+                  limbColor="#7FD6D3"
+                  className={`h-14 w-12 ${walking ? "" : "robot-still"} ${talking ? "robot-talking" : ""}`}
+                />
+              </span>
+            </div>
 
-          {/* Téo présente chaque année dans une bulle */}
-          <div className="mb-8 flex max-w-4xl flex-col items-start gap-3 md:mb-12 md:flex-row md:items-end md:gap-5">
-            <Robot limbColor="#7FD6D3" className="robot-still h-20 w-18 shrink-0 md:h-32 md:w-28" />
-
-            <div className="relative w-full rounded-3xl rounded-tl-md bg-white p-5 text-[#0B1D20] shadow-[0_24px_60px_-30px_rgba(0,0,0,0.6)] md:rounded-tl-3xl md:rounded-bl-md md:p-7">
-              {/* Pointe de la bulle, vers Téo */}
-              <span
-                aria-hidden="true"
-                className="absolute -top-2 left-7 h-4 w-4 rotate-45 bg-white md:-left-2 md:bottom-7 md:top-auto"
-              />
-
-              <div aria-live="polite" className="relative min-h-[7.5rem]">
-                {isLeaving ? (
-                  <p className="flex h-[7.5rem] items-center gap-1.5" aria-label={`${BOT_NAME} écrit`}>
-                    <span className="chat-dot" />
-                    <span className="chat-dot" style={{ animationDelay: "150ms" }} />
-                    <span className="chat-dot" style={{ animationDelay: "300ms" }} />
-                  </p>
-                ) : (
-                  <div className="menu-item-in">
-                    <p
-                      className="text-3xl font-bold tracking-tight md:text-4xl"
-                      style={{ color: activeMilestone.accent === "#FFA900" ? "#C27C00" : "#00807B" }}
+            <div className="flex w-full items-center gap-2 md:gap-3">
+              {milestones.map((m) => {
+                const isActive = m.year === targetYear;
+                return (
+                  <button
+                    key={m.year}
+                    ref={isActive ? activeBtnRef : undefined}
+                    type="button"
+                    onClick={() => handleYearSelect(m.year)}
+                    className="group flex min-w-0 flex-1 cursor-pointer flex-col items-center gap-2 rounded-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#FFA900]"
+                    aria-label={`Aller à l'année ${m.year}`}
+                    aria-current={isActive ? "step" : undefined}
+                  >
+                    <div
+                      className="w-full rounded-full transition-all duration-500 ease-out group-hover:-translate-y-0.5"
+                      style={{
+                        height: isActive ? 24 : 18,
+                        backgroundColor: isActive ? m.accent : `${m.accent}25`,
+                        borderWidth: isActive ? 0 : 1,
+                        borderColor: isActive ? "transparent" : `${m.accent}50`,
+                        boxShadow: isActive ? `0 0 0 6px ${m.accent}30, 0 4px 16px ${m.accent}30` : "none",
+                      }}
+                    />
+                    <span
+                      className="whitespace-nowrap text-xs font-semibold transition-colors duration-500"
+                      style={{ color: isActive ? "#fff" : "rgba(255,255,255,0.5)" }}
                     >
-                      {activeMilestone.year}
-                    </p>
-                    {activeMilestone.title && activeMilestone.title !== SECTION_TITLE && (
-                      <h3 className="mt-1 text-lg font-bold md:text-xl">{activeMilestone.title}</h3>
-                    )}
-                    <p className="mt-2 text-base leading-relaxed text-[#0B1D20]/75 md:text-lg">
-                      {activeMilestone.description}
-                    </p>
-                    {activeMilestone.stat && (
-                      <p className="mt-3 text-sm font-semibold uppercase tracking-wider text-[#096475]">
-                        <span className="mr-2 text-2xl font-bold normal-case tracking-normal">{activeMilestone.stat}</span>
-                        {activeMilestone.statLabel}
-                      </p>
-                    )}
-                  </div>
-                )}
-              </div>
-
-              <div className="mt-5 flex items-center justify-between gap-3 border-t border-[#0B1D20]/10 pt-4">
-                <button
-                  type="button"
-                  onClick={goPrevious}
-                  disabled={activeIndex === 0}
-                  className="inline-flex min-h-11 items-center gap-1.5 rounded-full px-3 text-sm font-semibold text-[#096475] transition-colors hover:bg-[#096475]/10 disabled:pointer-events-none disabled:opacity-30 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#FFA900]"
-                >
-                  <ArrowLeft aria-hidden="true" className="h-4 w-4" />
-                  Précédent
-                </button>
-                <span className="text-xs font-medium text-[#0B1D20]/45">
-                  {activeIndex + 1} / {milestones.length}
-                </span>
-                <button
-                  type="button"
-                  onClick={goNext}
-                  className="btn-shine relative inline-flex min-h-11 items-center gap-1.5 overflow-hidden rounded-full bg-[#FFA900] px-4 text-sm font-semibold text-[#0B1D20] transition-all hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#096475]"
-                >
-                  {isLast ? (
-                    <>
-                      <RotateCcw aria-hidden="true" className="h-4 w-4" />
-                      Recommencer
-                    </>
-                  ) : (
-                    <>
-                      Suivant
-                      <ArrowRight aria-hidden="true" className="h-4 w-4" />
-                    </>
-                  )}
-                </button>
-              </div>
+                      {m.year}
+                    </span>
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>
-
-        <div
-          ref={timelineRef}
-          className="flex items-center w-full overflow-x-auto scrollbar-hide snap-x snap-mandatory px-2 pb-2 pt-6 md:pt-10"
-        >
-          <div className="flex items-center w-full min-w-[38rem] md:min-w-0 gap-2 md:gap-3">
-            {milestones.map((m) => {
-              const isActive = m.year === activeYear;
-              return (
-                <button
-                  key={m.year}
-                  ref={isActive ? activeBtnRef : undefined}
-                  onClick={() => handleYearSelect(m.year)}
-                  className="flex flex-col items-center gap-2 group cursor-pointer snap-center flex-1 min-w-0"
-                  aria-label={`Aller à l'année ${m.year}`}
-                  aria-current={isActive ? "step" : undefined}
-                >
-                  <div
-                    className="w-full rounded-full transition-all duration-500 ease-out group-hover:-translate-y-0.5"
-                    style={{
-                      height: isActive ? 24 : 18,
-                      backgroundColor: isActive ? m.accent : `${m.accent}25`,
-                      borderWidth: isActive ? 0 : 1,
-                      borderColor: isActive ? "transparent" : `${m.accent}50`,
-                      boxShadow: isActive
-                        ? `0 0 0 6px ${m.accent}30, 0 4px 16px ${m.accent}30`
-                        : "none",
-                      transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
-                    }}
-                  />
-                  <span
-                    className="text-xs font-semibold transition-all duration-500 whitespace-nowrap"
-                    style={{
-                      color: isActive ? "#fff" : "rgba(255,255,255,0.5)",
-                    }}
-                  >
-                    {m.year}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        <div className="flex justify-center gap-2 mt-8">
-          {milestones.map((m, i) => (
-            <button
-              key={m.year}
-              onClick={() => handleYearSelect(m.year)}
-              className="h-1.5 rounded-full transition-all duration-500 cursor-pointer"
-              style={{
-                width: i === activeIndex ? 32 : 6,
-                backgroundColor:
-                  i === activeIndex
-                    ? m.accent
-                    : i < activeIndex
-                    ? `${m.accent}40`
-                    : "rgba(255,255,255,0.15)",
-              }}
-              aria-label={`Aller à l'année ${m.year}`}
-            />
-          ))}
-        </div>
       </div>
-
-      <div
-        className="absolute bottom-0 left-0 right-0 h-px transition-all duration-700"
-        style={{
-          background: `linear-gradient(90deg, transparent, ${activeMilestone.accent}40, transparent)`,
-        }}
-      />
     </section>
   );
 }

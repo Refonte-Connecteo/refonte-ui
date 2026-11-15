@@ -39,7 +39,7 @@ export default function Robot({ className = "", limbColor = "#096475" }: { class
           <circle className="robot-eye" cx="28" cy="29" r="3.4" fill="#5CE6E0" />
           <circle className="robot-eye" cx="44" cy="29" r="3.4" fill="#5CE6E0" />
         </g>
-        <path d="M32 34.5c2.4 1.8 5.6 1.8 8 0" fill="none" stroke="#5CE6E0" strokeWidth="1.8" strokeLinecap="round" />
+        <path className="robot-mouth" d="M32 34.5c2.4 1.8 5.6 1.8 8 0" fill="none" stroke="#5CE6E0" strokeWidth="1.8" strokeLinecap="round" />
       </g>
     </svg>
   );
