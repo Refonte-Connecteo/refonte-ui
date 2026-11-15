@@ -127,7 +127,14 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="mt-12 pt-6 border-t border-white/5 flex flex-col items-center gap-4 sm:flex-row sm:justify-between">
+        <div className="relative mt-12 pt-6 border-t border-white/5 flex flex-col items-center gap-4 sm:flex-row sm:justify-between">
+          {/* Signature personnelle, posée au centre de la ligne de séparation */}
+          <span
+            aria-hidden="true"
+            className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 select-none bg-[#0D1117] px-3 font-mono text-[10px] tracking-[0.3em] text-white/25"
+          >
+            ..-./../..-./.-
+          </span>
           <p className="text-xs text-white/30">
             &copy; {new Date().getFullYear()} CONNECTEO. Tous droits réservés.
           </p>
