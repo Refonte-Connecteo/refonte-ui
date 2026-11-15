@@ -59,7 +59,7 @@ const expertiseChoices = (expertises: Expertise[]): ChatChoice[] =>
 
 export const CHAT_NODES: Record<string, ChatNode> = {
   start: {
-    messages: [`Bonjour, je suis ${BOT_NAME} !`, "Que cherchez-vous ?"],
+    messages: [`Bonjour, je suis ${BOT_NAME} !`, "Que cherchez-vous ? Choisissez ci-dessous, ou écrivez-moi votre question."],
     choices: [
       { label: "Découvrir vos solutions", next: "solutions" },
       { label: "Rejoindre l'équipe", next: "careers" },

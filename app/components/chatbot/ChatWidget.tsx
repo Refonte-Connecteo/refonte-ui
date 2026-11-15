@@ -2,21 +2,28 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
-import { ArrowLeft, ExternalLink, RotateCcw, X } from "lucide-react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
+import { ArrowLeft, ExternalLink, RotateCcw, SendHorizontal, X } from "lucide-react";
 import { BOT_NAME, CHAT_NODES, START_NODE } from "@/lib/chatbot";
-import type { ChatChoice } from "@/lib/chatbot";
+import type { ChatChoice, ChatNode } from "@/lib/chatbot";
+import { SEARCH_EXAMPLES, searchSite } from "@/lib/teoSearch";
 import Robot from "./Robot";
 
 const TYPING_MS = 550;
-// Petites bulles de Téo : la première après 4 s, puis une toutes les 30 s, 3 au maximum par page.
-const HINT_FIRST_DELAY_MS = 4000;
-const HINT_GAP_MS = 30000;
+// Petites bulles de Téo : la première après 3 s, puis une toutes les 12 s, 5 au maximum par page.
+const HINT_FIRST_DELAY_MS = 3000;
+const HINT_GAP_MS = 12000;
 const HINT_DURATION_MS = 6000;
-const HINT_MAX_PER_PAGE = 3;
+const HINT_MAX_PER_PAGE = 5;
 const HINT_DISMISSED_KEY = "connecteo_chat_hint_dismissed";
 
-const HINTS = [`Bonjour, je suis ${BOT_NAME} 👋`, "Besoin d'aide ?", "Une question ? Je vous oriente."];
+const HINTS = [
+  `Bonjour, je suis ${BOT_NAME} 👋`,
+  "Posez-moi une question, je cherche pour vous.",
+  `Essayez : « ${SEARCH_EXAMPLES.join(" », « ")} »…`,
+  "Une offre précise ? Demandez-moi.",
+  "Besoin d'aide ? Je vous oriente.",
+];
 
 /** Message propre à la page, glissé en deuxième position. */
 const PAGE_HINTS: { prefix: string; text: string }[] = [
@@ -29,7 +36,7 @@ const PAGE_HINTS: { prefix: string; text: string }[] = [
 
 function hintsFor(pathname: string): string[] {
   const page = PAGE_HINTS.find((h) => pathname.startsWith(h.prefix));
-  return page ? [HINTS[0], page.text, HINTS[1]] : HINTS;
+  return page ? [HINTS[0], page.text, ...HINTS.slice(1)] : HINTS;
 }
 
 function readDismissed(): boolean {
@@ -61,6 +68,9 @@ export default function ChatWidget() {
   const [bubbles, setBubbles] = useState<Bubble[]>(() => botBubbles(START_NODE));
   const [steps, setSteps] = useState<Step[]>([]);
   const [nodeId, setNodeId] = useState(START_NODE);
+  /** Réponses construites à partir d'une question libre (recherche dans le site). */
+  const [searchNodes, setSearchNodes] = useState<Record<string, ChatNode>>({});
+  const [question, setQuestion] = useState("");
   /** Page sur laquelle une zone [data-hide-teo] est à l'écran (le Téo de la page parle déjà). */
   const [hiddenOn, setHiddenOn] = useState<string | null>(null);
   const hidden = !open && hiddenOn === pathname;
@@ -69,6 +79,7 @@ export default function ChatWidget() {
   const panelRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const typingTimer = useRef<number | undefined>(undefined);
+  const searchCount = useRef(0);
 
   const closePanel = () => {
     setOpen(false);
@@ -146,21 +157,53 @@ export default function ChatWidget() {
     el.scrollTo({ top, behavior: reduced ? "auto" : "smooth" });
   }, [bubbles, typing, open]);
 
-  const goTo = (choice: ChatChoice) => {
-    const next = choice.next;
-    if (!next) return;
+  const nodeOf = (id: string): ChatNode => searchNodes[id] ?? CHAT_NODES[id];
 
+  /** Affiche la question du visiteur, « Téo écrit… », puis la réponse. */
+  const reply = (userText: string, next: string, node: ChatNode) => {
     window.clearTimeout(typingTimer.current);
     setSteps((previous) => [...previous, { nodeId, bubbleCount: bubbles.length }]);
-    setBubbles((previous) => [...previous, { from: "user", text: choice.label }]);
+    setBubbles((previous) => [...previous, { from: "user", text: userText }]);
     setTyping(true);
 
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     typingTimer.current = window.setTimeout(() => {
       setTyping(false);
       setNodeId(next);
-      setBubbles((previous) => [...previous, ...botBubbles(next)]);
+      setBubbles((previous) => [...previous, ...node.messages.map((text) => ({ from: "bot" as const, text }))]);
     }, reduced ? 0 : TYPING_MS);
+  };
+
+  const goTo = (choice: ChatChoice) => {
+    if (choice.next) reply(choice.label, choice.next, nodeOf(choice.next));
+  };
+
+  /** Question libre : Téo cherche dans les pages, les offres et les réponses pratiques du site. */
+  const ask = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const text = question.trim();
+    if (!text || typing) return;
+    setQuestion("");
+
+    const results = searchSite(text);
+    const best = results[0];
+    const node: ChatNode =
+      results.length === 0
+        ? {
+            messages: [`Je n'ai rien trouvé pour « ${text} ».`, "Essayez avec un autre mot, ou écrivez à notre équipe."],
+            choices: [{ label: "Écrire un message", href: "/contact" }, { label: "Revenir au menu", next: START_NODE }],
+          }
+        : {
+            messages: best.answer ? [...best.answer, "Pour en savoir plus :"] : ["Voici ce que j'ai trouvé sur le site :"],
+            choices: [
+              ...results.map((entry) => ({ label: entry.title, href: entry.href })),
+              { label: "Revenir au menu", next: START_NODE },
+            ],
+          };
+    searchCount.current += 1;
+    const id = `search:${searchCount.current}`;
+    setSearchNodes((previous) => ({ ...previous, [id]: node }));
+    reply(text, id, node);
   };
 
   const goBack = () => {
@@ -302,12 +345,37 @@ export default function ChatWidget() {
 
             {!typing && (
               <ul key={nodeId} className="menu-item-in mt-3 space-y-2">
-                {CHAT_NODES[nodeId].choices.map((choice) => (
+                {nodeOf(nodeId).choices.map((choice) => (
                   <li key={choice.label}>{renderChoice(choice)}</li>
                 ))}
               </ul>
             )}
           </div>
+
+          {/* Question libre */}
+          <form onSubmit={ask} className="flex shrink-0 items-center gap-2 border-t border-black/5 bg-white p-2.5">
+            <label htmlFor="teo-question" className="sr-only">
+              Posez votre question à {BOT_NAME}
+            </label>
+            <input
+              id="teo-question"
+              type="text"
+              value={question}
+              onChange={(e) => setQuestion(e.target.value)}
+              maxLength={120}
+              autoComplete="off"
+              placeholder="Posez votre question…"
+              className="min-h-11 min-w-0 flex-1 rounded-full bg-[#F4F8F8] px-4 text-sm text-[#0B1D20] outline-none ring-1 ring-black/5 placeholder:text-[#0B1D20]/40 focus:ring-2 focus:ring-[#00AFA9]"
+            />
+            <button
+              type="submit"
+              disabled={!question.trim() || typing}
+              aria-label="Envoyer la question"
+              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#096475] text-white transition-colors hover:bg-[#00AFA9] disabled:opacity-40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FFA900]"
+            >
+              <SendHorizontal aria-hidden="true" className="h-4.5 w-4.5" />
+            </button>
+          </form>
         </div>
       )}
     </>
