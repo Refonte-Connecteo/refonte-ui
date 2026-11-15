@@ -1,19 +1,15 @@
 "use client";
 
 import { useState, useCallback, useRef, useEffect } from "react";
-import { ArrowLeft, ArrowRight, RotateCcw } from "lucide-react";
-import { Lora } from "next/font/google";
+import { ChevronLeft, ChevronRight, RotateCcw } from "lucide-react";
 import Robot from "./chatbot/Robot";
 import { BOT_NAME } from "@/lib/chatbot";
-
-/** Police « de livre » pour la citation de Téo. */
-const bookFont = Lora({ subsets: ["latin"], style: ["normal", "italic"] });
 
 const SECTION_TITLE = "Notre histoire";
 
 /** Flèches Précédent / Suivant : simples icônes, grande zone cliquable. */
 const ARROW_CLASS =
-  "flex h-14 w-14 shrink-0 items-center justify-center rounded-full text-white/80 transition-all hover:scale-110 hover:text-[#FFA900] disabled:pointer-events-none disabled:opacity-25 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#FFA900]";
+  "flex h-16 w-16 md:h-24 md:w-24 shrink-0 items-center justify-center rounded-full text-white/80 transition-all hover:scale-110 hover:text-[#FFA900] disabled:pointer-events-none disabled:opacity-25 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#FFA900]";
 /** Durée de l'effet « Téo écrit… » entre deux années (le temps que le petit Téo marche jusqu'à l'année). */
 const TYPING_MS = 700;
 /** Vitesse d'écriture du texte, en millisecondes par caractère. */
@@ -212,16 +208,16 @@ export default function Chronologie() {
         <h2 className="mb-8 text-2xl font-bold text-white md:mb-12 md:text-3xl">{SECTION_TITLE}</h2>
 
         {/* L'année puis la citation de Téo, alignées à gauche avec le titre et la frise.
-            Grand écran : flèches de part et d'autre, dans les marges. Sinon : flèches sous le texte. */}
+            À partir de 1400 px : chevrons de part et d'autre, dans les marges. Sinon : sous le texte. */}
         <div className="relative">
           <button
             type="button"
             onClick={goPrevious}
             disabled={activeIndex === 0}
             aria-label="Année précédente"
-            className={`${ARROW_CLASS} xl:absolute xl:-left-20 xl:top-1/2 xl:-translate-y-1/2 max-xl:hidden`}
+            className={`${ARROW_CLASS} min-[1400px]:absolute min-[1400px]:-left-28 min-[1400px]:top-1/2 min-[1400px]:-translate-y-1/2 max-[1399px]:hidden`}
           >
-            <ArrowLeft aria-hidden="true" className="h-10 w-10" strokeWidth={1.5} />
+            <ChevronLeft aria-hidden="true" className="h-14 w-14 md:h-20 md:w-20" strokeWidth={1.25} />
           </button>
 
           <p className="text-5xl font-bold tracking-tight text-white md:text-7xl">{targetYear}</p>
@@ -234,7 +230,7 @@ export default function Chronologie() {
                 <span className="chat-dot !bg-white" style={{ animationDelay: "300ms" }} />
               </p>
             ) : (
-              <p className={`${bookFont.className} menu-item-in relative max-w-4xl text-2xl italic leading-snug text-white md:text-4xl md:leading-snug`}>
+              <p className="menu-item-in relative max-w-4xl text-2xl font-medium leading-snug text-white md:text-4xl md:leading-snug">
                 {/* Guillemet « suspendu » dans la marge : le texte reste aligné avec le titre */}
                 <span aria-hidden="true" className="absolute left-0 -translate-x-full pr-1 text-[#FFA900]">&ldquo;</span>
                 <TypedText key={activeYear} text={activeMilestone.description} onDone={() => setTypedYear(activeYear)} />
@@ -246,25 +242,25 @@ export default function Chronologie() {
             type="button"
             onClick={goNext}
             aria-label={isLast ? "Recommencer l'histoire" : "Année suivante"}
-            className={`${ARROW_CLASS} xl:absolute xl:-right-20 xl:top-1/2 xl:-translate-y-1/2 max-xl:hidden`}
+            className={`${ARROW_CLASS} min-[1400px]:absolute min-[1400px]:-right-28 min-[1400px]:top-1/2 min-[1400px]:-translate-y-1/2 max-[1399px]:hidden`}
           >
             {isLast ? (
-              <RotateCcw aria-hidden="true" className="h-9 w-9" strokeWidth={1.5} />
+              <RotateCcw aria-hidden="true" className="h-10 w-10 md:h-14 md:w-14" strokeWidth={1.25} />
             ) : (
-              <ArrowRight aria-hidden="true" className="h-10 w-10" strokeWidth={1.5} />
+              <ChevronRight aria-hidden="true" className="h-14 w-14 md:h-20 md:w-20" strokeWidth={1.25} />
             )}
           </button>
 
           {/* Écrans plus étroits : les deux flèches sous le texte */}
-          <div className="-ml-4 mt-6 flex items-center gap-2 xl:hidden">
+          <div className="-ml-5 mt-4 flex items-center gap-2 md:-ml-7 min-[1400px]:hidden">
             <button type="button" onClick={goPrevious} disabled={activeIndex === 0} aria-label="Année précédente" className={ARROW_CLASS}>
-              <ArrowLeft aria-hidden="true" className="h-10 w-10" strokeWidth={1.5} />
+              <ChevronLeft aria-hidden="true" className="h-14 w-14 md:h-20 md:w-20" strokeWidth={1.25} />
             </button>
             <button type="button" onClick={goNext} aria-label={isLast ? "Recommencer l'histoire" : "Année suivante"} className={ARROW_CLASS}>
               {isLast ? (
-                <RotateCcw aria-hidden="true" className="h-9 w-9" strokeWidth={1.5} />
+                <RotateCcw aria-hidden="true" className="h-10 w-10 md:h-14 md:w-14" strokeWidth={1.25} />
               ) : (
-                <ArrowRight aria-hidden="true" className="h-10 w-10" strokeWidth={1.5} />
+                <ChevronRight aria-hidden="true" className="h-14 w-14 md:h-20 md:w-20" strokeWidth={1.25} />
               )}
             </button>
           </div>
