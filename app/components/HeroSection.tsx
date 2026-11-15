@@ -63,7 +63,8 @@ function CtaButton({ label, href, small = false }: { label: string; href: string
 
 /**
  * Carrousel hero administrable (Slides Hero dans l'admin).
- * Ordinateur : image au format 8:3 (1920 × 720), bouton et indicateurs superposés en bas.
+ * Ordinateur : image au format 8:3 (1920 × 720) sur toute la largeur. Accueil : dès le haut de la page, sous
+ * le menu flottant ; autres pages : sous le menu. Bouton et indicateurs superposés en bas.
  * Mobile : version portrait 4:5 si chaque slide en a une, sinon l'image entière ; bouton et indicateurs sous l'image.
  */
 export default function HeroSection({ page, heading, defaultCta, fallbackSlides = [], fallback }: HeroSectionProps) {
@@ -152,18 +153,20 @@ export default function HeroSection({ page, heading, defaultCta, fallbackSlides 
     <section
       aria-roledescription="carrousel"
       aria-label={heading}
-      className="w-full bg-white px-4 pt-[5.25rem] sm:px-6 sm:pt-24 md:px-8 md:pt-28"
+      className={`w-full bg-white px-4 pt-[5.25rem] sm:px-6 sm:pt-24 md:px-0 ${
+        page === "home" ? "md:pt-0" : "md:pt-24"
+      }`}
     >
       <h1 className="sr-only">{heading}</h1>
       <div
-        className="relative mx-auto max-w-[1920px]"
+        className="relative mx-auto max-w-[1920px] md:max-w-none"
         // Le carrousel défile toujours, même sous la souris ou après un clic sur un indicateur.
         // Seule la navigation au clavier (Tab) le met en pause, pour laisser le temps de lire (WCAG 2.2.2).
         onFocus={(e) => setPaused(e.target.matches(":focus-visible"))}
         onBlur={(e) => !e.currentTarget.contains(e.relatedTarget) && setPaused(false)}
       >
         <div
-          className={`relative overflow-hidden rounded-[1.25rem] bg-[#E5F3F3] shadow-[0_24px_60px_-40px_rgba(9,100,117,0.6)] md:rounded-[2rem] ${
+          className={`relative overflow-hidden rounded-[1.25rem] bg-[#E5F3F3] shadow-[0_24px_60px_-40px_rgba(9,100,117,0.6)] md:rounded-none md:shadow-none ${
             useMobileImages ? "aspect-[4/5] md:aspect-[8/3]" : "aspect-[8/3]"
           } ${list === null ? "animate-pulse" : ""}`}
           onTouchStart={(e) => (touchStartX.current = e.touches[0].clientX)}

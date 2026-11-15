@@ -65,7 +65,7 @@ export default function StickyStack({
       >
 
         <div className="relative z-10 w-full bg-white">
-          <div className="mx-auto max-w-6xl px-6 md:px-10 pt-20 md:pt-28 pb-10 md:pb-12">
+          <div className="mx-auto max-w-6xl px-6 md:px-10 pt-20 md:pt-10 lg:pt-12 pb-10 md:pb-12">
             <div ref={statsRef} className="grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-10 md:gap-8">
               {stats.map((stat) => (
                 <div key={stat.label} className="text-center">

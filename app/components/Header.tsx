@@ -109,7 +109,6 @@ export default function Header() {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
   const [subOpen, setSubOpen] = useState(false);
-  const [compact, setCompact] = useState(false);
   const headerRef = useRef<HTMLElement>(null);
   const subRef = useRef<HTMLLIElement>(null);
 
@@ -165,35 +164,20 @@ export default function Header() {
     setSubOpen(false);
   }, [pathname]);
 
-  useEffect(() => {
-    const onScroll = () => setCompact(window.scrollY > 24);
-    const frame = requestAnimationFrame(onScroll);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => {
-      cancelAnimationFrame(frame);
-      window.removeEventListener("scroll", onScroll);
-    };
-  }, []);
-
   return (
     <header
       ref={headerRef}
-      className={`fixed left-0 right-0 z-50 transition-all duration-500 top-3 mx-4 sm:mx-6 md:top-4 md:mx-8 lg:mx-auto lg:left-6 lg:right-6 xl:left-0 xl:right-0 xl:max-w-7xl xl:mx-auto rounded-[1.5rem] md:rounded-[2rem] backdrop-blur-2xl border border-white/20 ${
-        compact ? "bg-[#0B1D20]/90 shadow-2xl shadow-black/20" : "bg-[#0B1D20]/70 shadow-xl shadow-black/5"
-      }`}
+      // Menu flottant et compact sur toutes les pages, sans changement de forme au défilement.
+      className="fixed left-0 right-0 top-3 z-50 mx-4 rounded-[1.5rem] border border-white/20 bg-[#0B1D20]/90 shadow-2xl shadow-black/20 backdrop-blur-2xl sm:mx-6 md:top-4 md:mx-8 md:rounded-[2rem] lg:left-6 lg:right-6 lg:mx-auto xl:left-0 xl:right-0 xl:max-w-7xl"
     >
       <div
-        className={`mx-auto flex items-center justify-between gap-6 transition-all duration-500 px-4 sm:px-5 md:px-8 ${
-          compact ? "py-1.5 sm:py-2" : "py-2.5 sm:py-3"
-        }`}
+        className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-4 py-1.5 sm:px-5 sm:py-2 md:px-8"
       >
         <a href="/" className="shrink-0">
           <img
             src="/images/logo1.png"
             alt="Logo"
-            className={`w-auto transition-all duration-300 hover:scale-105 ${
-              compact ? "h-9 sm:h-10 md:h-11 lg:h-12" : "h-10 sm:h-12 md:h-14 lg:h-15"
-            }`}
+            className="h-9 w-auto transition-transform duration-300 hover:scale-105 sm:h-10 md:h-11 lg:h-12"
           />
         </a>
 
