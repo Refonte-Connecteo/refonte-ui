@@ -1,4 +1,6 @@
 import type {
+  AccessResetResponse,
+  RecoveryCodesResponse,
   AuthSuccessResponse,
   AuditLogPage,
   AnalyticsSummaryResponse,
@@ -189,6 +191,27 @@ class ApiClient {
       method: "POST",
       body: JSON.stringify({ mfaToken, code }),
     });
+  }
+
+  /** Connexion avec un code de secours (téléphone indisponible). */
+  verifyMfaRecoveryCode(mfaToken: string, recoveryCode: string): Promise<AuthSuccessResponse> {
+    return this.request<AuthSuccessResponse>("/admin/mfa/verify", {
+      method: "POST",
+      body: JSON.stringify({ mfaToken, recoveryCode }),
+    });
+  }
+
+  /** Nouveaux codes de secours ; les anciens deviennent inutilisables. */
+  regenerateRecoveryCodes(currentPassword: string): Promise<RecoveryCodesResponse> {
+    return this.request<RecoveryCodesResponse>("/auth/mfa/recovery-codes", {
+      method: "POST",
+      body: JSON.stringify({ currentPassword }),
+    });
+  }
+
+  /** Super administrateur : lien à usage unique (1 h) pour qu'un admin redéfinisse son accès. */
+  resetAdminAccess(id: number): Promise<AccessResetResponse> {
+    return this.request<AccessResetResponse>(`/admin/${id}/reset-access`, { method: "POST" });
   }
 
   /** Le refresh token gardé par le navigateur est envoyé pour être révoqué côté API. */

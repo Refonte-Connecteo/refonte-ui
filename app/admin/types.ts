@@ -20,6 +20,22 @@ export interface AuthSuccessResponse {
   token: string;
   refreshToken: string;
   forcePasswordChange?: boolean;
+  /** Codes de secours, renvoyés une seule fois à l'activation du MFA. */
+  recoveryCodes?: string[];
+  /** Codes de secours restants après une connexion avec l'un d'eux. */
+  remainingRecoveryCodes?: number;
+}
+
+export interface RecoveryCodesResponse {
+  message: string;
+  recoveryCodes: string[];
+}
+
+export interface AccessResetResponse {
+  message: string;
+  user: User;
+  reset_token: string;
+  reset_token_expires: string;
 }
 
 export interface RefreshResponse {

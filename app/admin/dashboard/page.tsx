@@ -220,6 +220,9 @@ export default function AdminDashboardPage() {
   const [summary, setSummary] = useState<AnalyticsSummary | null>(null);
   const [range, setRange] = useState(7);
   const [analyticsLoading, setAnalyticsLoading] = useState(true);
+  /** Dernier lien de réinitialisation émis, à transmettre à l'administrateur par un canal sûr. */
+  const [resetLink, setResetLink] = useState<{ email: string; url: string; expires: string } | null>(null);
+  const [resetCopied, setResetCopied] = useState(false);
 
   const isSuperAdmin = profile?.user_type?.type === "superAdmin";
 
@@ -282,6 +285,36 @@ export default function AdminDashboardPage() {
       );
     } catch (err) {
       alert(err instanceof Error ? err.message : "Erreur");
+    }
+  };
+
+  const handleResetAccess = async (admin: AdminUser) => {
+    if (!confirm(
+      `Réinitialiser l'accès de ${admin.email} ?\n\nSon mot de passe et sa double authentification seront effacés et ` +
+      "toutes ses sessions coupées. Vous obtiendrez un lien valable 1 heure à lui transmettre.",
+    )) return;
+
+    try {
+      const { reset_token, reset_token_expires } = await api.resetAdminAccess(admin.id);
+      const url = `${window.location.origin}/admin/set-password?email=${encodeURIComponent(admin.email)}&token=${encodeURIComponent(reset_token)}`;
+      setResetCopied(false);
+      setResetLink({
+        email: admin.email,
+        url,
+        expires: new Date(reset_token_expires).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }),
+      });
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Erreur");
+    }
+  };
+
+  const copyResetLink = async () => {
+    if (!resetLink) return;
+    try {
+      await navigator.clipboard.writeText(resetLink.url);
+      setResetCopied(true);
+    } catch {
+      setResetCopied(false);
     }
   };
 
@@ -376,6 +409,33 @@ export default function AdminDashboardPage() {
           )}
         </div>
 
+        {resetLink && (
+          <Card className="mb-4 border-amber-200">
+            <div className="space-y-3 p-5">
+              <p className="text-sm text-gray-700">
+                Lien de réinitialisation pour <strong>{resetLink.email}</strong>, valable jusqu&apos;à{" "}
+                <strong>{resetLink.expires}</strong> et utilisable une seule fois. Transmettez-le par un canal
+                sûr (en personne, messagerie interne), jamais par un canal public.
+              </p>
+              <div className="flex flex-col gap-2 sm:flex-row">
+                <input
+                  readOnly
+                  value={resetLink.url}
+                  aria-label="Lien de réinitialisation"
+                  onFocus={(e) => e.target.select()}
+                  className="min-w-0 flex-1 rounded-xl border border-gray-200 bg-gray-50 px-3 py-2 font-mono text-xs text-gray-700"
+                />
+                <Button type="button" variant="secondary" onClick={copyResetLink}>
+                  {resetCopied ? "Copié" : "Copier le lien"}
+                </Button>
+                <Button type="button" variant="ghost" onClick={() => setResetLink(null)}>
+                  Fermer
+                </Button>
+              </div>
+            </div>
+          </Card>
+        )}
+
         <Card className="overflow-hidden">
           <DataTable>
               <thead>
@@ -411,6 +471,7 @@ export default function AdminDashboardPage() {
                     {isSuperAdmin && (
                       <td className="px-5 py-3.5 text-right">
                         <div className="flex items-center justify-end gap-1.5">
+                          <RowAction onClick={() => handleResetAccess(admin)}>Réinitialiser l&apos;accès</RowAction>
                           {admin.is_active ? (
                             <RowAction onClick={() => handleDeactivate(admin.id)} tone="warning">Désactiver</RowAction>
                           ) : (

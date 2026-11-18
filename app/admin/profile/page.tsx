@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState, type FormEvent } from "react";
-import { KeyRound, LogOut, ShieldCheck, ShieldOff, UserIcon } from "lucide-react";
+import { KeyRound, LifeBuoy, LogOut, ShieldCheck, ShieldOff, UserIcon } from "lucide-react";
+import RecoveryCodes from "@/app/admin/components/RecoveryCodes";
 import { api } from "@/lib/api";
 import { clearSession, redirectToLogin } from "@/lib/session";
 import type { User } from "@/app/admin/types";
@@ -31,6 +32,11 @@ export default function AdminProfilePage() {
   const [mfaError, setMfaError] = useState("");
   const [mfaSuccess, setMfaSuccess] = useState("");
   const [mfaLoading, setMfaLoading] = useState(false);
+
+  const [codesPassword, setCodesPassword] = useState("");
+  const [codesError, setCodesError] = useState("");
+  const [codesLoading, setCodesLoading] = useState(false);
+  const [newCodes, setNewCodes] = useState<string[] | null>(null);
 
   const [sessionsError, setSessionsError] = useState("");
   const [sessionsLoading, setSessionsLoading] = useState(false);
@@ -78,6 +84,21 @@ export default function AdminProfilePage() {
       setPasswordError(err instanceof Error ? err.message : "Erreur");
     } finally {
       setPasswordLoading(false);
+    }
+  };
+
+  const handleRegenerateCodes = async (e: FormEvent) => {
+    e.preventDefault();
+    setCodesError("");
+    setCodesLoading(true);
+    try {
+      const { recoveryCodes } = await api.regenerateRecoveryCodes(codesPassword);
+      setNewCodes(recoveryCodes);
+      setCodesPassword("");
+    } catch (err) {
+      setCodesError(err instanceof Error ? err.message : "Erreur");
+    } finally {
+      setCodesLoading(false);
     }
   };
 
@@ -212,6 +233,40 @@ export default function AdminProfilePage() {
           </form>
         </div>
       </Card>
+
+      {profile?.mfa_enabled && (
+        <Card>
+          <CardHeader
+            title="Codes de secours"
+            icon={LifeBuoy}
+            subtitle="Pour vous connecter si vous perdez votre téléphone. En générer de nouveaux rend les anciens inutilisables."
+          />
+          <div className="p-6">
+            {newCodes ? (
+              <RecoveryCodes codes={newCodes} onDone={() => setNewCodes(null)} doneLabel="Terminé" />
+            ) : (
+              <form onSubmit={handleRegenerateCodes} className="space-y-4">
+                {codesError && <Alert>{codesError}</Alert>}
+                <div>
+                  <Label htmlFor="codesPassword">Mot de passe actuel</Label>
+                  <Input
+                    id="codesPassword"
+                    type="password"
+                    autoComplete="current-password"
+                    value={codesPassword}
+                    onChange={(e) => setCodesPassword(e.target.value)}
+                    required
+                  />
+                </div>
+                <Button variant="secondary" type="submit" disabled={codesLoading}>
+                  <LifeBuoy className="w-4 h-4" />
+                  {codesLoading ? "Génération..." : "Générer de nouveaux codes de secours"}
+                </Button>
+              </form>
+            )}
+          </div>
+        </Card>
+      )}
 
       <Card>
         <CardHeader

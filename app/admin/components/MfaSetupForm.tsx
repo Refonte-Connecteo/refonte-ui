@@ -4,6 +4,7 @@ import { useState, type FormEvent } from "react";
 import { api } from "@/lib/api";
 import { Alert, Button, Input, Label } from "@/app/admin/components/ui";
 import type { AuthSuccessResponse, MfaSetupResponse } from "@/app/admin/types";
+import RecoveryCodes from "@/app/admin/components/RecoveryCodes";
 
 interface MfaSetupFormProps {
   setup: MfaSetupResponse;
@@ -23,6 +24,8 @@ export default function MfaSetupForm({ setup, onSuccess, onBack }: MfaSetupFormP
   const [code, setCode] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  /** Activation réussie : on montre d'abord les codes de secours, puis on termine la connexion. */
+  const [activated, setActivated] = useState<AuthSuccessResponse | null>(null);
 
   const secret = extractSecretFromOtpauthUrl(setup.otpauthUrl);
 
@@ -39,13 +42,18 @@ export default function MfaSetupForm({ setup, onSuccess, onBack }: MfaSetupFormP
 
     try {
       const result = await api.confirmMfaSetup(setup.mfaToken, code);
-      onSuccess(result);
+      if (result.recoveryCodes?.length) setActivated(result);
+      else onSuccess(result);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erreur lors de l'activation du MFA");
     } finally {
       setLoading(false);
     }
   };
+
+  if (activated?.recoveryCodes) {
+    return <RecoveryCodes codes={activated.recoveryCodes} onDone={() => onSuccess(activated)} doneLabel="Accéder à mon espace" />;
+  }
 
   return (
     <div>

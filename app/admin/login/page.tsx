@@ -29,6 +29,7 @@ function AdminLoginContent() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [showForgotHelp, setShowForgotHelp] = useState(false);
   const [mfaSetup, setMfaSetup] = useState<MfaSetupResponse | null>(null);
   const [mfaChallenge, setMfaChallenge] = useState<MfaChallengeResponse | null>(null);
   const [error, setError] = useState("");
@@ -131,6 +132,27 @@ function AdminLoginContent() {
               <Button type="submit" disabled={loading} className="w-full">
                 {loading ? "Connexion..." : "Se connecter"}
               </Button>
+
+              <div className="text-center">
+                <button
+                  type="button"
+                  onClick={() => setShowForgotHelp((v) => !v)}
+                  aria-expanded={showForgotHelp}
+                  className="text-sm font-medium text-gray-500 hover:text-brand-700"
+                >
+                  Mot de passe oublié ou téléphone perdu ?
+                </button>
+              </div>
+
+              {/* Aucune vérification de l'adresse ici : la page ne révèle pas si un compte existe. */}
+              {showForgotHelp && (
+                <Alert variant="info">
+                  Contactez votre super administrateur : il vous enverra un lien de réinitialisation,
+                  valable 1 heure, pour choisir un nouveau mot de passe et réactiver la double
+                  authentification. Si vous avez seulement perdu votre téléphone, connectez-vous avec un
+                  de vos codes de secours.
+                </Alert>
+              )}
             </form>
 
             <div className="mt-6 pt-5 border-t border-gray-100 text-center">
