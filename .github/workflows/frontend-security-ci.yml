@@ -9,7 +9,8 @@
 #
 #  Job 1 (SAST)  : Semgrep (p/react, p/javascript, p/owasp-top-ten + règles
 #                  custom XSS-DOM), détection de secrets (gitleaks),
-#                  audit des dépendances (npm audit --audit-level=high).
+#                  audit des dépendances (scripts/audit-gate.mjs : HIGH/CRITICAL
+#                  bloquants, exceptions justifiées et datées hors production).
 #  Job 2 (DAST)  : build de production (`next build`), serveur local
 #                  (`next start`), scan dynamique OWASP ZAP Baseline
 #                  (en-têtes de sécurité, injections client, mauvaises
@@ -186,7 +187,7 @@ jobs:
           npm audit --omit=dev --json > npm-audit-prod-report.json || true
 
       - name: Porte SAST — échec si vulnérabilité >= HIGH
-        run: npm audit --audit-level=high
+        run: node scripts/audit-gate.mjs
 
       # -----------------------------------------------------------------------
       # 1.5 Artefacts SAST (toujours sauvegardés, même en cas d'échec)
