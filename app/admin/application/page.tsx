@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Eye, Trash2, Users } from "lucide-react";
 import { api } from "@/lib/api";
 import { resolveAssetUrl } from "@/lib/security";
+import { clearSession } from "@/lib/session";
 import {
   Card,
   PageHeader,
@@ -42,7 +43,7 @@ export default function ApplicationListPage() {
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erreur");
       if (String(err).includes("Token") || String(err).includes("401")) {
-        localStorage.removeItem("admin_token");
+        clearSession();
         router.push("/admin/login");
       }
     } finally {

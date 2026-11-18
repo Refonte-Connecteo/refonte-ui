@@ -124,15 +124,13 @@ class ApiClient {
       throw new SessionExpiredError();
     }
 
-    if (response.status === 403) {
-      const errorData = await response.json() as { forcePasswordChange?: boolean };
-      if (errorData.forcePasswordChange) {
-        window.location.href = "/admin/force-change-password";
-        throw new Error("Changement de mot de passe obligatoire");
-      }
-    }
+    // Le corps ne peut être lu qu'une fois ; une réponse vide ou non JSON donne {}.
+    const data: unknown = await response.json().catch(() => ({}));
 
-    const data = await response.json();
+    if (response.status === 403 && (data as { forcePasswordChange?: boolean }).forcePasswordChange) {
+      window.location.href = "/admin/force-change-password";
+      throw new Error("Changement de mot de passe obligatoire");
+    }
 
     if (!response.ok) {
       const errorData = data as { error?: string };
@@ -193,8 +191,17 @@ class ApiClient {
     });
   }
 
+  /** Le refresh token gardé par le navigateur est envoyé pour être révoqué côté API. */
   logout(): Promise<LogoutResponse> {
     return this.request<LogoutResponse>("/auth/logout", {
+      method: "POST",
+      body: JSON.stringify({ refreshToken: getRefreshToken() ?? undefined }),
+    });
+  }
+
+  /** Ferme toutes les sessions du compte, sur tous les appareils. */
+  logoutAll(): Promise<LogoutResponse> {
+    return this.request<LogoutResponse>("/auth/logout-all", {
       method: "POST",
     });
   }

@@ -19,6 +19,7 @@ const LOGOUT_REASON_MESSAGES: Record<string, string> = {
   expired: "Votre session a expiré. Veuillez vous reconnecter.",
   password_changed: "Mot de passe modifié. Veuillez vous reconnecter avec votre nouveau mot de passe.",
   mfa_disabled: "Authentification à deux facteurs désactivée. Veuillez vous reconnecter.",
+  sessions_closed: "Toutes vos sessions ont été fermées. Veuillez vous reconnecter.",
 };
 
 function AdminLoginContent() {

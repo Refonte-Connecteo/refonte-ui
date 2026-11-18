@@ -9,7 +9,8 @@ export type LogoutReason =
   | "inactivity"
   | "expired"
   | "password_changed"
-  | "mfa_disabled";
+  | "mfa_disabled"
+  | "sessions_closed";
 
 export function getAccessToken(): string | null {
   if (typeof window === "undefined") return null;

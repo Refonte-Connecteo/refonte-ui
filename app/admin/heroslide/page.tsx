@@ -18,6 +18,7 @@ import {
   RowAction,
 } from "@/app/admin/components/ui";
 import { DEFAULT_CTA } from "./HeroSlideForm";
+import { clearSession } from "@/lib/session";
 
 const PAGES = Object.keys(HERO_PAGE_LABELS) as HeroPage[];
 
@@ -44,7 +45,7 @@ function HeroSlideList() {
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erreur");
       if (String(err).includes("Token") || String(err).includes("401")) {
-        localStorage.removeItem("admin_token");
+        clearSession();
         router.push("/admin/login");
       }
     } finally {

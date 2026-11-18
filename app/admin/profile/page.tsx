@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, type FormEvent } from "react";
-import { KeyRound, ShieldCheck, ShieldOff, UserIcon } from "lucide-react";
+import { KeyRound, LogOut, ShieldCheck, ShieldOff, UserIcon } from "lucide-react";
 import { api } from "@/lib/api";
 import { clearSession, redirectToLogin } from "@/lib/session";
 import type { User } from "@/app/admin/types";
@@ -31,6 +31,9 @@ export default function AdminProfilePage() {
   const [mfaError, setMfaError] = useState("");
   const [mfaSuccess, setMfaSuccess] = useState("");
   const [mfaLoading, setMfaLoading] = useState(false);
+
+  const [sessionsError, setSessionsError] = useState("");
+  const [sessionsLoading, setSessionsLoading] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -75,6 +78,21 @@ export default function AdminProfilePage() {
       setPasswordError(err instanceof Error ? err.message : "Erreur");
     } finally {
       setPasswordLoading(false);
+    }
+  };
+
+  /** Coupe la session sur tous les appareils (ordinateur oublié ouvert, téléphone perdu…). */
+  const handleLogoutAll = async () => {
+    if (!window.confirm("Fermer toutes vos sessions, sur tous vos appareils ? Vous devrez vous reconnecter.")) return;
+    setSessionsError("");
+    setSessionsLoading(true);
+    try {
+      await api.logoutAll();
+      clearSession();
+      redirectToLogin("sessions_closed");
+    } catch (err) {
+      setSessionsError(err instanceof Error ? err.message : "Erreur");
+      setSessionsLoading(false);
     }
   };
 
@@ -192,6 +210,21 @@ export default function AdminProfilePage() {
               {passwordLoading ? "Modification..." : "Changer le mot de passe"}
             </Button>
           </form>
+        </div>
+      </Card>
+
+      <Card>
+        <CardHeader
+          title="Sessions ouvertes"
+          icon={LogOut}
+          subtitle="Un appareil perdu, un ordinateur partagé resté connecté ? Fermez toutes vos sessions d'un coup."
+        />
+        <div className="space-y-4 p-6">
+          {sessionsError && <Alert>{sessionsError}</Alert>}
+          <Button variant="secondary" type="button" onClick={handleLogoutAll} disabled={sessionsLoading}>
+            <LogOut className="w-4 h-4" />
+            {sessionsLoading ? "Fermeture..." : "Déconnecter toutes mes sessions"}
+          </Button>
         </div>
       </Card>
 

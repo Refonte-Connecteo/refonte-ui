@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Check, Eye, Mail, Paperclip, Trash2 } from "lucide-react";
 import { api } from "@/lib/api";
+import { clearSession } from "@/lib/session";
 import {
   Card,
   PageHeader,
@@ -42,7 +43,7 @@ export default function ContactMessageListPage() {
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erreur");
       if (String(err).includes("Token") || String(err).includes("401")) {
-        localStorage.removeItem("admin_token");
+        clearSession();
         router.push("/admin/login");
       }
     } finally {
