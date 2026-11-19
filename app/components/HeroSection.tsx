@@ -63,8 +63,8 @@ function CtaButton({ label, href, small = false }: { label: string; href: string
 
 /**
  * Carrousel hero administrable (Slides Hero dans l'admin).
- * Ordinateur : image au format 8:3 (1920 × 720) sur toute la largeur. Accueil : dès le haut de la page, sous
- * le menu flottant ; autres pages : sous le menu. Bouton et indicateurs superposés en bas.
+ * Ordinateur : image au format 8:3 (1920 × 720) sur toute la largeur, dès le haut de la page, sous le menu
+ * flottant (accueil comme Impact). Bouton et indicateurs superposés en bas.
  * Mobile : version portrait 4:5 si chaque slide en a une, sinon l'image entière ; bouton et indicateurs sous l'image.
  */
 export default function HeroSection({ page, heading, defaultCta, fallbackSlides = [], fallback }: HeroSectionProps) {
@@ -153,9 +153,7 @@ export default function HeroSection({ page, heading, defaultCta, fallbackSlides 
     <section
       aria-roledescription="carrousel"
       aria-label={heading}
-      className={`w-full bg-white px-4 pt-[5.25rem] sm:px-6 sm:pt-24 md:px-0 ${
-        page === "home" ? "md:pt-0" : "md:pt-24"
-      }`}
+      className="w-full bg-white px-4 pt-[5.25rem] sm:px-6 sm:pt-24 md:p-0"
     >
       <h1 className="sr-only">{heading}</h1>
       <div
