@@ -193,6 +193,34 @@ class ApiClient {
     });
   }
 
+  /**
+   * CV ou pièce jointe d'un visiteur (`/private/<nom>`) : jamais servi publiquement, téléchargé
+   * avec le jeton de l'administrateur connecté (session renouvelée une fois si elle a expiré).
+   */
+  async getPrivateFile(ref: string): Promise<Blob> {
+    const name = ref.replace(/^\/private\//, "");
+    const download = () => {
+      const token = getAccessToken();
+      return fetch(`${this.baseUrl}/upload/private/${encodeURIComponent(name)}`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+    };
+
+    let response = await download();
+    if (response.status === 401 && (await this.refreshAccessTokenShared())) {
+      response = await download();
+    }
+    if (response.status === 401) {
+      clearSession();
+      redirectToLogin("expired");
+      throw new SessionExpiredError();
+    }
+    if (!response.ok) {
+      throw new Error(response.status === 404 ? "Fichier introuvable" : `Erreur ${response.status}`);
+    }
+    return response.blob();
+  }
+
   /** Connexion avec un code de secours (téléphone indisponible). */
   verifyMfaRecoveryCode(mfaToken: string, recoveryCode: string): Promise<AuthSuccessResponse> {
     return this.request<AuthSuccessResponse>("/admin/mfa/verify", {

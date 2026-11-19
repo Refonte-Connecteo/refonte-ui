@@ -3,8 +3,8 @@
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { api } from "@/lib/api";
-import { sanitizeUrl } from "@/lib/security";
 import { Card, FormPage, LoadingScreen, Alert } from "@/app/admin/components/ui";
+import PrivateFileLink from "@/app/admin/components/PrivateFileLink";
 
 interface ApplicationDetail {
   id: number;
@@ -66,9 +66,9 @@ export default function ApplicationDetailPage() {
                 <dt className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">CV</dt>
                 <dd className="text-sm text-gray-900">
                   {application.cv_url ? (
-                    <a href={sanitizeUrl(application.cv_url)} target="_blank" rel="noopener noreferrer" className="text-brand-600 hover:text-brand-700 underline">
+                    <PrivateFileLink fileRef={application.cv_url} className="text-brand-600 hover:text-brand-700 underline">
                       Voir le CV
-                    </a>
+                    </PrivateFileLink>
                   ) : (
                     "—"
                   )}

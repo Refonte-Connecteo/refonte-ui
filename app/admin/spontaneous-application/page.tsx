@@ -4,7 +4,6 @@ import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { FileText, Paperclip, Trash2 } from "lucide-react";
 import { api } from "@/lib/api";
-import { resolveAssetUrl } from "@/lib/security";
 import { clearSession } from "@/lib/session";
 import {
   Card,
@@ -16,6 +15,7 @@ import {
   Th,
   RowAction,
 } from "@/app/admin/components/ui";
+import PrivateFileLink from "@/app/admin/components/PrivateFileLink";
 
 interface SpontaneousApplicationItem {
   id: number;
@@ -102,16 +102,13 @@ export default function SpontaneousApplicationListPage() {
                   <td className="px-5 py-3.5 text-gray-700">{app.email}</td>
                   <td className="px-5 py-3.5 text-gray-500 text-xs">
                     {app.cv_url ? (
-                      <a
-                        href={resolveAssetUrl(app.cv_url)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        onClick={(e) => e.stopPropagation()}
+                      <PrivateFileLink
+                        fileRef={app.cv_url}
                         className="inline-flex items-center gap-1 text-brand-600 hover:text-brand-700 font-medium"
                       >
                         <Paperclip className="w-3.5 h-3.5" />
                         CV
-                      </a>
+                      </PrivateFileLink>
                     ) : (
                       <span className="text-gray-300">—</span>
                     )}

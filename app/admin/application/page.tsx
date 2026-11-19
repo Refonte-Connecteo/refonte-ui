@@ -4,7 +4,6 @@ import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Eye, Trash2, Users } from "lucide-react";
 import { api } from "@/lib/api";
-import { resolveAssetUrl } from "@/lib/security";
 import { clearSession } from "@/lib/session";
 import {
   Card,
@@ -16,6 +15,7 @@ import {
   Th,
   RowAction,
 } from "@/app/admin/components/ui";
+import PrivateFileLink from "@/app/admin/components/PrivateFileLink";
 
 interface ApplicationItem {
   id: number;
@@ -105,9 +105,9 @@ export default function ApplicationListPage() {
                   <td className="px-5 py-3.5 text-gray-700">{app.job_posting.title}</td>
                   <td className="px-5 py-3.5 text-xs">
                     {app.cv_url ? (
-                      <a href={resolveAssetUrl(app.cv_url)} target="_blank" rel="noopener noreferrer" className="text-brand-600 hover:text-brand-700 underline">
+                      <PrivateFileLink fileRef={app.cv_url} className="text-brand-600 hover:text-brand-700 underline">
                         Voir CV
-                      </a>
+                      </PrivateFileLink>
                     ) : (
                       <span className="text-gray-300">—</span>
                     )}
