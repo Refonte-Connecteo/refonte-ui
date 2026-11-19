@@ -49,7 +49,11 @@ export default function OfferDetailView({ offer }: { offer: OfferDetail }) {
           style={{ animationDelay: "200ms" }}
         >
           <div className="relative z-10 flex flex-col rounded-3xl bg-[#0b5f73] p-7 text-white shadow-lg md:min-h-[20rem] md:w-[30%] md:shrink-0 md:-mr-6">
-            <h2 className="max-w-[10rem] text-2xl leading-snug">
+            <h2
+              className={`max-w-[10rem] text-2xl leading-snug ${
+                offer.parent === "Outsourcing" ? "text-[#f5a30f]" : ""
+              }`}
+            >
               {offer.scopeTitle}
             </h2>
             <p className="mt-8 text-xs leading-relaxed md:mt-auto">
