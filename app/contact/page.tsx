@@ -4,6 +4,7 @@ import { api } from "@/lib/api";
 import { CONTACT_EMAIL } from "@/lib/contact";
 import { checkDocument, DOCUMENT_EXTENSIONS } from "@/lib/documentFile";
 import { useRef, useState, type FormEvent } from "react";
+import Honeypot, { HONEYPOT_FIELD } from "@/app/components/Honeypot";
 
 const LABEL_CLASS = "block text-xs font-semibold tracking-wide text-[#0B1D20]/60 uppercase";
 const FIELD_CLASS =
@@ -69,6 +70,7 @@ export default function Contact() {
     setSuccess("");
     setLoading(true);
     try {
+      const website = String(new FormData(e.currentTarget as HTMLFormElement).get(HONEYPOT_FIELD) ?? "");
       const attachmentUrl = attachment ? (await api.uploadContactAttachment(attachment)).url : undefined;
       await api.createContactMessage({
         first_name: formData.prenom.trim(),
@@ -79,6 +81,7 @@ export default function Contact() {
         country: formData.pays || undefined,
         message: formData.message,
         attachment_url: attachmentUrl,
+        website,
       });
       setSuccess("Votre message a été envoyé avec succès !");
       setFormData(EMPTY_FORM);
@@ -143,9 +146,10 @@ export default function Contact() {
         <div className="px-6 py-12 sm:px-10 md:pt-32 md:pb-16 md:pr-10 md:pl-8 lg:pr-20 xl:pr-24 flex items-center justify-center">
           <form
             onSubmit={handleSubmit}
-            className="cons-fade w-full max-w-lg space-y-5"
+            className="cons-fade relative w-full max-w-lg space-y-5"
             style={{ animationDelay: "150ms" }}
           >
+            <Honeypot />
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2">
               {FIELDS.map((f) => (
                 <div key={f.key} className="space-y-1.5">

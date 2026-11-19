@@ -22,8 +22,8 @@ export default function ForceChangePasswordPage() {
       setError("Les mots de passe ne correspondent pas");
       return;
     }
-    if (newPassword.length < 8) {
-      setError("Le mot de passe doit contenir au moins 8 caractères");
+    if (newPassword.length < 12) {
+      setError("Le mot de passe doit contenir au moins 12 caractères");
       return;
     }
 

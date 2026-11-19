@@ -37,8 +37,8 @@ function SetPasswordContent() {
       return;
     }
 
-    if (password.length < 8) {
-      setError("Le mot de passe doit contenir au moins 8 caractères");
+    if (password.length < 12) {
+      setError("Le mot de passe doit contenir au moins 12 caractères");
       return;
     }
 
@@ -122,7 +122,8 @@ function SetPasswordContent() {
                     id="password"
                     type="password"
                     required
-                    minLength={8}
+                    minLength={12}
+                    autoComplete="new-password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Au moins 8 caractères"
@@ -137,7 +138,8 @@ function SetPasswordContent() {
                     id="confirmPassword"
                     type="password"
                     required
-                    minLength={8}
+                    minLength={12}
+                    autoComplete="new-password"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                   />

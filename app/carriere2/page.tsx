@@ -4,6 +4,7 @@ import { api } from "@/lib/api";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import Reveal from "../components/Reveal";
 import { checkDocument, DOCUMENT_EXTENSIONS } from "@/lib/documentFile";
+import Honeypot from "@/app/components/Honeypot";
 
 type Job = {
   id: number;
@@ -171,6 +172,7 @@ export default function CareersSection() {
         email: (data.email || "").trim(),
         phone: (data.telephone || "").trim() || undefined,
         cv_url: cvUrl,
+        website: data.website || "",
       };
 
       if (selectedJobId) {
@@ -322,6 +324,7 @@ export default function CareersSection() {
             onSubmit={handleSubmit}
             className="relative z-10 rounded-[2rem] border border-white/20 bg-[#0b4f5c]/70 p-6 shadow-xl backdrop-blur-xs md:p-8"
           >
+            <Honeypot />
             <div className="grid gap-x-9 gap-y-5 sm:grid-cols-2">
               <Field id="nom" label="Nom" autoComplete="family-name" maxLength={100} required />
               <Field id="prenoms" label="Prénoms" autoComplete="given-name" maxLength={100} required />

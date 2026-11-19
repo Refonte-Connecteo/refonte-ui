@@ -159,16 +159,6 @@ class ApiClient {
     );
   }
 
-  checkPending(email: string): Promise<{ message: string; user: User }> {
-    return this.request<{ message: string; user: User }>(
-      "/admin/check-pending",
-      {
-        method: "POST",
-        body: JSON.stringify({ email }),
-      }
-    );
-  }
-
   setPassword(email: string, password: string, invitationToken: string): Promise<MfaSetupResponse> {
     return this.request<MfaSetupResponse>(
       "/admin/set-password",
@@ -271,10 +261,11 @@ class ApiClient {
     });
   }
 
-  disableMfa(currentPassword: string): Promise<DisableMfaResponse> {
+  /** Désactiver la double authentification : mot de passe ET code de l'application. */
+  disableMfa(currentPassword: string, code: string): Promise<DisableMfaResponse> {
     return this.request<DisableMfaResponse>("/auth/mfa/disable", {
       method: "POST",
-      body: JSON.stringify({ currentPassword }),
+      body: JSON.stringify({ currentPassword, code }),
     });
   }
 
@@ -495,7 +486,7 @@ class ApiClient {
   }
 
   // --- Application ---
-  createApplication(data: { job_id: number; first_name: string; last_name: string; email: string; phone?: string; cv_url: string; cover_letter?: string }) {
+  createApplication(data: { website?: string; job_id: number; first_name: string; last_name: string; email: string; phone?: string; cv_url: string; cover_letter?: string }) {
     return this.request<{ message: string; application: { id: number } }>("/application", {
       method: "POST",
       body: JSON.stringify(data),
@@ -678,14 +669,14 @@ class ApiClient {
     return this.request<{ events: { id: number; title: string; description: string | null; event_date: string; youtube_url: string | null; is_published: boolean; event_images: { id: number; image_url: string; caption: string | null; position: number }[] }[] }>("/event?onlyPublished=true");
   }
 
-  createContactMessage(data: { first_name: string; last_name: string; email: string; phone?: string; company?: string; country?: string; message: string; attachment_url?: string }) {
+  createContactMessage(data: { website?: string; first_name: string; last_name: string; email: string; phone?: string; company?: string; country?: string; message: string; attachment_url?: string }) {
     return this.request<{ message: string; contactMessage: { id: number } }>("/contact-message", {
       method: "POST",
       body: JSON.stringify(data),
     });
   }
 
-  createSpontaneousApplication(data: { first_name: string; last_name: string; email: string; phone?: string; cv_url: string; motivation?: string }) {
+  createSpontaneousApplication(data: { website?: string; first_name: string; last_name: string; email: string; phone?: string; cv_url: string; motivation?: string }) {
     return this.request<{ message: string; spontaneousApplication: { id: number } }>("/spontaneous-application", {
       method: "POST",
       body: JSON.stringify(data),

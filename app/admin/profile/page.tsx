@@ -32,6 +32,7 @@ export default function AdminProfilePage() {
   const [passwordLoading, setPasswordLoading] = useState(false);
 
   const [mfaPassword, setMfaPassword] = useState("");
+  const [mfaCode, setMfaCode] = useState("");
   const [mfaError, setMfaError] = useState("");
   const [mfaSuccess, setMfaSuccess] = useState("");
   const [mfaLoading, setMfaLoading] = useState(false);
@@ -70,8 +71,8 @@ export default function AdminProfilePage() {
       setPasswordError("Les nouveaux mots de passe ne correspondent pas");
       return;
     }
-    if (newPassword.length < 8) {
-      setPasswordError("Le nouveau mot de passe doit contenir au moins 8 caractères");
+    if (newPassword.length < 12) {
+      setPasswordError("Le nouveau mot de passe doit contenir au moins 12 caractères");
       return;
     }
 
@@ -128,7 +129,7 @@ export default function AdminProfilePage() {
 
     setMfaLoading(true);
     try {
-      await api.disableMfa(mfaPassword);
+      await api.disableMfa(mfaPassword, mfaCode);
       setMfaSuccess("Authentification à deux facteurs désactivée. Vous allez être reconnecté...");
       window.setTimeout(() => {
         clearSession();
@@ -321,7 +322,7 @@ export default function AdminProfilePage() {
           <CardHeader
             title="Désactiver la double authentification"
             icon={ShieldOff}
-            subtitle="Votre mot de passe actuel est requis. Vous devrez vous reconnecter après la désactivation."
+            subtitle="Votre mot de passe actuel et un code de votre application sont requis. Vous devrez vous reconnecter après la désactivation."
           />
           <div className="p-6">
             <form onSubmit={handleDisableMfa} className="space-y-4">
@@ -334,8 +335,22 @@ export default function AdminProfilePage() {
                 <Input
                   id="mfaPassword"
                   type="password"
+                  autoComplete="current-password"
                   value={mfaPassword}
                   onChange={(e) => setMfaPassword(e.target.value)}
+                  required />
+              </div>
+              <div>
+                <Label htmlFor="mfaCode">Code à 6 chiffres de votre application</Label>
+                <Input
+                  id="mfaCode"
+                  type="text"
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  maxLength={6}
+                  pattern="\d{6}"
+                  value={mfaCode}
+                  onChange={(e) => setMfaCode(e.target.value.replace(/\D/g, ""))}
                   required />
               </div>
               <Button variant="danger" type="submit" disabled={mfaLoading}>
