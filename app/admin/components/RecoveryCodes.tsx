@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Copy, Download, KeyRound } from "lucide-react";
+import { Copy, Download, KeyRound, Printer } from "lucide-react";
 import { Alert, Button } from "@/app/admin/components/ui";
 
 interface RecoveryCodesProps {
@@ -38,6 +38,29 @@ export default function RecoveryCodes({ codes, onDone, doneLabel = "Continuer" }
     URL.revokeObjectURL(url);
   };
 
+  /** Version papier, comme sur GitHub : une page simple, sans le reste de l'interface. */
+  const print = () => {
+    const win = window.open("", "_blank", "width=600,height=700");
+    if (!win) return;
+    const doc = win.document;
+    doc.title = "Codes de secours Connecteo";
+    const heading = doc.createElement("h1");
+    heading.textContent = "Codes de secours Connecteo";
+    const note = doc.createElement("p");
+    note.textContent = "Chaque code remplace une fois le code à 6 chiffres. Conservez cette feuille en lieu sûr.";
+    const list = doc.createElement("ul");
+    list.style.cssText = "font-family:monospace;font-size:18px;line-height:2;list-style:none;padding:0";
+    for (const code of codes) {
+      const item = doc.createElement("li");
+      item.textContent = code;
+      list.appendChild(item);
+    }
+    doc.body.style.fontFamily = "sans-serif";
+    doc.body.append(heading, note, list);
+    win.focus();
+    win.print();
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex items-start gap-3">
@@ -65,6 +88,10 @@ export default function RecoveryCodes({ codes, onDone, doneLabel = "Continuer" }
         <Button variant="secondary" type="button" onClick={download}>
           <Download aria-hidden="true" className="h-4 w-4" />
           Télécharger (.txt)
+        </Button>
+        <Button variant="secondary" type="button" onClick={print}>
+          <Printer aria-hidden="true" className="h-4 w-4" />
+          Imprimer
         </Button>
       </div>
 

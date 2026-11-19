@@ -40,6 +40,11 @@ function AdminLoginContent() {
 
   const completeAuth = (result: AuthSuccessResponse) => {
     setSession(result.token, result.refreshToken, result.user);
+    // Connexion avec un des derniers codes de secours : direction la page Sécurité, qui invite à en régénérer.
+    if (typeof result.remainingRecoveryCodes === "number" && result.remainingRecoveryCodes <= 3) {
+      router.push("/admin/profile");
+      return;
+    }
     router.push(getSafeRedirectUrl(searchParams.get("redirect"), "/admin/dashboard"));
   };
 

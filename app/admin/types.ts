@@ -8,6 +8,8 @@ export interface User {
   created_at: string;
   last_login_at?: string | null;
   force_password_change?: boolean;
+  /** Codes de secours encore utilisables (renvoyé par /admin/me uniquement). */
+  recovery_codes_remaining?: number;
   user_type?: {
     id: number;
     type: string;

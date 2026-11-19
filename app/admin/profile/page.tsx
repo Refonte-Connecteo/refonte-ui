@@ -17,6 +17,9 @@ import {
   Input,
 } from "@/app/admin/components/ui";
 
+/** En dessous de ce nombre de codes de secours, on invite à en générer de nouveaux. */
+const LOW_RECOVERY_CODES = 3;
+
 export default function AdminProfilePage() {
   const [profile, setProfile] = useState<User | null>(null);
   const [profileError, setProfileError] = useState("");
@@ -95,6 +98,7 @@ export default function AdminProfilePage() {
       const { recoveryCodes } = await api.regenerateRecoveryCodes(codesPassword);
       setNewCodes(recoveryCodes);
       setCodesPassword("");
+      setProfile((p) => (p ? { ...p, recovery_codes_remaining: recoveryCodes.length } : p));
     } catch (err) {
       setCodesError(err instanceof Error ? err.message : "Erreur");
     } finally {
@@ -145,6 +149,20 @@ export default function AdminProfilePage() {
         title="Sécurité & profil"
         subtitle="Vos informations et les paramètres de sécurité du compte"
       />
+
+      {profile?.mfa_enabled &&
+        typeof profile.recovery_codes_remaining === "number" &&
+        profile.recovery_codes_remaining <= LOW_RECOVERY_CODES &&
+        !newCodes && (
+          <Alert variant="warning">
+            {profile.recovery_codes_remaining === 0
+              ? "Vous n'avez plus aucun code de secours. "
+              : `Il ne vous reste que ${profile.recovery_codes_remaining} code${profile.recovery_codes_remaining > 1 ? "s" : ""} de secours. `}
+            <a href="#codes-de-secours" className="font-semibold underline">
+              Générer de nouveaux codes
+            </a>
+          </Alert>
+        )}
 
       <Card>
         <CardHeader title="Profil" icon={UserIcon} subtitle="Informations du compte connecté" />
@@ -235,6 +253,7 @@ export default function AdminProfilePage() {
       </Card>
 
       {profile?.mfa_enabled && (
+        <div id="codes-de-secours" className="scroll-mt-24">
         <Card>
           <CardHeader
             title="Codes de secours"
@@ -246,6 +265,19 @@ export default function AdminProfilePage() {
               <RecoveryCodes codes={newCodes} onDone={() => setNewCodes(null)} doneLabel="Terminé" />
             ) : (
               <form onSubmit={handleRegenerateCodes} className="space-y-4">
+                {typeof profile.recovery_codes_remaining === "number" && (
+                  profile.recovery_codes_remaining <= LOW_RECOVERY_CODES ? (
+                    <Alert variant="warning">
+                      {profile.recovery_codes_remaining === 0
+                        ? "Vous n'avez plus aucun code de secours : générez-en de nouveaux dès maintenant."
+                        : `Il ne vous reste que ${profile.recovery_codes_remaining} code${profile.recovery_codes_remaining > 1 ? "s" : ""} de secours : pensez à en générer de nouveaux.`}
+                    </Alert>
+                  ) : (
+                    <p className="text-sm text-gray-600">
+                      <strong>{profile.recovery_codes_remaining}</strong> codes de secours encore utilisables.
+                    </p>
+                  )
+                )}
                 {codesError && <Alert>{codesError}</Alert>}
                 <div>
                   <Label htmlFor="codesPassword">Mot de passe actuel</Label>
@@ -266,6 +298,7 @@ export default function AdminProfilePage() {
             )}
           </div>
         </Card>
+        </div>
       )}
 
       <Card>
