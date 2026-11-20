@@ -8,7 +8,8 @@ FROM node:22-slim AS build
 WORKDIR /app
 
 COPY package.json package-lock.json ./
-RUN npm ci
+# Cache npm conservé entre deux builds : une connexion coupée ne fait pas tout retélécharger.
+RUN --mount=type=cache,target=/root/.npm \n    npm ci --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
 
 COPY . .
 
