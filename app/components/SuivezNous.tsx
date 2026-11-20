@@ -72,7 +72,7 @@ export default function SuivezNous() {
         </div>
         <div
           aria-hidden="true"
-          className="suivez-halo suivez-halo-alt pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-[#FFA900] opacity-15 blur-3xl xl:hidden"
+          className="suivez-halo suivez-halo-alt pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full  opacity-15 blur-3xl xl:hidden"
         />
         <div className={`relative max-w-md ${slideIn(false)}`} style={{ transitionDelay: "150ms" }}>
           <p className="text-4xl font-bold tracking-tight text-white md:text-5xl">
@@ -112,7 +112,7 @@ export default function SuivezNous() {
         {/* Mobile et tablette : fond9 en bandeau, à sa taille réelle pour rester net */}
         <div aria-hidden="true" className="relative -mx-6 mt-10 aspect-[630/191] md:-mx-12 lg:-mx-16 xl:hidden">
           {/* <Image src="/images/fond/fond2.jpg" alt="" fill sizes="(min-width: 768px) 50vw, 100vw" className="object-cover" /> */}
-          <div className="absolute inset-x-0 top-0 h-1/3 bg-gradient-to-b from-[#0b4f5c] to-transparent" />
+          {/* <div className="absolute inset-x-0 top-0 h-1/3 bg-gradient-to-b from-[#0b4f5c] to-transparent" /> */}
         </div>
       </div>
     </section>
