@@ -26,7 +26,7 @@ interface JobPostingItem {
   fiche_url: string | null;
   is_active: boolean;
   created_at: string;
-  applications: { id: number }[];
+  applications?: { id: number }[];
 }
 
 export default function JobPostingListPage() {
@@ -131,7 +131,7 @@ export default function JobPostingListPage() {
                   <td className="px-5 py-3.5 text-gray-700">
                     <span className="inline-flex items-center gap-1">
                       <UserIcon className="w-3.5 h-3.5 text-gray-400" />
-                      {job.applications.length}
+                      {job.applications?.length ?? 0}
                     </span>
                   </td>
                   <td className="px-5 py-3.5 text-gray-500 text-xs">

@@ -460,7 +460,7 @@ class ApiClient {
 
   // --- JobPosting ---
   getAllJobPostings() {
-    return this.request<{ jobPostings: { id: number; title: string; contract_type: string; description: string | null; external_url: string | null; fiche_url: string | null; is_active: boolean; created_at: string; applications: { id: number }[] }[] }>("/job-posting");
+    return this.request<{ jobPostings: { id: number; title: string; contract_type: string; description: string | null; external_url: string | null; fiche_url: string | null; is_active: boolean; created_at: string; applications?: { id: number }[] }[] }>("/job-posting");
   }
 
   getJobPosting(id: number) {
